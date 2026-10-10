@@ -116,9 +116,7 @@ curl -X POST http://localhost:3000/api/meal-plan \
     "healthProfile": "hypertension, type 2 diabetes",
     "restrictions": ["vegetarian", "gluten-free"],
     "allergies": ["peanuts", "shellfish"],
-    "videoCandidates": [
-      { "idOrUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "title": "Veggie Stir Fry", "channel": "Cooking Channel" }
-    ],
+    "minResults": 1,
     "maxResults": 5
   }'
 ```

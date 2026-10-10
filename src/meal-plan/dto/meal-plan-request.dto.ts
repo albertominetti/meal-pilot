@@ -1,36 +1,13 @@
 import {
   IsArray,
   IsInt,
-  IsNotEmpty,
   IsOptional,
   IsString,
   ArrayMaxSize,
   Max,
   Min,
-  ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-
-export class VideoCandidateDto {
-  @ApiProperty({
-    description: 'YouTube video id or full watch/shorts/embed URL',
-    example: 'dQw4w9WgXcQ',
-  })
-  @IsString()
-  @IsNotEmpty()
-  idOrUrl!: string;
-
-  @ApiPropertyOptional({ example: 'Low-Sodium Veggie Stir Fry' })
-  @IsOptional()
-  @IsString()
-  title?: string;
-
-  @ApiPropertyOptional({ example: 'Healthy Kitchen' })
-  @IsOptional()
-  @IsString()
-  channel?: string;
-}
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class MealPlanRequestDto {
   @ApiPropertyOptional({
@@ -65,13 +42,12 @@ export class MealPlanRequestDto {
   @IsString()
   preferences?: string;
 
-  @ApiPropertyOptional({ type: [VideoCandidateDto] })
+  @ApiPropertyOptional({ default: 1, minimum: 1, maximum: 20 })
   @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(20)
-  @ValidateNested({ each: true })
-  @Type(() => VideoCandidateDto)
-  videoCandidates?: VideoCandidateDto[];
+  @IsInt()
+  @Min(1)
+  @Max(20)
+  minResults?: number;
 
   @ApiPropertyOptional({ default: 5, minimum: 1, maximum: 20 })
   @IsOptional()

@@ -58,18 +58,7 @@ describe('MealPilot API (e2e, offline)', () => {
         restrictions: ['vegetarian', 'gluten-free'],
         allergies: ['peanuts', 'shellfish'],
         preferences: 'low sodium, quick dinners',
-        videoCandidates: [
-          {
-            idOrUrl: 'dQw4w9WgXcQ',
-            title: 'Peanut Satay Noodles',
-            channel: 'Wok House',
-          },
-          {
-            idOrUrl: 'abcdefghijk',
-            title: 'Low-Sodium Vegetarian Lentil Soup',
-            channel: 'Healthy Kitchen',
-          },
-        ],
+        minResults: 1,
         maxResults: 5,
       })
       .expect(201)
@@ -78,8 +67,7 @@ describe('MealPilot API (e2e, offline)', () => {
         if (!Array.isArray(res.body.recommendations))
           throw new Error('missing recommendations');
         if (!Array.isArray(res.body.excluded)) throw new Error('missing excluded');
-        if (res.body.excluded.length < 1)
-          throw new Error('expected peanut video to be excluded');
+        expect(res.body.recommendations.length).toBeGreaterThanOrEqual(1);
         expect(res.body.meta).toBeDefined();
         expect(res.body.meta.mode).toBe('mock');
         expect(res.body.meta.provider).toBe('mock');

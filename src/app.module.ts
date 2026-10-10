@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AgentModule } from './agent/agent.module';
+import { RequestLoggingInterceptor } from './common/request-logging.interceptor';
 import { AppConfigModule } from './config/config.module';
 import { HealthController } from './health/health.controller';
 import { LandingController } from './landing/landing.controller';
@@ -18,5 +20,11 @@ import { YouTubeModule } from './youtube/youtube.module';
     AgentModule,
   ],
   controllers: [LandingController, HealthController],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: RequestLoggingInterceptor,
+    },
+  ],
 })
 export class AppModule {}

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { AppConfigService } from '../config/app-config.service';
 import {
   ExcludedVideoDto,
@@ -12,17 +12,13 @@ import { MealPlanRequestDto } from './dto/meal-plan-request.dto';
 import { VideoAnalysis } from '../videos/analyzers/analysis.schema';
 import { TranscriptCacheService } from '../videos/transcript-cache.service';
 import { VideoAnalysisService } from '../videos/video-analysis.service';
-import { extractVideoId, watchUrl } from '../videos/youtube.util';
+import { watchUrl } from '../videos/youtube.util';
 import {
   findAllergyMatches,
   haystackMatchesAllergy,
   mapToCanonicalAllergens,
   normalizeToken,
 } from '../videos/allergy.util';
-import {
-  IYouTubeService,
-  YOUTUBE_SERVICE,
-} from '../youtube/youtube.interface';
 
 interface Candidate {
   videoId: string;
@@ -53,12 +49,17 @@ export class MealPlanService {
     private readonly cache: TranscriptCacheService,
     private readonly analysis: VideoAnalysisService,
     private readonly config: AppConfigService,
-    @Inject(YOUTUBE_SERVICE) private readonly youtube: IYouTubeService,
   ) {}
 
   async buildPlan(dto: MealPlanRequestDto): Promise<MealPlanResponseDto> {
-    const candidates = await this.resolveCandidates(dto);
+    const candidates = await this.resolveCandidates();
+    const min = dto.minResults ?? 1;
     const max = dto.maxResults ?? 5;
+    if (max < min) {
+      throw new BadRequestException(
+        'maxResults must be greater than or equal to minResults',
+      );
+    }
     const allergies = (dto.allergies ?? []).map((a) => a.trim()).filter(Boolean);
     const restrictions = (dto.restrictions ?? [])
       .map(normalizeRestriction)
@@ -154,44 +155,7 @@ export class MealPlanService {
     };
   }
 
-  private async resolveCandidates(dto: MealPlanRequestDto): Promise<Candidate[]> {
-    const fromRequest: Candidate[] = [];
-    const missingMetadataIds: string[] = [];
-
-    for (const v of dto.videoCandidates ?? []) {
-      const id = extractVideoId(v.idOrUrl);
-      if (!id) continue;
-      const title = v.title?.trim();
-      const channel = v.channel?.trim();
-      fromRequest.push({
-        videoId: id,
-        title: title || `YouTube video ${id}`,
-        channel: channel || 'Unknown channel',
-      });
-      if (!title || !channel) {
-        missingMetadataIds.push(id);
-      }
-    }
-
-    if (fromRequest.length > 0) {
-      if (missingMetadataIds.length > 0) {
-        try {
-          const details = await this.youtube.getDetails(missingMetadataIds);
-          const detailsMap = new Map(details.map((d) => [d.videoId, d]));
-          for (const cand of fromRequest) {
-            const found = detailsMap.get(cand.videoId);
-            if (found) {
-              if (cand.title.startsWith('YouTube video')) cand.title = found.title;
-              if (cand.channel === 'Unknown channel') cand.channel = found.channel;
-            }
-          }
-        } catch {
-          // Keep existing candidate strings on error
-        }
-      }
-      return fromRequest;
-    }
-
+  private async resolveCandidates(): Promise<Candidate[]> {
     return this.cache.loadSeed().map((s) => ({
       videoId: s.videoId,
       title: s.title,
