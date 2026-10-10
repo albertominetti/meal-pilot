@@ -111,8 +111,8 @@ describe('AgentService (tool loop and guardrails)', () => {
           id: 'call_2',
           name: 'analyze_video',
           arguments: {
-            videoId: 'veg-low-sodium-01',
-            title: 'Low-Sodium Vegetarian Lentil Soup',
+            videoId: 'jfKL8pQjBCA',
+            title: 'Amazing Red Lentil Soup',
           },
         },
       ],
@@ -129,7 +129,7 @@ describe('AgentService (tool loop and guardrails)', () => {
           arguments: {
             recommendations: [
               {
-                videoId: 'veg-low-sodium-01',
+                videoId: 'jfKL8pQjBCA',
                 whyItFits: 'High fiber, low sodium lentil soup ideal for blood pressure management.',
               },
             ],
@@ -150,7 +150,7 @@ describe('AgentService (tool loop and guardrails)', () => {
     );
 
     expect(res.recommendations.length).toBe(1);
-    expect(res.recommendations[0].videoId).toBe('veg-low-sodium-01');
+    expect(res.recommendations[0].videoId).toBe('jfKL8pQjBCA');
     expect(res.recommendations[0].allergySafety.status).toBe('safe');
     expect(res.meta.fallbackUsed).toBe(false);
     expect(res.trace).toBeDefined();
@@ -167,7 +167,7 @@ describe('AgentService (tool loop and guardrails)', () => {
           id: 'call_1',
           name: 'analyze_video',
           arguments: {
-            videoId: 'vegan-quinoa-02',
+            videoId: 'mPaJFxzwi-U',
             title: 'Vegan Quinoa Buddha Bowl',
           },
         },
@@ -194,7 +194,7 @@ describe('AgentService (tool loop and guardrails)', () => {
 
     expect(res.meta.fallbackUsed).toBe(true);
     expect(res.recommendations.length).toBe(1);
-    expect(res.recommendations[0].videoId).toBe('vegan-quinoa-02');
+    expect(res.recommendations[0].videoId).toBe('mPaJFxzwi-U');
   });
 
   it('rejects unsafe videos in submit_plan guardrail', async () => {
@@ -202,11 +202,11 @@ describe('AgentService (tool loop and guardrails)', () => {
     const run: any = {
       request: { maxResults: 5, allergies: ['peanuts'] },
       analyzedVideos: new Map([
-        ['peanut-dish', { videoId: 'peanut-dish', title: 'Peanut Satay' }],
+        ['ZtK81MzVoJ4', { videoId: 'ZtK81MzVoJ4', title: 'Peanut Satay' }],
       ]),
       videoSafetyVerdicts: new Map([
         [
-          'peanut-dish',
+          'ZtK81MzVoJ4',
           {
             status: 'unsafe',
             notes: 'Contains peanuts',
@@ -218,7 +218,7 @@ describe('AgentService (tool loop and guardrails)', () => {
     const result: any = await submitTool.execute(
       {
         recommendations: [
-          { videoId: 'peanut-dish', whyItFits: 'A tasty noodle dish' },
+          { videoId: 'ZtK81MzVoJ4', whyItFits: 'A tasty noodle dish' },
         ],
       },
       run,

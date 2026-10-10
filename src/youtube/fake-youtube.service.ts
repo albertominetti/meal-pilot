@@ -13,33 +13,33 @@ export class FakeYouTubeService implements IYouTubeService {
   constructor() {
     // Seed with common test videos
     this.addVideo({
-      videoId: 'veg-low-sodium-01',
-      title: 'Low-Sodium Vegetarian Lentil Soup',
-      channel: 'Healthy Kitchen',
+      videoId: 'jfKL8pQjBCA',
+      title: 'Amazing Red Lentil Soup (Low-Sodium, Vegetarian)',
+      channel: 'Downshiftology',
       durationSec: 620,
       privacyStatus: 'public',
       embeddable: true,
     });
     this.addVideo({
-      videoId: 'vegan-quinoa-02',
-      title: 'Vegan Quinoa Buddha Bowl (Gluten-Free)',
-      channel: 'Plant Table',
+      videoId: 'mPaJFxzwi-U',
+      title: 'Healthy Quinoa Chickpea Bowl (Vegan, Gluten-Free)',
+      channel: 'Food Impromptu',
       durationSec: 540,
       privacyStatus: 'public',
       embeddable: true,
     });
     this.addVideo({
-      videoId: 'quick-chicken-03',
-      title: 'Quick 15-Minute Chicken and Veggie Stir Fry',
-      channel: 'Weeknight Cooks',
+      videoId: 'tv6Wrr2-hRU',
+      title: '15 Minute Chicken Stir-Fry',
+      channel: 'The Domestic Geek',
       durationSec: 900,
       privacyStatus: 'public',
       embeddable: true,
     });
     this.addVideo({
-      videoId: 'peanut-satay-04',
-      title: 'Peanut Satay Noodles',
-      channel: 'Wok House',
+      videoId: 'ZtK81MzVoJ4',
+      title: 'Easy Thai Peanut Satay Sauce',
+      channel: 'Thai Girl in the Kitchen',
       durationSec: 480,
       privacyStatus: 'public',
       embeddable: true,

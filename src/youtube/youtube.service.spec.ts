@@ -12,7 +12,7 @@ describe('YouTubeService and helpers', () => {
 
   it('FakeYouTubeService retrieves details and filters properly', async () => {
     const fake = new FakeYouTubeService();
-    const details = await fake.getDetails(['veg-low-sodium-01']);
+    const details = await fake.getDetails(['jfKL8pQjBCA']);
     expect(details.length).toBe(1);
     expect(details[0].title).toContain('Lentil');
     expect(details[0].embeddable).toBe(true);
