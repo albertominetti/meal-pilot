@@ -48,6 +48,6 @@ Video titles, descriptions, ingredient text and everything else extracted from a
 
 - Every Gemini call sets `store: false`.
 - The health profile is sent to Google Gemini to plan meals. MealPilot does not store it.
-- **Known gap:** `RequestLoggingInterceptor` (`src/common/request-logging.interceptor.ts`) currently logs full request and response bodies, including health profile, allergies and blood pressure. That breaks the rule that profile contents are never logged. Redact those fields, or log only metadata, before real users arrive.
+- `RequestLoggingInterceptor` (`src/common/request-logging.interceptor.ts`) logs metadata only: method, path without query string, status code, duration and, on failure, the error class name. It never logs request or response bodies, query strings or error messages, so profile contents stay out of the logs.
 - Video analyses are cached on disk (`data/cache/`, 30-day TTL). They contain recipe data only, no user data.
 - When profiles and meal logs are stored (Phase 7 of the gap plan), they become GDPR special-category data: they will need explicit consent, a delete endpoint, and the storage provider documented as a sub-processor.

@@ -1,6 +1,7 @@
 import {
   CallHandler,
   ExecutionContext,
+  HttpException,
   Injectable,
   Logger,
   NestInterceptor,
@@ -12,6 +13,11 @@ interface HttpRequest extends Request {
   id?: string;
 }
 
+/**
+ * Logs request metadata only. Bodies and query strings are never logged,
+ * because they carry the health profile (allergies, blood pressure, goals),
+ * which is GDPR Art. 9 special-category data.
+ */
 @Injectable()
 export class RequestLoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger('HttpRequest');
@@ -23,21 +29,19 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     const startedAt = Date.now();
 
     return next.handle().pipe(
-      tap((responseBody) => {
+      tap(() => {
         this.logRequest({
           request,
-          response,
-          responseBody,
+          statusCode: response.statusCode,
           durationMs: Date.now() - startedAt,
         });
       }),
       catchError((error: unknown) => {
         this.logRequest({
           request,
-          response,
-          responseBody: this.errorBody(error),
+          statusCode: error instanceof HttpException ? error.getStatus() : 500,
           durationMs: Date.now() - startedAt,
-          error: true,
+          error: error instanceof Error ? error.name : 'UnknownError',
         });
         return throwError(() => error);
       }),
@@ -46,33 +50,24 @@ export class RequestLoggingInterceptor implements NestInterceptor {
 
   private logRequest({
     request,
-    response,
-    responseBody,
+    statusCode,
     durationMs,
-    error = false,
+    error,
   }: {
     request: HttpRequest;
-    response: Response;
-    responseBody: unknown;
+    statusCode: number;
     durationMs: number;
-    error?: boolean;
+    error?: string;
   }): void {
     const entry = {
       requestId: request.id,
       method: request.method,
-      url: request.originalUrl || request.url,
-      requestBody: request.body,
-      statusCode: response.statusCode,
-      responseBody,
+      path: (request.originalUrl || request.url).split('?')[0],
+      statusCode,
       durationMs,
+      ...(error ? { error } : {}),
     };
 
     this.logger[error ? 'error' : 'log'](JSON.stringify(entry));
-  }
-
-  private errorBody(error: unknown): { error: string } {
-    return {
-      error: error instanceof Error ? error.message : String(error),
-    };
   }
 }
