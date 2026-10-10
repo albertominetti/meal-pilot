@@ -33,6 +33,12 @@ export function pickProfile(source: Partial<ProfileData>): ProfileData {
   return out as ProfileData;
 }
 
+/**
+ * Demo mode: one implicit user. Storage keeps a user_id column, so moving
+ * to real JJFit users later means passing their id here instead.
+ */
+export const DEMO_USER_ID = 'demo';
+
 export interface ResolvedRequest {
   request: MealPlanRequestDto;
   feedback: FeedbackMap;
@@ -42,13 +48,13 @@ export interface ResolvedRequest {
 export class ProfilesService {
   constructor(@Inject(USER_DATA_STORE) private readonly store: UserDataStore) {}
 
-  async get(userId: string): Promise<StoredProfile> {
+  async get(userId = DEMO_USER_ID): Promise<StoredProfile> {
     const profile = await this.store.getProfile(userId);
-    if (!profile) throw new NotFoundException('No stored profile for this user');
+    if (!profile) throw new NotFoundException('No profile stored yet; PUT /api/profile first');
     return profile;
   }
 
-  async put(userId: string, dto: ProfileDto): Promise<StoredProfile> {
+  async put(dto: ProfileDto, userId = DEMO_USER_ID): Promise<StoredProfile> {
     const now = new Date().toISOString();
     const existing = await this.store.getProfile(userId);
     const stored: StoredProfile = {
@@ -62,29 +68,30 @@ export class ProfilesService {
     return stored;
   }
 
-  delete(userId: string): Promise<DeletedUserData> {
+  delete(userId = DEMO_USER_ID): Promise<DeletedUserData> {
     return this.store.deleteUser(userId);
   }
 
   /**
-   * The profile a plan is built for: the stored one, with any field sent
-   * inline taking precedence, except allergies, which are the union of both
-   * (an inline empty list must never drop a stored allergy). An unknown
-   * userId is an error rather than an empty profile for the same reason.
+   * The profile a plan is built for: the stored one when there is one, with
+   * any field sent inline taking precedence, except allergies, which are the
+   * union of both (an inline empty list must never drop a stored allergy).
+   * Without a stored profile, the inline fields alone.
    */
-  async resolve(dto: MealPlanRequestDto): Promise<ResolvedRequest> {
-    if (!dto.userId) return { request: dto, feedback: new Map() };
-    const stored = await this.get(dto.userId);
+  async resolve(dto: MealPlanRequestDto, userId = DEMO_USER_ID): Promise<ResolvedRequest> {
+    const feedback = await this.feedback(userId);
+    const stored = await this.store.getProfile(userId);
+    if (!stored) return { request: dto, feedback };
     const request: MealPlanRequestDto = { ...stored.profile, ...stripUndefined(dto) };
     request.allergies = mergeAllergies(stored.profile.allergies, dto.allergies);
-    return { request, feedback: await this.feedback(dto.userId) };
+    return { request, feedback };
   }
 
-  async feedback(userId: string): Promise<FeedbackMap> {
+  async feedback(userId = DEMO_USER_ID): Promise<FeedbackMap> {
     return feedbackFrom(await this.store.listMeals(userId));
   }
 
-  async addMeal(userId: string, dto: MealLogDto): Promise<MealLog> {
+  async addMeal(dto: MealLogDto, userId = DEMO_USER_ID): Promise<MealLog> {
     const log: MealLog = {
       id: randomUUID(),
       userId,
@@ -99,7 +106,7 @@ export class ProfilesService {
     return log;
   }
 
-  listMeals(userId: string): Promise<MealLog[]> {
+  listMeals(userId = DEMO_USER_ID): Promise<MealLog[]> {
     return this.store.listMeals(userId);
   }
 }

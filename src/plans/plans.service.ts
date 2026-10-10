@@ -21,7 +21,7 @@ import { scoreRecipe } from '../recipes/ranking';
 import { recipeTags, restrictionCoverage } from '../recipes/restrictions';
 import { buildShoppingList, ShoppingList } from '../shopping/shopping-list';
 import { FeedbackMap, isExcludedByRating } from '../users/feedback';
-import { mergeAllergies, ProfilesService } from '../users/profiles.service';
+import { DEMO_USER_ID, mergeAllergies, ProfilesService } from '../users/profiles.service';
 import { ANONYMOUS_PLAN_TTL_MS, StoredPlan, USER_DATA_STORE, UserDataStore } from '../users/user-data.store';
 import { VideoAnalysis } from '../videos/analyzers/analysis.schema';
 import { ANALYSIS_STORE, AnalysisStore } from '../videos/analysis-store';
@@ -131,7 +131,7 @@ export class PlansService implements OnModuleInit, OnModuleDestroy {
     const now = new Date().toISOString();
     const plan: StoredPlan = {
       id: randomUUID(),
-      userId: request.userId ?? null,
+      userId: DEMO_USER_ID,
       version: 1,
       request,
       items,

@@ -112,9 +112,6 @@ export class AgentService {
       parameters: t.parameters,
     }));
 
-    // The model needs the profile, not the user's id.
-    const profile: MealPlanRequestDto = { ...dto };
-    delete profile.userId;
     const systemPrompt = buildAgentSystemPrompt(dto, {
       hasFeedback: run.feedback.size > 0,
       excludeVideoIds: options.excludeVideoIds,
@@ -125,7 +122,7 @@ export class AgentService {
         content: [
           {
             type: 'text',
-            text: `Please construct a personalized meal plan according to my health profile: ${JSON.stringify(profile)}. Follow the operating procedure step-by-step.`,
+            text: `Please construct a personalized meal plan according to my health profile: ${JSON.stringify(dto)}. Follow the operating procedure step-by-step.`,
           },
         ],
       },

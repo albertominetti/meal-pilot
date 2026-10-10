@@ -132,11 +132,11 @@ Nutrients are derived data, so cached analyses get them on read without another 
 
 ## Profiles, saved plans and the meal log
 
-The JJFit app owns identity and sends an opaque `userId`. These endpoints have no authentication yet: anyone who knows a `userId` can use them (see [safety-and-privacy.md](safety-and-privacy.md#privacy)).
-- `PUT /api/users/:userId/profile` stores the profile fields of the meal-plan request; `consent: true` is required and its time recorded. `GET` returns it; `DELETE` erases the profile, every plan and the meal log.
-- `POST /api/meal-plan` and `/api/meal-plan/agent` accept `userId` in place of a profile. Inline fields override the stored ones, except allergies, which are merged. An unknown `userId` is a 404, never an empty profile.
+Demo mode: there is one implicit user and no authentication (see [safety-and-privacy.md](safety-and-privacy.md#privacy)). Storage keeps a `user_id` column (`DEMO_USER_ID` in `src/users/profiles.service.ts`), so real users later only need an id passed through.
+- `PUT /api/profile` stores the profile fields of the meal-plan request; `consent: true` is required and its time recorded. `GET` returns it; `DELETE` erases the profile, every plan and the meal log.
+- `POST /api/meal-plan` and `/api/meal-plan/agent` use the stored profile when there is one. Inline fields override it, except allergies, which are merged. Without a stored profile they use the inline fields alone.
 - Every meal-plan response is saved and returns `planId`. `GET /api/plans/:id` reads it, `PATCH /api/plans/:id/checked` stores ticked shopping-list keys.
-- `POST /api/users/:userId/meals` logs `{ videoId, planId?, cooked, rating?, note? }`. Ratings feed back: digests show `userRating` and `cookedCount`, the prompt avoids recipes rated 2 or lower and brings back 4-5 now and then, the ranking adds a rating term, and recipes rated 1 are excluded in code.
+- `POST /api/meals` logs `{ videoId, planId?, cooked, rating?, note? }`. Ratings feed back: digests show `userRating` and `cookedCount`, the prompt avoids recipes rated 2 or lower and brings back 4-5 now and then, the ranking adds a rating term, and recipes rated 1 are excluded in code.
 - `POST /api/plans/:id/swap` with `{ videoId }` replaces one meal. Cheap path: the best-ranked safe cached recipe that fits the profile, isn't in the plan and keeps `check_plan_balance` within limits, with no Gemini call. Otherwise a single-slot agent run (1 search, 2 analyses). The shopping list is rebuilt, ticked items still in it stay ticked, and the plan version goes up. Allergies added to the profile since the plan was made also apply.
 
 ## Shopping list: `POST /api/shopping-list`

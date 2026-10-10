@@ -13,7 +13,7 @@ import { Budget, BUDGETS, HEALTH_GOALS, HealthGoal } from '../profile-fit';
 
 /**
  * The health profile, shared by inline meal-plan requests and stored
- * profiles (PUT /api/users/:userId/profile), so both validate the same way.
+ * profiles (PUT /api/profile), so both validate the same way.
  */
 export class ProfileFieldsDto {
   @ApiPropertyOptional({

@@ -53,8 +53,8 @@ Video titles, descriptions, ingredient text and everything else extracted from a
 - Video analyses are cached in Postgres or on disk (`data/cache/`), with a 30-day TTL. They contain recipe data only, no user data.
 - Stored profiles, plans and meal logs are GDPR Art. 9 special-category data:
   - a profile is stored only with `consent: true`; the time of consent is recorded
-  - `DELETE /api/users/:userId/profile` erases the profile, every plan and the meal log in one transaction
+  - `DELETE /api/profile` erases the profile, every plan and the meal log in one transaction
   - plans without a user are deleted after 30 days
-  - **the user-data endpoints have no authentication**: anyone who knows a `userId` can read, change or delete that user's profile, plans and meal log. Add authentication before real users arrive.
+  - **demo mode: one shared user, no authentication.** Anyone who can reach the service can read, change or delete the stored profile, plans and meal log. Real users need per-user ids and authentication first.
   - production refuses to boot without `DATABASE_URL`, so user data never lands on Render's disk
 - Sub-processors: Google (Gemini), Neon (Postgres, eu-central-1). Sign Neon's DPA before real users arrive.

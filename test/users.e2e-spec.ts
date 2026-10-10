@@ -8,7 +8,6 @@ import { AppModule } from '../src/app.module';
 
 describe('Profiles, saved plans, meal log and swap (e2e, offline)', () => {
   let app: INestApplication;
-  const user = 'u-e2e_1';
 
   beforeAll(async () => {
     process.env.MEALPILOT_CACHE_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mealpilot-users-e2e-'));
@@ -26,19 +25,17 @@ describe('Profiles, saved plans, meal log and swap (e2e, offline)', () => {
   const http = () => request(app.getHttpServer());
 
   it('runs the whole flow from consent to erasure', async () => {
-    await http().put(`/api/users/${user}/profile`).send({ allergies: ['celery'] }).expect(400);
-    await http().put('/api/users/bad%20id/profile').send({ consent: true }).expect(400);
+    await http().get('/api/profile').expect(404);
+    await http().put('/api/profile').send({ allergies: ['celery'] }).expect(400);
 
     const profile = await http()
-      .put(`/api/users/${user}/profile`)
+      .put('/api/profile')
       .send({ consent: true, allergies: ['celery'], householdSize: 2 })
       .expect(200);
     expect(profile.body.profile).toEqual({ allergies: ['celery'], householdSize: 2 });
 
-    await http().post('/api/meal-plan').send({ userId: 'nobody', maxResults: 1 }).expect(404);
-
     // The stored profile is used: householdSize 2 scales the shopping list.
-    const first = await http().post('/api/meal-plan').send({ userId: user, maxResults: 1 }).expect(201);
+    const first = await http().post('/api/meal-plan').send({ maxResults: 1 }).expect(201);
     expect(first.body.planId).toEqual(expect.any(String));
     expect(first.body.shoppingList.householdSize).toBe(2);
     const [chosen] = first.body.recommendations.map((r: { videoId: string }) => r.videoId);
@@ -54,12 +51,12 @@ describe('Profiles, saved plans, meal log and swap (e2e, offline)', () => {
       .expect(200);
     expect(checked.body).toMatchObject({ version: 2, checked: [keys[0]] });
 
-    await http().post(`/api/users/${user}/meals`).send({ videoId: chosen, cooked: true, rating: 1 }).expect(201);
-    const meals = await http().get(`/api/users/${user}/meals`).expect(200);
+    await http().post('/api/meals').send({ videoId: chosen, cooked: true, rating: 1 }).expect(201);
+    const meals = await http().get('/api/meals').expect(200);
     expect(meals.body).toHaveLength(1);
 
     // Rated 1: never recommended to this user again.
-    const second = await http().post('/api/meal-plan').send({ userId: user, maxResults: 3 }).expect(201);
+    const second = await http().post('/api/meal-plan').send({ maxResults: 3 }).expect(201);
     expect(second.body.recommendations.map((r: any) => r.videoId)).not.toContain(chosen);
     expect(second.body.excluded).toContainEqual(expect.objectContaining({ videoId: chosen, code: 'rated_low' }));
 
@@ -77,13 +74,13 @@ describe('Profiles, saved plans, meal log and swap (e2e, offline)', () => {
 
     await http().post(`/api/plans/${first.body.planId}/swap`).send({ videoId: 'not-in-plan' }).expect(400);
 
-    const erased = await http().delete(`/api/users/${user}/profile`).expect(200);
+    const erased = await http().delete('/api/profile').expect(200);
     expect(erased.body).toEqual({ profiles: 1, plans: 2, meals: 1 });
     await http().get(`/api/plans/${first.body.planId}`).expect(404);
-    await http().get(`/api/users/${user}/profile`).expect(404);
+    await http().get('/api/profile').expect(404);
   });
 
-  it('saves anonymous plans too', async () => {
+  it('plans from inline fields when no profile is stored', async () => {
     const res = await http().post('/api/meal-plan').send({ maxResults: 1 }).expect(201);
     await http().get(`/api/plans/${res.body.planId}`).expect(200);
     await http().get('/api/plans/not-a-uuid').expect(400);
