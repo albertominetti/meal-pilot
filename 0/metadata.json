@@ -83,6 +83,39 @@
     "context_tokens": 181745,
     "context_window_size": 200000
   },
+  "summary": {
+    "intent": "Implement the improvements described in docs/plans/agentic-gemini.md for the MealPilot NestJS app (Gemini-powered agentic meal planning), then create a session/PR for the work.",
+    "outcome": "Implemented the plan across config, LLM client, analysis schema v2, Gemini video analyzer, versioned cache, YouTube service, agent loop with tools and guardrails, and docs. Unit tests (13 suites, 33 tests), e2e (5 tests), lint and build reportedly pass. The PR/bundle files (claude-agentic-gemini-PR.md, .bundle) were created, but the transcript ends before the PR is confirmed as opened.",
+    "learnings": {
+      "repo": [
+        "Project uses NestJS; Gemini integration moved from @google/generative-ai to @google/genai, using client.interactions.create with store:false.",
+        "Interactions API quirks: response_format must be type 'text' with mime_type 'application/json' (not 'json_object'); system_instruction is natively supported; tool loops use function_result steps and user_input steps.",
+        "The .env GEMINI_API_KEY begins with 'AQ.' rather than 'AIza' yet works against the API, and gemini-3.8-flash is available.",
+        "@nestjs/config v4 is required (installed @nestjs/config@^4.0.0); the .env file overrides process.env values deleted in tests, so e2e tests must set env before importing AppModule.",
+        "ConfigModule.forRoot runs at import time, so env changes in beforeAll are too late; fixed with test/setup-e2e.ts registered via setupFiles in test/jest-e2e.json.",
+        "Repo workflow guidance lives in .entire/agent-guide.md, AGENTS.md and CLAUDE.md; the user prefers the configured 'brain' feature over Entire Trails.",
+        "Cache keys are ${videoId}.${provider}.${model}.v2.json with a 30-day TTL; unavailable and mock-in-live results are never cached.",
+        "Safety verdicts (safe/uncertain/unsafe) are table-driven in MealPlanService.evaluateAllergySafety, and only 'safe' dishes are recommended."
+      ],
+      "code": [],
+      "workflow": [
+        "Probing the SDK type declarations (genai.d.ts) and running small node scripts proved faster than guessing at API shapes.",
+        "Ran build, lint, unit and e2e tests after each phase to catch regressions early."
+      ]
+    },
+    "friction": [
+      "Initial e2e failure: live mode leaked in from .env and caused slow live API calls and timeouts, which took many debug steps to diagnose.",
+      "Interactions API response_format and input types were undocumented, so they had to be discovered by trial and error (400 errors).",
+      "@nestjs/config version mismatch required a reinstall.",
+      "Type error in check-profile-fit.tool.ts (Set of union type vs string) and an unused import lint warning needed fixing."
+    ],
+    "open_items": [
+      "Confirm the PR was actually created and pushed; only a PR description file and git bundle appear in the modified files.",
+      "Live Gemini video analysis and the agent endpoint were not shown to be exercised end to end against the real API in the transcript.",
+      "Seed videos in data/videos.seed.json were noted for review but not clearly updated.",
+      "The transcript does not show whether the legacy src/videos/gemini.service.ts was removed or retained."
+    ]
+  },
   "initial_attribution": {
     "calculated_at": "2026-10-10T13:15:45.952835Z",
     "agent_lines": 4577,
