@@ -105,9 +105,11 @@ export class MockVideoAnalyzer implements VideoAnalyzer {
       ? fromDescription
       : [
           ing('olive oil', 1, 'tbsp', '1 tbsp olive oil'),
-          ing('garlic', 2, 'clove', '2 cloves garlic'),
-          ing('mixed vegetable', 300, 'g', '300g mixed vegetables'),
-          ing('herb', null, null, 'a handful of fresh herbs'),
+          ing('garlic', 2, 'clove', '2 cloves minced garlic'),
+          ing('vegetable broth', 500, 'ml', '500ml vegetable broth', {
+            source: 'description',
+            packaged: true,
+          }),
         ];
     const nutritionSignals: NutritionSignal[] = [];
     const allergens: AllergenEvidence[] = [];
@@ -227,13 +229,13 @@ export class MockVideoAnalyzer implements VideoAnalyzer {
         ? 'asian'
         : has('quinoa', 'buddha', 'tahini')
           ? 'middle-eastern'
-          : 'european';
+          : 'mediterranean';
 
     const minutesMatch = hay.match(/(\d{1,3})[\s-]?minute/);
     const prepMinutes = minutesMatch
       ? Number(minutesMatch[1])
-      : titleHas('quick', 'easy')
-        ? 20
+      : has('quick', '15-minute', '15 minute')
+        ? 15
         : 35;
     const servingsMatch = description.match(/serves\s+(\d+)/i);
     const servings = servingsMatch ? Number(servingsMatch[1]) : 2;

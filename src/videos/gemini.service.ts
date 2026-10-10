@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { MockVideoAnalyzer } from './analyzers/mock-video-analyzer';
 import {
   ANALYSIS_SCHEMA_VERSION,
+  deriveLabelCheck,
+  Ingredient,
   VideoAnalysis,
 } from './analyzers/analysis.schema';
 
@@ -30,32 +32,49 @@ export class GeminiService {
   }
 
   mockAnalysis(title: string, channel: string): VideoAnalysis {
+    const hay = `${title} ${channel}`.toLowerCase();
+    const prepMinutes = /quick|15-minute|15 minute/.test(hay) ? 15 : 30;
+
+    const ingredients: Ingredient[] = [
+      {
+        name: 'olive oil',
+        quantity: 1,
+        unit: 'tbsp',
+        rawText: '1 tbsp olive oil',
+        confidence: 'high',
+        source: 'video',
+        packaged: false,
+      },
+      {
+        name: 'garlic',
+        quantity: 2,
+        unit: 'clove',
+        rawText: '2 cloves minced garlic',
+        confidence: 'high',
+        source: 'video',
+        packaged: false,
+      },
+      {
+        name: 'vegetable broth',
+        quantity: 500,
+        unit: 'ml',
+        rawText: '500ml vegetable broth',
+        confidence: 'high',
+        source: 'description',
+        packaged: true,
+      },
+    ];
+
     return {
       videoId: 'mock-id',
       title,
       channel,
       recipeName: title,
-      mealType: ['dinner'],
-      ingredients: [
-        {
-          name: 'olive oil',
-          quantity: 1,
-          unit: 'tbsp',
-          rawText: '1 tbsp olive oil',
-          confidence: 'high',
-          source: 'video',
-          packaged: false,
-        },
-        {
-          name: 'mixed vegetable',
-          quantity: 300,
-          unit: 'g',
-          rawText: '300g vegetables',
-          confidence: 'medium',
-          source: 'video',
-          packaged: false,
-        },
-      ],
+      prepMinutes,
+      mainProtein: 'none',
+      cuisine: 'mediterranean',
+      mealType: ['lunch', 'dinner'],
+      ingredients,
       steps: ['Prepare ingredients', 'Cook and serve'],
       allergens: title.toLowerCase().includes('peanut')
         ? [
@@ -74,7 +93,7 @@ export class GeminiService {
         : [],
       summary: `Mock analysis of ${title}`,
       coverage: 'full',
-      labelCheck: [],
+      labelCheck: deriveLabelCheck(ingredients),
       nutritionSignalsSource: 'model',
       status: 'ok',
       provider: 'mock',
