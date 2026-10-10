@@ -1,0 +1,229 @@
+{
+ "foods": [
+  {
+   "fdcId": 170461,
+   "description": "Tomato powder",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 16.5
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 74.7
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 302
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 43.9
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.44
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.062
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 12.9
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 134
+    }
+   ]
+  },
+  {
+   "fdcId": 1999634,
+   "description": "Tomato, roma",
+   "dataType": "Foundation",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.425
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 0.971
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 0.696
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 3.84
+    },
+    {
+     "nutrientNumber": "957",
+     "unitName": "KCAL",
+     "value": 22.0
+    },
+    {
+     "nutrientNumber": "958",
+     "unitName": "KCAL",
+     "value": 19.0
+    }
+   ]
+  },
+  {
+   "fdcId": 170463,
+   "description": "Tomato products, canned, sauce, with tomato tidbits",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 1.4
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 1.32
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 15.0
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.055
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.39
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 7.09
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 32.0
+    }
+   ]
+  },
+  {
+   "fdcId": 170051,
+   "description": "Tomatoes, red, ripe, canned, packed in tomato juice",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 115
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 2.55
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.25
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 3.47
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 16.0
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.034
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 1.9
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 0.79
+    }
+   ]
+  },
+  {
+   "fdcId": 2685582,
+   "description": "Tomato, puree, canned",
+   "dataType": "Foundation",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 29.4
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.265
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 1.97
+    },
+    {
+     "nutrientNumber": "957",
+     "unitName": "KCAL",
+     "value": 40.8
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 1.58
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 8.04
+    },
+    {
+     "nutrientNumber": "958",
+     "unitName": "KCAL",
+     "value": 34.8
+    },
+    {
+     "nutrientNumber": "269.3",
+     "unitName": "G",
+     "value": 4.31
+    }
+   ]
+  }
+ ]
+}

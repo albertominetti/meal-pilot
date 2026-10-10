@@ -40,14 +40,21 @@ Video titles, descriptions, ingredient text and everything else extracted from a
 
 ## Honesty in responses
 
-- Nutrition signals are Gemini estimates. They are returned as `estimatedNutritionSignals` and labelled "model, not measured". Evidence carries `basis: "model-signals"`.
+- Nutrients are estimates from USDA FoodData Central, marked `estimated: true` with their `completeness`. Below 70% they are a "partial estimate" and goals are not matched on them. `nutritionBasis` and evidence `basis` say whether labels come from computed nutrients or, for old analyses, Gemini estimates ("model, not measured").
 - The shopping list never invents an amount. Unclear quantities say "amount unclear: check recipe".
 - Unknown prep time is allowed but noted. It is never treated as fitting the time limit.
 
 ## Privacy
 
 - Every Gemini call sets `store: false`.
-- The health profile is sent to Google Gemini to plan meals. MealPilot does not store it.
+- The agent sends the health profile, without the user id, to Google Gemini to plan meals.
+- Only ingredient names go to USDA FoodData Central; no user data.
 - `RequestLoggingInterceptor` (`src/common/request-logging.interceptor.ts`) logs metadata only: method, path without query string, status code, duration and, on failure, the error class name. It never logs request or response bodies, query strings or error messages, so profile contents stay out of the logs.
-- Video analyses are cached on disk (`data/cache/`, 30-day TTL). They contain recipe data only, no user data.
-- When profiles and meal logs are stored (Phase 7 of the gap plan), they become GDPR special-category data: they will need explicit consent, a delete endpoint, and the storage provider documented as a sub-processor.
+- Video analyses are cached in Postgres or on disk (`data/cache/`), with a 30-day TTL. They contain recipe data only, no user data.
+- Stored profiles, plans and meal logs are GDPR Art. 9 special-category data:
+  - a profile is stored only with `consent: true`; the time of consent is recorded
+  - `DELETE /api/users/:userId/profile` erases the profile, every plan and the meal log in one transaction
+  - plans without a user are deleted after 30 days
+  - user-data endpoints need `x-api-key`; without `MEALPILOT_APP_KEY` they are refused in production
+  - production refuses to boot without `DATABASE_URL`, so user data never lands on Render's disk
+- Sub-processors: Google (Gemini), Neon (Postgres, eu-central-1). Sign Neon's DPA before real users arrive.

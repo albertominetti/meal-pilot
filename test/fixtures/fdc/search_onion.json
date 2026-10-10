@@ -1,0 +1,229 @@
+{
+ "foods": [
+  {
+   "fdcId": 170000,
+   "description": "Onions, raw",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 4.24
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.1
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 9.34
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 40.0
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.042
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 1.1
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 1.7
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 4.0
+    }
+   ]
+  },
+  {
+   "fdcId": 169844,
+   "description": "DENNY'S, onion rings",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 22.2
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 41.0
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 385
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 4.76
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 5.29
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 2.4
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 780
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 3.73
+    }
+   ]
+  },
+  {
+   "fdcId": 170002,
+   "description": "Onions, dehydrated flakes",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 349
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 37.4
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.46
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 83.3
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 8.95
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 9.2
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 21.0
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.078
+    }
+   ]
+  },
+  {
+   "fdcId": 790577,
+   "description": "Onions, red, raw",
+   "dataType": "Foundation",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 2.2
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 1.0
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 0.94
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.1
+    },
+    {
+     "nutrientNumber": "269.3",
+     "unitName": "G",
+     "value": 5.76
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 9.93
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 44.0
+    }
+   ]
+  },
+  {
+   "fdcId": 170008,
+   "description": "Onions, sweet, raw",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 5.02
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 7.55
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 32.0
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.08
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 0.9
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 8.0
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 0.8
+    }
+   ]
+  }
+ ]
+}

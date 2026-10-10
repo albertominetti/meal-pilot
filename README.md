@@ -265,11 +265,15 @@ With `GEMINI_API_KEY` set it calls Gemini (live, not in CI). `eval/videos.labele
 src/
   config/                  # Typed AppConfigService with Zod validation and fast-boot checks
   llm/                     # LlmClient interface, GenAiLlmClient (Interactions API), MockLlmClient
+  db/                      # Drizzle schema, pg pool, startup migrations (Neon Postgres)
   youtube/                 # YouTube Data API client, quota tracker, 24h search cache
   videos/
-    analyzers/             # Analysis Schema v2, GeminiVideoAnalyzer, MockVideoAnalyzer
-    transcript-cache.service.ts # Versioned disk cache with TTL
-    video-analysis.service.ts   # Cache-first analysis orchestrator
+    analyzers/             # Analysis Schema v3, GeminiVideoAnalyzer, MockVideoAnalyzer
+    analysis-store.ts      # AnalysisStore: PgAnalysisStore or FileAnalysisStore, 30-day TTL
+    video-analysis.service.ts   # Cache-first analysis orchestrator, adds nutrients
+  nutrition/               # USDA FoodData Central matching, grams, nutrients, labels
+  users/                   # Profiles with consent, meal log, feedback, erasure
+  plans/                   # Saved plans, checkbox state, meal swap, meal-plan controllers
     allergy.util.ts        # EU-14 canonical allergens & conservative alias matching
     youtube.util.ts        # Video ID parser
   meal-plan/               # Table-driven safety evaluation & explanation generation
@@ -287,4 +291,4 @@ A `render.yaml` blueprint is included:
 - **Build**: `npm ci && npm run build`
 - **Start**: `npm start`
 - **Health Check**: `GET /api/health`
-- **Environment**: Add `GEMINI_API_KEY` and optionally `YOUTUBE_API_KEY` in the Render environment variables dashboard.
+- **Environment**: Add `GEMINI_API_KEY` and optionally `YOUTUBE_API_KEY` in the Render environment variables dashboard. For persistent storage, nutrients and user data also set `DATABASE_URL`, `DATABASE_URL_DIRECT`, `FDC_API_KEY` and `MEALPILOT_APP_KEY`; see [docs/development.md](docs/development.md#deployment).

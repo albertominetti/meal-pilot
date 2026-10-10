@@ -1,3 +1,4 @@
+import { nutritionFacts } from '../nutrition/nutrition-facts';
 import { buildEvidence } from '../recipes/evidence';
 import { VideoAnalysis } from '../videos/analyzers/analysis.schema';
 import { watchUrl } from '../videos/youtube.util';
@@ -6,6 +7,7 @@ import { MealPlanRequestDto } from './dto/meal-plan-request.dto';
 import { checkTime, matchGoals } from './profile-fit';
 
 export function toRecipe(analysis: VideoAnalysis): RecipeDto {
+  const facts = nutritionFacts(analysis);
   return {
     recipeName: analysis.recipeName,
     servings: analysis.servings,
@@ -17,7 +19,9 @@ export function toRecipe(analysis: VideoAnalysis): RecipeDto {
     ingredients: analysis.ingredients ?? [],
     steps: analysis.steps ?? [],
     labelCheck: analysis.labelCheck ?? [],
-    estimatedNutritionSignals: analysis.nutritionSignals ?? [],
+    estimatedNutritionSignals: facts.signals,
+    nutritionBasis: facts.basis,
+    nutrients: analysis.nutrition ?? null,
   };
 }
 

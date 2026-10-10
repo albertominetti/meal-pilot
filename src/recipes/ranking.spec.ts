@@ -58,4 +58,12 @@ describe('selectRanked', () => {
   it('returns at most max items', () => {
     expect(selectRanked([analysis(), analysis({ videoId: 'v2' })], ctx, 1)).toHaveLength(1);
   });
+
+  it('adds the user rating around a neutral 3', () => {
+    const ctx = { isTrusted: () => false, feedback: new Map([['v1', { userRating: 5, cookedCount: 2 }], ['v2', { userRating: 2, cookedCount: 0 }]]) };
+    expect(scoreRecipe(analysis({ videoId: 'v1' }), ctx).breakdown.userRating).toBe(1.5);
+    expect(scoreRecipe(analysis({ videoId: 'v2' }), ctx).breakdown.userRating).toBe(-0.75);
+    expect(scoreRecipe(analysis({ videoId: 'v3' }), ctx).breakdown.userRating).toBeUndefined();
+  });
 });
+

@@ -2,6 +2,7 @@ import { Module, Provider } from '@nestjs/common';
 import { AppConfigModule } from '../config/config.module';
 import { AppConfigService } from '../config/app-config.service';
 import { LlmModule } from '../llm/llm.module';
+import { NutritionModule } from '../nutrition/nutrition.module';
 import { YouTubeModule } from '../youtube/youtube.module';
 import { GeminiVideoAnalyzer } from './analyzers/gemini-video-analyzer';
 import { MockVideoAnalyzer } from './analyzers/mock-video-analyzer';
@@ -39,7 +40,7 @@ const analysisStoreProvider: Provider = {
 };
 
 @Module({
-  imports: [AppConfigModule, LlmModule, YouTubeModule],
+  imports: [AppConfigModule, LlmModule, YouTubeModule, NutritionModule],
   controllers: [VideosController],
   providers: [
     analysisStoreProvider,

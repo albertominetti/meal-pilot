@@ -1,5 +1,5 @@
 import { normalizeToken } from '../videos/allergy.util';
-import { VideoAnalysis } from '../videos/analyzers/analysis.schema';
+import { FactsInput, nutritionFacts } from '../nutrition/nutrition-facts';
 
 /** A tag that also satisfies other restrictions (vegan food is vegetarian). */
 const IMPLIES: Record<string, string[]> = {
@@ -15,12 +15,18 @@ export interface RestrictionCoverage {
   missing: string[];
 }
 
+/** Every tag and label the recipe carries, nutrient labels from computed nutrients when available. */
+export function recipeTags(analysis: Partial<FactsInput>): string[] {
+  const facts = nutritionFacts(analysis as FactsInput);
+  return [...new Set([...facts.tags, ...facts.signals])];
+}
+
 export function restrictionCoverage(
-  analysis: Pick<VideoAnalysis, 'restrictionTags' | 'nutritionSignals'>,
+  analysis: Partial<FactsInput>,
   restrictions: string[] | undefined,
 ): RestrictionCoverage {
   const tags = new Set<string>();
-  for (const t of [...(analysis.restrictionTags ?? []), ...(analysis.nutritionSignals ?? [])]) {
+  for (const t of recipeTags(analysis)) {
     tags.add(t);
     for (const implied of IMPLIES[t] ?? []) tags.add(implied);
   }

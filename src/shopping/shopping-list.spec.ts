@@ -33,6 +33,7 @@ describe('buildShoppingList', () => {
     const list = buildShoppingList([{ analysis: curry }, { analysis: salad }], 4);
     // curry x2 = 800 g, salad x1 = 240 g -> 1040 g -> rounded 1.1 kg
     expect(find(list, 'chickpea')).toEqual({
+      key: 'chickpea|g',
       name: 'chickpea',
       amount: 1.1,
       unit: 'kg',

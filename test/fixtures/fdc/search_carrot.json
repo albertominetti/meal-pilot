@@ -1,0 +1,234 @@
+{
+ "foods": [
+  {
+   "fdcId": 170500,
+   "description": "Carrot, dehydrated",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 38.8
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 8.1
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 23.6
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 275
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.256
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 1.49
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 79.6
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 341
+    }
+   ]
+  },
+  {
+   "fdcId": 170393,
+   "description": "Carrots, raw",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.032
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 69.0
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 0.93
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.24
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 4.74
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 9.58
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 41.0
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 2.8
+    }
+   ]
+  },
+  {
+   "fdcId": 169871,
+   "description": "Babyfood, carrots, toddler",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 21.0
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 2.3
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 0.6
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.052
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 2.5
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.3
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 5.23
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 48.0
+    }
+   ]
+  },
+  {
+   "fdcId": 170491,
+   "description": "Carrot juice, canned",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 9.28
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 40.0
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.15
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 0.95
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 0.8
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.027
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 66.0
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 3.91
+    }
+   ]
+  },
+  {
+   "fdcId": 2258587,
+   "description": "Carrots, baby, raw",
+   "dataType": "Foundation",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 62.7
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.138
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 2.69
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 0.805
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 9.08
+    },
+    {
+     "nutrientNumber": "957",
+     "unitName": "KCAL",
+     "value": 40.8
+    },
+    {
+     "nutrientNumber": "958",
+     "unitName": "KCAL",
+     "value": 38.3
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,239 @@
+{
+ "foods": [
+  {
+   "fdcId": 172883,
+   "description": "Soup, stock, beef, home-prepared",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 0.54
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 1.97
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 198
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.035
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.09
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 1.2
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 13.0
+    }
+   ]
+  },
+  {
+   "fdcId": 172884,
+   "description": "Soup, stock, chicken, home-prepared",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 1.58
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 1.2
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 3.53
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 36.0
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 2.52
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 143
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.321
+    }
+   ]
+  },
+  {
+   "fdcId": 172885,
+   "description": "Soup, stock, fish, home-prepared",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 2.26
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 156
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.203
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.81
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 16.0
+    }
+   ]
+  },
+  {
+   "fdcId": 171156,
+   "description": "Soup, mushroom with beef stock, canned, condensed",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 3.21
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 7.41
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 68.0
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 1.24
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 2.51
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 0.1
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 773
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 2.28
+    }
+   ]
+  },
+  {
+   "fdcId": 172284,
+   "description": "Babyfood, vegetables, garden vegetable, strained",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.035
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 32.0
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 2.57
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 31.0
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.2
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 6.8
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 2.3
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 1.5
+    }
+   ]
+  }
+ ]
+}

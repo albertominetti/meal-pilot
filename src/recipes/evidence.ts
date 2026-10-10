@@ -1,4 +1,6 @@
 import { HealthGoal } from '../meal-plan/profile-fit';
+import { nutritionFacts, SIGNAL_NUTRIENT } from '../nutrition/nutrition-facts';
+import { NutrientTotals } from '../nutrition/nutrition';
 import { VideoAnalysis } from '../videos/analyzers/analysis.schema';
 import { byWeight, formatIngredient, isUnclear } from './ingredient-format';
 
@@ -8,11 +10,21 @@ export interface GoalEvidence {
   note?: string;
 }
 
+export type EvidenceBasis = 'nutrients' | 'model-signals' | 'none';
+
 export interface RecommendationEvidence {
   goals: GoalEvidence[];
   allergens: string;
-  /** Goals are matched on model-estimated signals until nutrients are computed. */
-  basis: 'model-signals';
+  /** nutrients: goals matched on USDA-based nutrients; model-signals: on Gemini estimates. */
+  basis: EvidenceBasis;
+}
+
+const UNITS: Record<string, string> = { sodium: 'mg', kcal: 'kcal' };
+
+function nutrientNote(goal: HealthGoal, perServing: NutrientTotals): string | undefined {
+  const key = SIGNAL_NUTRIENT[goal];
+  if (!key) return undefined;
+  return `${perServing[key]} ${UNITS[key] ?? 'g'} ${key === 'carbs' ? 'carbohydrate' : key} per serving (USDA estimate)`;
 }
 
 const GOAL_INGREDIENTS: Partial<Record<HealthGoal, RegExp>> = {
@@ -66,9 +78,13 @@ export function buildEvidence(
   matchedGoals: HealthGoal[],
   verdict: { notes: string },
 ): RecommendationEvidence {
-  return {
-    goals: matchedGoals.map((g) => goalIngredients(analysis, g)),
-    allergens: verdict.notes,
-    basis: 'model-signals',
-  };
+  const facts = nutritionFacts(analysis);
+  const goals = matchedGoals.map((g) => {
+    const evidence = goalIngredients(analysis, g);
+    const note = facts.perServing ? nutrientNote(g, facts.perServing) : undefined;
+    return note ? { ...evidence, note: evidence.note ? `${note}. ${evidence.note}` : note } : evidence;
+  });
+  const basis: EvidenceBasis =
+    facts.basis === 'nutrients' ? 'nutrients' : facts.basis === 'model' ? 'model-signals' : 'none';
+  return { goals, allergens: verdict.notes, basis };
 }

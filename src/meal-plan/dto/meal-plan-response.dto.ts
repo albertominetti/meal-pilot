@@ -35,6 +35,34 @@ export class RecipeIngredientDto {
   @ApiPropertyOptional() timestamp?: string;
 }
 
+export class NutrientTotalsDto {
+  @ApiProperty() kcal!: number;
+  @ApiProperty({ description: 'g' }) protein!: number;
+  @ApiProperty({ description: 'g' }) fat!: number;
+  @ApiProperty({ description: 'g' }) saturatedFat!: number;
+  @ApiProperty({ description: 'g' }) carbs!: number;
+  @ApiProperty({ description: 'g' }) sugar!: number;
+  @ApiProperty({ description: 'g' }) fiber!: number;
+  @ApiProperty({ description: 'mg' }) sodium!: number;
+}
+
+export class NutritionDto {
+  @ApiProperty({ type: NutrientTotalsDto, nullable: true, description: 'Null when servings are unknown.' })
+  perServing!: NutrientTotalsDto | null;
+  @ApiProperty({ type: NutrientTotalsDto }) total!: NutrientTotalsDto;
+  @ApiProperty({ type: Number, nullable: true }) servings!: number | null;
+  @ApiProperty({ description: 'Share (0..1) of recipe mass resolved to a USDA food and grams.', example: 0.86 })
+  completeness!: number;
+  @ApiProperty({ description: 'Per nutrient, the share of recipe mass whose food reports it.' })
+  nutrientCompleteness!: Record<string, number>;
+  @ApiProperty({ description: 'completeness below 0.7: show as "partial estimate"; goals are not matched on it.' })
+  partial!: boolean;
+  @ApiProperty({ type: [String], description: 'Ingredients that could not be resolved.' }) unresolved!: string[];
+  @ApiProperty({ enum: [true] }) estimated!: true;
+  @ApiProperty({ enum: ['USDA FoodData Central'] }) source!: 'USDA FoodData Central';
+  @ApiProperty() version!: number;
+}
+
 export class RecipeDto {
   @ApiProperty() recipeName!: string;
   @ApiPropertyOptional() servings?: number;
@@ -48,9 +76,20 @@ export class RecipeDto {
   @ApiProperty({ type: [String] }) labelCheck!: string[];
   @ApiProperty({
     type: [String],
-    description: 'Model-estimated nutrition signals, not measured values.',
+    description: 'Nutrition labels (high-protein, low-sodium, ...). Estimates; see nutritionBasis for their source.',
   })
   estimatedNutritionSignals!: string[];
+  @ApiProperty({
+    enum: ['nutrients', 'model', 'none'],
+    description: 'nutrients: computed from USDA FoodData Central; model: Gemini estimates; none: not known.',
+  })
+  nutritionBasis!: 'nutrients' | 'model' | 'none';
+  @ApiProperty({
+    type: NutritionDto,
+    nullable: true,
+    description: 'USDA-based estimate. Null when the food database was unavailable or is not configured.',
+  })
+  nutrients!: NutritionDto | null;
 }
 
 export class GoalEvidenceDto {
@@ -62,7 +101,7 @@ export class GoalEvidenceDto {
 export class EvidenceDto {
   @ApiProperty({ type: [GoalEvidenceDto] }) goals!: GoalEvidenceDto[];
   @ApiProperty({ description: 'Allergy check evidence notes.' }) allergens!: string;
-  @ApiProperty({ enum: ['model-signals'] }) basis!: 'model-signals';
+  @ApiProperty({ enum: ['nutrients', 'model-signals', 'none'] }) basis!: 'nutrients' | 'model-signals' | 'none';
 }
 
 export class RecommendationDto {
@@ -101,7 +140,7 @@ export class RecommendationDto {
   evidence!: EvidenceDto;
 }
 
-export const EXCLUSION_CODES = ['allergen', 'uncertain', 'unavailable', 'too_long'] as const;
+export const EXCLUSION_CODES = ['allergen', 'uncertain', 'unavailable', 'too_long', 'rated_low'] as const;
 export type ExclusionCode = (typeof EXCLUSION_CODES)[number];
 
 export class ExcludedVideoDto {
@@ -152,6 +191,12 @@ export class MealPlanResponseDto {
 
   @ApiPropertyOptional({ type: MealPlanMetaDto })
   meta?: MealPlanMetaDto;
+
+  @ApiPropertyOptional({ description: 'Saved plan id for checkbox state and swaps (absent if saving failed).' })
+  planId?: string;
+
+  @ApiPropertyOptional()
+  planVersion?: number;
 }
 
 export const MEDICAL_DISCLAIMER =
@@ -178,6 +223,7 @@ export function excludedVideo(
     uncertain: 'Needs review',
     unavailable: 'Needs review',
     too_long: 'Too long',
+    rated_low: 'Rated 1/5',
   };
   return {
     videoId,

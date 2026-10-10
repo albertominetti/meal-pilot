@@ -1,5 +1,6 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { AppConfigService } from '../config/app-config.service';
+import { NutritionService } from '../nutrition/nutrition.service';
 import {
   IYouTubeService,
   YOUTUBE_SERVICE,
@@ -26,6 +27,7 @@ export class VideoAnalysisService {
     @Inject(VIDEO_ANALYZER) private readonly analyzer: VideoAnalyzer,
     private readonly config: AppConfigService,
     @Inject(YOUTUBE_SERVICE) private readonly youtube: IYouTubeService,
+    @Optional() private readonly nutrition?: NutritionService,
   ) {}
 
   async analyzeWithMeta(
@@ -37,16 +39,28 @@ export class VideoAnalysisService {
       this.analyzer.model(),
     );
     if (cached) {
-      return { analysis: cached, fromCache: true };
+      return { analysis: await this.withNutrition(cached, false), fromCache: true };
     }
 
     const enriched = await this.withDetails(target);
     const result = await this.analyzer.analyze(enriched);
-    if (result.status === 'ok') {
-      await this.cache.set(result, this.config.effectiveLlmMode);
-    }
+    return { analysis: await this.withNutrition(result, true), fromCache: false };
+  }
 
-    return { analysis: result, fromCache: false };
+  /**
+   * Nutrients are derived from the ingredients, so cached analyses get them
+   * (or a newer version) without another Gemini call. Stored only when
+   * computed: a null from an FDC outage is retried next time.
+   */
+  private async withNutrition(analysis: VideoAnalysis, isNew: boolean): Promise<VideoAnalysis> {
+    const updated = this.nutrition ? await this.nutrition.ensure(analysis) : analysis;
+    const changed = updated !== analysis && updated.nutrition !== null;
+    if (analysis.status === 'ok' && (isNew || changed)) {
+      // An outage must not be cached as "no nutrients" on a fresh analysis either.
+      const toStore = updated.nutrition === null ? analysis : updated;
+      await this.cache.set(toStore, this.config.effectiveLlmMode);
+    }
+    return updated;
   }
 
   async analyze(target: VideoTarget): Promise<VideoAnalysis> {

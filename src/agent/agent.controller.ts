@@ -1,14 +1,18 @@
-import { Body, Controller, Post, Query } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiHeader, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { AppKeyGuard, RequireAppKeyForUserBody } from '../common/app-key.guard';
 import { MealPlanRequestDto } from '../meal-plan/dto/meal-plan-request.dto';
-import { AgentService } from './agent.service';
+import { PlansService } from '../plans/plans.service';
 
 @ApiTags('meal-plan')
 @Controller()
+@UseGuards(AppKeyGuard)
 export class AgentController {
-  constructor(private readonly agentService: AgentService) {}
+  constructor(private readonly plans: PlansService) {}
 
   @Post('meal-plan/agent')
+  @RequireAppKeyForUserBody()
+  @ApiHeader({ name: 'x-api-key', required: false, description: 'Required when userId is set.' })
   @ApiOperation({
     summary: 'Autonomous agentic meal plan generation',
     description:
@@ -25,6 +29,6 @@ export class AgentController {
     @Query('debug') debug?: string,
   ) {
     const isDebug = debug === 'true' || debug === '1';
-    return this.agentService.run(dto, isDebug);
+    return this.plans.createWithAgent(dto, isDebug);
   }
 }

@@ -12,6 +12,7 @@ describe('buildEvidence', () => {
           ingredient('peanut', null, null),
         ],
         sodiumSources: ['soy sauce'],
+        nutritionSignals: ['high-protein', 'low-sodium'],
       }),
       ['high-protein', 'low-sodium', 'low-carb'],
       { notes: 'No match for declared allergies.' },

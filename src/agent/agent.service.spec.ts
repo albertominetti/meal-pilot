@@ -228,6 +228,8 @@ describe('AgentService (tool loop and guardrails)', () => {
   it('rejects unsafe videos in submit_plan guardrail', async () => {
     const submitTool = new SubmitPlanTool();
     const run: any = {
+      feedback: new Map(),
+      excludedVideoIds: new Set(),
       request: { maxResults: 5, allergies: ['peanuts'] },
       analyzedVideos: new Map([
         ['ZtK81MzVoJ4', { videoId: 'ZtK81MzVoJ4', title: 'Peanut Satay' }],
@@ -260,6 +262,8 @@ describe('AgentService (tool loop and guardrails)', () => {
   it('rejects a recipe over the cooking-time limit in submit_plan (too_long)', async () => {
     const submitTool = new SubmitPlanTool();
     const run: any = {
+      feedback: new Map(),
+      excludedVideoIds: new Set(),
       request: { maxResults: 5, maxCookMinutes: 20 },
       analyzedVideos: new Map([['slow-stew', { videoId: 'slow-stew', prepMinutes: 90 }]]),
       videoSafetyVerdicts: new Map([['slow-stew', { status: 'safe', notes: 'ok' }]]),
@@ -275,6 +279,8 @@ describe('AgentService (tool loop and guardrails)', () => {
   it('allows a recipe with unknown prep time under a time limit', async () => {
     const submitTool = new SubmitPlanTool();
     const run: any = {
+      feedback: new Map(),
+      excludedVideoIds: new Set(),
       request: { maxResults: 5, maxCookMinutes: 20 },
       analyzedVideos: new Map([['mystery', { videoId: 'mystery' }]]),
       videoSafetyVerdicts: new Map([['mystery', { status: 'safe', notes: 'ok' }]]),
@@ -413,4 +419,26 @@ describe('AgentService (tool loop and guardrails)', () => {
     expect(res.recommendations[0].fitsTime).toBe(true);
     expect(res.excluded.find((e) => e.videoId === 'jfKL8pQjBCA')?.code).toBe('too_long');
   });
+
+  it('submit_plan rejects recipes the user rated 1 and recipes already in the plan', async () => {
+    const run: any = {
+      request: { maxResults: 5 },
+      feedback: new Map([['rated-one', { userRating: 1, cookedCount: 1 }]]),
+      excludedVideoIds: new Set(['in-plan']),
+      analyzedVideos: new Map(),
+      videoSafetyVerdicts: new Map(),
+    };
+    const result: any = await new SubmitPlanTool().execute(
+      {
+        recommendations: [
+          { videoId: 'rated-one', whyItFits: 'A tasty dish' },
+          { videoId: 'in-plan', whyItFits: 'A tasty dish' },
+        ],
+      },
+      run,
+    );
+    expect(result.accepted).toBe(false);
+    expect(result.errors.join(' ')).toMatch(/rated 1\/5.*excluded from this plan|excluded from this plan.*rated 1\/5/s);
+  });
 });
+

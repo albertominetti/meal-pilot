@@ -11,8 +11,11 @@ import {
 } from '../meal-plan/dto/meal-plan-response.dto';
 import { checkTime, matchGoals } from '../meal-plan/profile-fit';
 import { buildRecommendation } from '../meal-plan/recommendation.builder';
+import { nutritionNote } from '../nutrition/nutrition-note';
+import { recipeTags } from '../recipes/restrictions';
 import { TrustedChannelsService } from '../youtube/trusted-channels.service';
 import { buildShoppingList, ShoppingList } from '../shopping/shopping-list';
+import { PlanningOptions } from '../meal-plan/planning-options';
 import { AgentRun, AgentRunBudgets, TraceItem } from './agent-run';
 import { buildAgentSystemPrompt } from './agent.prompt';
 import { FallbackPlanner } from './fallback-planner';
@@ -42,6 +45,8 @@ export interface AgentMealPlanResponse {
   shoppingList: ShoppingList;
   meta: AgentMealPlanMeta;
   trace?: TraceItem[];
+  planId?: string;
+  planVersion?: number;
 }
 
 function sanitizeArgs(args: Record<string, unknown>): Record<string, unknown> {
@@ -76,15 +81,17 @@ export class AgentService {
   async run(
     dto: MealPlanRequestDto,
     debug = false,
+    options: PlanningOptions = {},
   ): Promise<AgentMealPlanResponse> {
     const budgets: AgentRunBudgets = {
       maxSteps: this.config.agentMaxSteps,
       maxAnalyses: this.config.agentMaxAnalyses,
       maxSearches: this.config.agentMaxSearches,
       timeoutMs: this.config.agentTimeoutMs,
+      ...options.budgets,
     };
 
-    const run = new AgentRun(dto, budgets);
+    const run = new AgentRun(dto, budgets, options.feedback, new Set(options.excludeVideoIds ?? []));
     const tools: AgentTool[] = [
       this.listKnownTool,
       this.searchTool,
@@ -105,14 +112,20 @@ export class AgentService {
       parameters: t.parameters,
     }));
 
-    const systemPrompt = buildAgentSystemPrompt(dto);
+    // The model needs the profile, not the user's id.
+    const profile: MealPlanRequestDto = { ...dto };
+    delete profile.userId;
+    const systemPrompt = buildAgentSystemPrompt(dto, {
+      hasFeedback: run.feedback.size > 0,
+      excludeVideoIds: options.excludeVideoIds,
+    });
     const history: InteractionStep[] = [
       {
         type: 'user_input',
         content: [
           {
             type: 'text',
-            text: `Please construct a personalized meal plan according to my health profile: ${JSON.stringify(dto)}. Follow the operating procedure step-by-step.`,
+            text: `Please construct a personalized meal plan according to my health profile: ${JSON.stringify(profile)}. Follow the operating procedure step-by-step.`,
           },
         ],
       },
@@ -241,16 +254,9 @@ export class AgentService {
           analysis,
           verdict,
           whyItFits: rec.whyItFits,
-          matchedTags: [
-            ...new Set([
-              ...(analysis.restrictionTags || []),
-              ...(analysis.nutritionSignals || []),
-              ...goals.matched,
-            ]),
-          ],
-          healthNotes:
-            rec.healthNotes ||
-            `Estimated signals (model, not measured): ${(analysis.nutritionSignals || []).join(', ') || 'whole-foods'}`,
+          matchedTags: [...new Set([...recipeTags(analysis), ...goals.matched])],
+          // The model's note is free text; the server's nutrient note is always appended.
+          healthNotes: [rec.healthNotes, nutritionNote(analysis)].filter(Boolean).join(' '),
           request: run.request,
           trusted: this.trustedChannels.isTrusted(analysis.channelId),
         }),

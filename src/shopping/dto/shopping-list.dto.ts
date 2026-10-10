@@ -47,6 +47,8 @@ export class ShoppingListRequestDto {
 }
 
 export class ShoppingListItemDto {
+  @ApiProperty({ example: 'chickpea|g', description: 'Stable id for checkbox state (PATCH /api/plans/:id/checked).' })
+  key!: string;
   @ApiProperty({ example: 'chickpea' }) name!: string;
   @ApiProperty({ type: Number, nullable: true, example: 400, description: 'Rounded to a buying unit.' })
   amount!: number | null;

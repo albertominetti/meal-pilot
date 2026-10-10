@@ -12,6 +12,8 @@ import {
 export const AMOUNT_UNCLEAR = 'amount unclear: check recipe';
 
 export interface ShoppingListItem {
+  /** Stable id for checkbox state: name plus base unit, so rescaling keeps it. */
+  key: string;
   name: string;
   /** Rounded to a buying unit; null when no reliable amount is known. */
   amount: number | null;
@@ -105,14 +107,16 @@ function toItem(name: string, group: Line[]): ShoppingListItem {
   const fromRecipes = [...new Set(group.map((l) => l.videoId))];
   const someUnclear = known.length < group.length;
   if (known.length === 0) {
-    return { name, amount: null, unit: null, exactAmount: null, uncertain: true, note: AMOUNT_UNCLEAR, fromRecipes };
+    return { key: `${name}|unclear`, name, amount: null, unit: null, exactAmount: null, uncertain: true, note: AMOUNT_UNCLEAR, fromRecipes };
   }
   const unit = known[0].unit!;
+  const key = `${name}|${unit}`;
   const exact = known.reduce((sum, l) => sum + l.amount!, 0);
   const rounded = formatAmount(roundToBuyingUnit(exact, unit), unit);
   // exactAmount is in the same unit as amount (kg/l when rounded up past 1000).
   const divisor = rounded.unit === unit ? 1 : 1000;
   return {
+    key,
     name,
     amount: rounded.amount,
     unit: rounded.unit,

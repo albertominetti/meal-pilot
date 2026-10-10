@@ -16,7 +16,11 @@ MealPilot is a NestJS JSON API. A client (the JJFit app) sends a health profile,
 | Profile fit | Cooking-time filter, health-goal matching | `src/meal-plan/profile-fit.ts` |
 | Recipe logic | Digest, ranking, plan balance, evidence, units | `src/recipes/` |
 | Shopping list | Scale, merge, round, group by section | `src/shopping/` |
-| Cache | Versioned analysis cache with a 30-day TTL | `src/videos/transcript-cache.service.ts` |
+| Nutrients | USDA FoodData Central matching, grams, per-serving totals, labels | `src/nutrition/` |
+| Storage | Postgres (Neon) when `DATABASE_URL` is set, JSON files otherwise | `src/db/`, `*.store.ts` |
+| Profiles and meal log | Stored profiles with consent, ratings that steer planning, erasure | `src/users/` |
+| Saved plans | Every plan gets a `planId`; checkbox state; swap one meal | `src/plans/` |
+| App key | `x-api-key` guard for user data | `src/common/app-key.guard.ts` |
 
 ## Video analysis (schema v3)
 
@@ -95,6 +99,7 @@ If the loop ends without an accepted plan, `FallbackPlanner` picks from the safe
 - restriction and goal matches score positive; misses score negative
 - full coverage, a trusted channel and a high share of high-confidence ingredients add points, as does fitting the time limit
 - each already-picked recipe with the same main protein costs 2 points
+- the user's rating adds 0.75 per star above 3 and subtracts below it; recipes rated 1 are excluded before ranking
 
 `selectRanked` picks greedily, so the protein penalty spreads the variety. The agent prompt states the same priorities in words.
 
@@ -107,9 +112,33 @@ Both meal-plan endpoints return:
   - `labelCheck`, `trustedChannel`, `fitsTime`
   - `recipe`: the full extracted recipe, so the app needs no Gemini call
   - `evidence`: the ingredients behind each matched goal, plus the allergy notes
-- `excluded[]`, each with a `reason` and a `code` (`allergen`, `uncertain`, `unavailable`, `too_long`)
-- `shoppingList` for the recommended recipes
+- `excluded[]`, each with a `reason` and a `code` (`allergen`, `uncertain`, `unavailable`, `too_long`, `rated_low`)
+- `shoppingList` for the recommended recipes; every item has a stable `key` for checkbox state
+- `planId` and `planVersion` of the saved plan
 - `disclaimer`, `meta`
+
+`recipe.nutrients` holds the USDA-based estimate (see below) and `recipe.nutritionBasis` says where the nutrition labels come from: `nutrients`, `model` (Gemini estimates in analyses made before nutrients existed) or `none`. Evidence carries the same basis (`nutrients`, `model-signals`, `none`).
+
+## Nutrients: USDA FoodData Central
+
+Gemini only extracts ingredients; nutrients are calculated in code (`src/nutrition/`) when `FDC_API_KEY` is set:
+1. **Match** each ingredient to a Foundation or SR Legacy food. `pickFood` scores FDC's hits instead of taking the top one, which is often wrong ("chickpea" → chickpea flour, "carrot" → dehydrated carrot): every ingredient word must appear, product forms the ingredient doesn't name (flour, powder, juice, purée, brand items) are penalised, raw foods are preferred, and canned ones when the recipe uses a can. No confident match means unresolved. `data/fdc-overrides.json` fixes known mismatches.
+2. **Cache** each mapping permanently (`fdc_mappings`, or `fdc-mappings.json` without a database), shared by every video. A "no match" is retried after 30 days.
+3. **Grams**: mass units directly, volume through the density table or an FDC cup/tbsp portion, counts through FDC portions ("1 clove", "1 medium"). Low-confidence and vague amounts stay unresolved.
+4. **Sum** per-100 g values and divide by servings: kcal, protein, fat, saturated fat, carbs, sugar, fibre, sodium. Unknown servings give totals only.
+5. **Honesty**: `completeness` is the share of recipe mass resolved; below 0.7 the result is `partial` and goals aren't matched on it. Completeness is also tracked per nutrient, so no label rests on a nutrient most of the recipe didn't report. Every result is `estimated: true`, `source: "USDA FoodData Central"`.
+6. **Labels** from fixed per-serving thresholds (`SIGNAL_THRESHOLDS`): high-protein ≥ 20 g, low-sodium ≤ 600 mg (moderate ≤ 1,000), high-fibre ≥ 8 g, low-carb ≤ 30 g, low-sugar ≤ 10 g, plus quick-prep (≤ 30 min) and whole-foods (nothing packaged). They replace the model's labels.
+
+Nutrients are derived data, so cached analyses get them on read without another Gemini call (`NUTRITION_VERSION` triggers a recompute). If FDC is down the analysis is still returned, with `nutrients: null`, and retried next time.
+
+## Profiles, saved plans and the meal log
+
+All of these need the `x-api-key` header (`MEALPILOT_APP_KEY`); the JJFit app owns identity and sends an opaque `userId`.
+- `PUT /api/users/:userId/profile` stores the profile fields of the meal-plan request; `consent: true` is required and its time recorded. `GET` returns it; `DELETE` erases the profile, every plan and the meal log.
+- `POST /api/meal-plan` and `/api/meal-plan/agent` accept `userId` in place of a profile. Inline fields override the stored ones, except allergies, which are merged. An unknown `userId` is a 404, never an empty profile.
+- Every meal-plan response is saved and returns `planId`. `GET /api/plans/:id` reads it, `PATCH /api/plans/:id/checked` stores ticked shopping-list keys.
+- `POST /api/users/:userId/meals` logs `{ videoId, planId?, cooked, rating?, note? }`. Ratings feed back: digests show `userRating` and `cookedCount`, the prompt avoids recipes rated 2 or lower and brings back 4-5 now and then, the ranking adds a rating term, and recipes rated 1 are excluded in code.
+- `POST /api/plans/:id/swap` with `{ videoId }` replaces one meal. Cheap path: the best-ranked safe cached recipe that fits the profile, isn't in the plan and keeps `check_plan_balance` within limits, with no Gemini call. Otherwise a single-slot agent run (1 search, 2 analyses). The shopping list is rebuilt, ticked items still in it stay ticked, and the plan version goes up. Allergies added to the profile since the plan was made also apply.
 
 ## Shopping list: `POST /api/shopping-list`
 
@@ -128,8 +157,5 @@ Built only from cached analyses; it never calls Gemini. `buildShoppingList` (`sr
 
 ## Not built yet
 
-These are planned in [plans/close-concept-gaps.md](plans/close-concept-gaps.md):
-- nutrients from USDA FoodData Central (Phase 5)
-- Neon Postgres storage (Phase 6)
-- user profiles, meal log and meal swap (Phase 7)
-- the 7-day planner
+- the 7-day planner and weekly generation (see [plans/close-concept-gaps.md](plans/close-concept-gaps.md#5-later-not-in-this-plan))
+- price data for real budget handling

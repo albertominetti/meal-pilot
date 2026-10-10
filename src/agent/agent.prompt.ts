@@ -1,6 +1,14 @@
 import { MealPlanRequestDto } from '../meal-plan/dto/meal-plan-request.dto';
+import { AVOID_RATING } from '../users/feedback';
 
-export function buildAgentSystemPrompt(dto: MealPlanRequestDto): string {
+export interface PromptContext {
+  /** The user has meal-log ratings; digests then carry userRating and cookedCount. */
+  hasFeedback?: boolean;
+  /** Video ids the plan must not contain (a swap's current recipes). */
+  excludeVideoIds?: string[];
+}
+
+export function buildAgentSystemPrompt(dto: MealPlanRequestDto, ctx: PromptContext = {}): string {
   const profileParts: string[] = [];
   if (dto.healthProfile) profileParts.push(`Health Profile: ${dto.healthProfile}`);
   if (dto.bloodPressure) profileParts.push(`Blood Pressure: ${dto.bloodPressure}`);
@@ -25,6 +33,14 @@ export function buildAgentSystemPrompt(dto: MealPlanRequestDto): string {
   if (dto.preferences) profileParts.push(`Preferences: ${dto.preferences}`);
   const max = dto.maxResults ?? 5;
   profileParts.push(`Desired plan size: ${max} recommended meal recipes.`);
+  if (ctx.hasFeedback) {
+    profileParts.push(
+      `Past feedback: digests show userRating (1-5) and cookedCount. Avoid recipes rated ${AVOID_RATING} or lower, and now and then bring back a recipe rated 4-5. Rated-1 recipes are rejected by submit_plan.`,
+    );
+  }
+  if (ctx.excludeVideoIds?.length) {
+    profileParts.push(`Do not recommend these videoIds (already in the plan): ${ctx.excludeVideoIds.join(', ')}.`);
+  }
 
   return [
     `You are MealPilot's intelligent nutrition & cooking video assistant.`,

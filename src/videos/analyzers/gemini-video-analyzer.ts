@@ -23,7 +23,7 @@ export function buildAnalysisPrompt(target: VideoTarget): string {
   const parts = [
     `You are a nutrition-aware culinary assistant analyzing a YouTube cooking video.`,
     `Video: "${title}" by ${channel} (id: ${target.videoId}).`,
-    `Watch and analyze this video. Extract recipe details, observed ingredients, cooking steps, EU 14 allergens with timestamp/spoken evidence, cross-contact risks, sodium sources, nutrition signals, and restriction tags.`,
+    `Watch and analyze this video. Extract recipe details, observed ingredients, cooking steps, EU 14 allergens with timestamp/spoken evidence, cross-contact risks, sodium sources and restriction tags. Do not estimate nutrients: they are calculated from the ingredients afterwards.`,
     `Also extract prepMinutes (total active + passive time to make the dish), servings, mainProtein, cuisine (short, lowercase, e.g. "indian") and mealType.`,
     `For every ingredient give: name (normalised, singular, lowercase, e.g. "chickpea"), quantity (a number, or null if not stated), unit (one of ${INGREDIENT_UNITS.join(', ')}; null if none fits, never invent one), rawText (exactly as said or shown, e.g. "a big splash of olive oil"), confidence (high/medium/low), source (video, description or both) and packaged (true for store-bought products such as sauces, stock, pesto, curry paste).`,
     `Never guess quantities: use null with confidence "low" when the amount is vague.`,

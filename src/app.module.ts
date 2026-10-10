@@ -8,7 +8,9 @@ import { HealthController } from './health/health.controller';
 import { LandingController } from './landing/landing.controller';
 import { LlmModule } from './llm/llm.module';
 import { MealPlanModule } from './meal-plan/meal-plan.module';
+import { PlansModule } from './plans/plans.module';
 import { ShoppingModule } from './shopping/shopping.module';
+import { UsersModule } from './users/users.module';
 import { VideosModule } from './videos/videos.module';
 import { YouTubeModule } from './youtube/youtube.module';
 
@@ -22,6 +24,8 @@ import { YouTubeModule } from './youtube/youtube.module';
     MealPlanModule,
     AgentModule,
     ShoppingModule,
+    UsersModule,
+    PlansModule,
   ],
   controllers: [LandingController, HealthController],
   providers: [

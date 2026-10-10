@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { MealPlanService } from '../../meal-plan/meal-plan.service';
 import { ANALYSIS_STORE, AnalysisStore } from '../../videos/analysis-store';
 import { VideoDigest } from '../../recipes/digest';
+import { recipeTags } from '../../recipes/restrictions';
+import { isExcludedByRating } from '../../users/feedback';
 import { AgentRun } from '../agent-run';
 import { RunDigestService } from '../run-digest.service';
 import { AgentTool } from './tool.interface';
@@ -47,12 +49,11 @@ export class ListKnownVideosTool implements AgentTool<ListKnownArgs> {
     const results: VideoDigest[] = [];
     for (const item of cachedItems) {
       if (item.status !== 'ok') continue;
+      // Not offered at all: submit_plan would reject them anyway.
+      if (run.excludedVideoIds.has(item.videoId) || isExcludedByRating(run.feedback, item.videoId)) continue;
 
       if (args.tags && args.tags.length > 0) {
-        const itemTags = new Set<string>([
-          ...(item.restrictionTags || []),
-          ...(item.nutritionSignals || []),
-        ]);
+        const itemTags = new Set<string>(recipeTags(item));
         const matchesTag = args.tags.some((t) => itemTags.has(t));
         if (!matchesTag) continue;
       }

@@ -19,9 +19,14 @@ YouTube is selected separately. With `YOUTUBE_API_KEY` set, `YouTubeService` cal
 ```bash
 npm test            # unit tests, offline, no keys
 npm run test:e2e    # whole app in mock mode (forces YOUTUBE_API_KEY empty)
+npm run test:db     # stores and app on a real Postgres (TEST_DATABASE_URL)
 npm run lint
 npm run build
 ```
+
+For the db suite, `docker compose up -d postgres` and use `TEST_DATABASE_URL=postgres://mealpilot:mealpilot@localhost:5432/mealpilot_test`. CI runs it on a temporary Neon branch when the `NEON_PROJECT_ID` variable and `NEON_API_KEY` secret are set, and on a Postgres service container otherwise.
+
+Nutrient tests use recorded FDC responses in `test/fixtures/fdc/` (trimmed to the fields we read). `src/nutrition/nutrition-eval.spec.ts` checks five hand-computed recipes within ±15% kcal and protein.
 
 Conventions:
 - Pure logic (`src/recipes/`, `src/shopping/`, `profile-fit.ts`) has table-driven specs next to the code.
@@ -46,7 +51,8 @@ With a Gemini key it runs live; it is not part of CI. `eval/videos.labeled.json`
 |---|---|---|
 | `data/videos.seed.json` | Candidates for `POST /api/meal-plan` | Team |
 | `data/trusted-channels.json` | `{ channelId, name, note }` for team-reviewed channels | Team, after review |
-| `data/cache/` | Cached analyses, `<videoId>.<provider>.<model>.v<schema>.json` (gitignored) | The app |
+| `data/fdc-overrides.json` | Fixes for FDC mismatches, `{ fdcId, note }` per ingredient | Team, after review |
+| `data/cache/` | Without a database: analyses (`<videoId>.<provider>.<model>.v<schema>.json`), `fdc-mappings.json`, `user-data.json` (gitignored) | The app |
 | `eval/videos.labeled.json` | Ground truth for the eval | Team, by hand |
 
 ## Common changes
@@ -59,6 +65,14 @@ With a Gemini key it runs live; it is not part of CI. `eval/videos.labeled.json`
 
 **Adding a shopping-list rule.** Add aliases and descriptors in `src/recipes/normalize.ts`, densities in `src/recipes/units.ts`, and sections and pantry staples in `src/shopping/sections.ts`. Each comes with a table row in its spec.
 
+**Changing the database.** Edit `src/db/schema.ts`, run `npm run db:generate`, review the SQL in `drizzle/` and commit it. Migrations run at startup when `DATABASE_URL_DIRECT` is set (behind an advisory lock), or with `npm run db:migrate`.
+
 ## Deployment
 
-`render.yaml` deploys a single web service in Frankfurt. On Render's free plan the disk is ephemeral, so the analysis cache is lost on every restart. Phase 6 of the [gap plan](plans/close-concept-gaps.md) moves storage to Neon Postgres.
+`render.yaml` deploys a single web service in Frankfurt. Storage is Neon Postgres (eu-central-1):
+1. In the Neon console, create project `meal-pilot` with branches `main` and `dev`.
+2. In Render, set `DATABASE_URL` (pooled host) and `DATABASE_URL_DIRECT` (direct host), both with `sslmode=require`, plus `MEALPILOT_APP_KEY` and `FDC_API_KEY`. The free plan has no pre-deploy step, so the app migrates at startup over the direct URL.
+3. Load the old file cache once if wanted: `DATABASE_URL=... npm run db:import-cache`.
+4. Then set `NODE_ENV=production` as a runtime variable. From then on live mode refuses to boot without `DATABASE_URL`, and user-data endpoints refuse requests without `MEALPILOT_APP_KEY`. `render.yaml` doesn't set it, because `npm ci` would then skip the dev dependencies the build needs.
+
+Without `DATABASE_URL` the app keeps working on JSON files, which Render's ephemeral disk loses on every restart.

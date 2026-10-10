@@ -1,93 +1,20 @@
-import {
-  IsArray,
-  IsIn,
-  IsInt,
-  IsOptional,
-  IsString,
-  ArrayMaxSize,
-  Max,
-  Min,
-} from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Budget, BUDGETS, HEALTH_GOALS, HealthGoal } from '../profile-fit';
+import { IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min } from 'class-validator';
+import { ProfileFieldsDto } from './profile-fields.dto';
 
-export class MealPlanRequestDto {
-  @ApiPropertyOptional({
-    description: 'Free-text health description',
-    example: 'hypertension, type 2 diabetes, trying to eat low sodium',
-  })
-  @IsOptional()
-  @IsString()
-  healthProfile?: string;
+export const USER_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
 
-  @ApiPropertyOptional({ example: '140/90' })
-  @IsOptional()
-  @IsString()
-  bloodPressure?: string;
-
-  @ApiPropertyOptional({ example: ['vegetarian', 'gluten-free'] })
-  @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(20)
-  @IsString({ each: true })
-  restrictions?: string[];
-
-  @ApiPropertyOptional({ example: ['peanuts', 'shellfish'] })
-  @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(30)
-  @IsString({ each: true })
-  allergies?: string[];
-
-  @ApiPropertyOptional({
-    description: 'Health goals matched in code against the analysed recipes.',
-    enum: HEALTH_GOALS,
-    isArray: true,
-    example: ['high-protein', 'low-sodium'],
-  })
-  @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(HEALTH_GOALS.length)
-  @IsIn(HEALTH_GOALS, { each: true })
-  healthGoals?: HealthGoal[];
-
-  @ApiPropertyOptional({
-    description: 'People eating; scales the shopping list.',
-    default: 1,
-    minimum: 1,
-    maximum: 12,
-  })
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  @Max(12)
-  householdSize?: number;
-
+export class MealPlanRequestDto extends ProfileFieldsDto {
   @ApiPropertyOptional({
     description:
-      'Hard limit: recipes known to take longer are excluded (reason too_long). Unknown prep time is allowed with a note.',
-    minimum: 5,
-    maximum: 240,
-    example: 30,
+      'Opaque JJFit user id. Loads the stored profile; profile fields sent inline override it. Requires the x-api-key header.',
+    example: 'u_8f2c41',
   })
-  @IsOptional()
-  @IsInt()
-  @Min(5)
-  @Max(240)
-  maxCookMinutes?: number;
-
-  @ApiPropertyOptional({
-    description: 'Soft hint that steers the search only. There is no price data, so it never filters.',
-    enum: BUDGETS,
-  })
-  @IsOptional()
-  @IsIn(BUDGETS)
-  budget?: Budget;
-
-  @ApiPropertyOptional({ example: 'low sodium, quick dinners' })
   @IsOptional()
   @IsString()
-  preferences?: string;
+  @MaxLength(128)
+  @Matches(USER_ID_PATTERN)
+  userId?: string;
 
   @ApiPropertyOptional({ default: 1, minimum: 1, maximum: 20 })
   @IsOptional()

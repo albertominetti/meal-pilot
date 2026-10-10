@@ -1,0 +1,4 @@
+{
+  "_comment": "Team-reviewed fixes for ingredients the FDC matcher gets wrong or can't match. Keys are normalised ingredient names, with \"|canned\" for canned products (e.g. \"chickpea|canned\"). Values: { \"fdcId\": <Foundation or SR Legacy id>, \"note\": \"why\" }. Known gaps without a verified id yet: \"coconut milk\" (search only returns the sweetened beverage and puddings) and \"vegetable stock\" (only beef, chicken and fish stock); both stay unresolved and lower completeness until added.",
+  "overrides": {}
+}

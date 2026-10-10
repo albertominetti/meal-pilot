@@ -1,0 +1,169 @@
+{
+ "foods": [
+  {
+   "fdcId": 167737,
+   "description": "Oil, corn, peanut, and olive",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 14.4
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 100
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 884
+    }
+   ]
+  },
+  {
+   "fdcId": 1750351,
+   "description": "Oil, olive, extra light",
+   "dataType": "Foundation",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 15.8
+    }
+   ]
+  },
+  {
+   "fdcId": 748608,
+   "description": "Oil, olive, extra virgin",
+   "dataType": "Foundation",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 15.4
+    }
+   ]
+  },
+  {
+   "fdcId": 171413,
+   "description": "Oil, olive, salad or cooking",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 100
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 884
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 2.0
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 13.8
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 0.0
+    }
+   ]
+  },
+  {
+   "fdcId": 171443,
+   "description": "Mayonnaise, reduced fat, with olive oil",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 40.0
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 361
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 0.37
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 800
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 5.37
+    }
+   ]
+  }
+ ]
+}
