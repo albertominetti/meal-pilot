@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MealPilot - Health-Aware Meal Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --card-bg: #121824;
+      --card-border: #1f293d;
+      --card-border-hover: #334155;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --primary-glow: rgba(16, 185, 129, 0.2);
+      --accent: #38bdf8;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --safe-bg: rgba(16, 185, 129, 0.15);
+      --safe-border: rgba(16, 185, 129, 0.35);
+      --safe-text: #34d399;
+      --chip-bg: #1e293b;
+      --chip-border: #334155;
+      --radius: 12px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    header {
+      background: rgba(18, 24, 36, 0.75);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 1rem 1.5rem;
+    }
+
+    .header-content {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 1.25rem;
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .brand h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .brand h1 span {
+      color: var(--primary);
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-api {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .header-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .header-links a:hover {
+      color: var(--text-main);
+    }
+
+    main {
+      flex: 1;
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 960px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Panel: Query Form */
+    .form-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .panel-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .preset-row {
+      margin-bottom: 1.25rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .preset-btn {
+      flex: 1;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--safe-text);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .preset-btn:hover {
+      background: rgba(16, 185, 129, 0.2);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      background: #0f141f;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    .hint {
+      font-size: 0.725rem;
+      color: var(--text-muted);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--primary);
+      color: #042f24;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 0.85rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 14px var(--primary-glow);
+      transition: all 0.2s ease;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Right Panel: Results & Shopping list */
+    .results-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .meta-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding: 0.85rem 1.25rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      font-size: 0.825rem;
+      color: var(--text-muted);
+    }
+
+    .meta-tags {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-pill {
+      background: var(--chip-bg);
+      border: 1px solid var(--chip-border);
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+    }
+
+    .disclaimer-banner {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: var(--radius);
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      gap: 0.75rem;
+      font-size: 0.825rem;
+      color: #fde68a;
+      line-height: 1.4;
+    }
+
+    .tabs-nav {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.5rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--chip-bg);
+      color: var(--text-main);
+    }
+
+    .tab-btn .count-badge {
+      font-size: 0.75rem;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+    }
+
+    /* Recommendation Cards */
+    .recommendations-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .recipe-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .recipe-card:hover {
+      border-color: var(--card-border-hover);
+    }
+
+    .recipe-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .recipe-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.35;
+    }
+
+    .recipe-title a {
+      color: inherit;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .recipe-title a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .recipe-channel {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .recipe-meta-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+
+    .tag-chip {
+      background: #1e293b;
+      color: #94a3b8;
+      font-size: 0.725rem;
+      font-weight: 600;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+    }
+
+    .tag-chip.allergy-safe {
+      background: var(--safe-bg);
+      color: var(--safe-text);
+      border: 1px solid var(--safe-border);
+    }
+
+    .tag-chip.quick {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+    }
+
+    .why-it-fits {
+      background: #0f141f;
+      border-left: 3px solid var(--primary);
+      padding: 0.85rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+    }
+
+    .why-it-fits strong {
+      color: var(--primary);
+    }
+
+    .health-notes {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.5rem 0.85rem;
+      border-radius: 6px;
+    }
+
+    details {
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.5rem 0.85rem;
+      background: #0f141f;
+      font-size: 0.85rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text-muted);
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    summary:hover {
+      color: var(--text-main);
+    }
+
+    .details-content {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--card-border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .details-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .ingredients-list {
+      list-style-type: none;
+    }
+
+    .ingredients-list li {
+      padding: 0.25rem 0;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .steps-list {
+      padding-left: 1.25rem;
+    }
+
+    .steps-list li {
+      padding: 0.25rem 0;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+    }
+
+    .label-check-box {
+      margin-top: 0.5rem;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px dashed rgba(245, 158, 11, 0.3);
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.775rem;
+      color: #fbbf24;
+    }
+
+    /* Shopping List Section */
+    .shopping-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .shopping-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .shopping-section {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .shopping-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 0.825rem;
+    }
+
+    .shopping-item:last-child {
+      border-bottom: none;
+    }
+
+    .shopping-item .qty {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 0.775rem;
+    }
+
+    /* Empty state & loaders */
+    .empty-state {
+      background: var(--card-bg);
+      border: 1px dashed var(--card-border);
+      border-radius: var(--radius);
+      padding: 3rem 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 2px solid rgba(4, 47, 36, 0.3);
+      border-radius: 50%;
+      border-top-color: #042f24;
+      animation: spin 0.75s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .raw-json-box {
+      background: #090d14;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      overflow-x: auto;
+      max-height: 400px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-content">
+      <a href="/" class="brand">
+        <div class="logo-icon">🥗</div>
+        <h1>Meal<span>Pilot</span></h1>
+        <span class="badge badge-api">Live Client</span>
+      </a>
+      <div class="header-links">
+        <a href="/app" style="color: var(--primary); font-weight: 700; margin-right: 1rem;">Frontend UI</a>
+        <a href="/api/docs" target="_blank">Swagger Docs ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Left: Query Parameters -->
+    <div class="form-panel">
+      <div class="panel-card">
+        <div class="card-title">
+          <span>🩺</span> Health & Diet Profile
+        </div>
+        <p class="card-subtitle">Tune parameters or populate with the default test query</p>
+
+        <div class="preset-row">
+          <button type="button" class="preset-btn" id="loadAttachmentBtn">
+            ⚡ Fill Prompt Sample (BP 116/75)
+          </button>
+        </div>
+
+        <form id="mealPlanForm">
+          <div class="form-group">
+            <label for="bloodPressure">Blood Pressure</label>
+            <input type="text" id="bloodPressure" name="bloodPressure" placeholder="e.g. 116/75 or 140/90" value="116/75">
+            <span class="hint">Systolic/diastolic in mmHg</span>
+          </div>
+
+          <div class="form-group">
+            <label for="healthProfile">Health Profile Description</label>
+            <textarea id="healthProfile" name="healthProfile" rows="3" placeholder="Description of conditions or goals">User-confirmed blood pressure: 116/75 mmHg. Dietary preferences, restrictions and allergies have not been confirmed; empty fields do not establish absence of allergies.</textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="allergies">Allergies (comma separated)</label>
+              <input type="text" id="allergies" name="allergies" placeholder="peanuts, shellfish">
+            </div>
+            <div class="form-group">
+              <label for="restrictions">Restrictions (comma sep)</label>
+              <input type="text" id="restrictions" name="restrictions" placeholder="vegetarian, vegan">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="preferences">Preferences</label>
+            <input type="text" id="preferences" name="preferences" placeholder="e.g. low sodium, high protein" value="">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="minResults">Min Results</label>
+              <input type="number" id="minResults" name="minResults" value="1" min="1" max="10">
+            </div>
+            <div class="form-group">
+              <label for="maxResults">Max Results</label>
+              <input type="number" id="maxResults" name="maxResults" value="7" min="1" max="10">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="householdSize">Household Size</label>
+              <input type="number" id="householdSize" name="householdSize" value="1" min="1" max="12">
+            </div>
+            <div class="form-group">
+              <label for="maxCookMinutes">Max Prep Mins</label>
+              <input type="number" id="maxCookMinutes" name="maxCookMinutes" placeholder="Optional" min="5" max="240">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span>Query Meal Plan</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right: Recommendations & Shopping List -->
+    <div class="results-panel">
+      <!-- Top Meta Info -->
+      <div id="metaBar" class="meta-bar" style="display: none;">
+        <div>
+          <span>Found </span>
+          <strong id="recCount" style="color: var(--primary);">0</strong> recommendations
+          <span id="timingSpan" style="margin-left: 0.5rem;"></span>
+        </div>
+        <div class="meta-tags" id="metaTags"></div>
+      </div>
+
+      <!-- Disclaimer -->
+      <div id="disclaimerBox" class="disclaimer-banner" style="display: none;">
+        <span>⚠️</span>
+        <div id="disclaimerText"></div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="tabs-nav" id="resultsTabs" style="display: none;">
+        <button class="tab-btn active" data-tab="recipes">
+          <span>🍲 Recipes & Recommendations</span>
+          <span class="count-badge" id="recipesBadge">0</span>
+        </button>
+        <button class="tab-btn" data-tab="shopping">
+          <span>🛒 Aggregated Shopping List</span>
+        </button>
+        <button class="tab-btn" data-tab="raw">
+          <span>{ } Raw JSON</span>
+        </button>
+      </div>
+
+      <!-- Main Results Display Area -->
+      <div id="displayArea">
+        <div class="empty-state">
+          <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🥗</div>
+          <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">Ready to generate meal plan</h3>
+          <p>Fill out the profile on the left or click "Fill Prompt Sample" to query the <code>POST /api/meal-plan</code> endpoint.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById('mealPlanForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const displayArea = document.getElementById('displayArea');
+    const metaBar = document.getElementById('metaBar');
+    const disclaimerBox = document.getElementById('disclaimerBox');
+    const disclaimerText = document.getElementById('disclaimerText');
+    const resultsTabs = document.getElementById('resultsTabs');
+    const recCount = document.getElementById('recCount');
+    const timingSpan = document.getElementById('timingSpan');
+    const metaTags = document.getElementById('metaTags');
+    const recipesBadge = document.getElementById('recipesBadge');
+
+    let currentResponseData = null;
+    let activeTab = 'recipes';
+
+    // Preset button
+    document.getElementById('loadAttachmentBtn').addEventListener('click', () => {
+      document.getElementById('bloodPressure').value = '116/75';
+      document.getElementById('healthProfile').value = 'User-confirmed blood pressure: 116/75 mmHg. Dietary preferences, restrictions and allergies have not been confirmed; empty fields do not establish absence of allergies.';
+      document.getElementById('allergies').value = '';
+      document.getElementById('restrictions').value = '';
+      document.getElementById('preferences').value = '';
+      document.getElementById('minResults').value = '1';
+      document.getElementById('maxResults').value = '7';
+      document.getElementById('householdSize').value = '1';
+    });
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeTab = btn.getAttribute('data-tab');
+        renderTabContent();
+      });
+    });
+
+    // Form submit
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const parseCsv = (val) => val.split(',').map(s => s.trim()).filter(Boolean);
+
+      const requestBody = {
+        bloodPressure: document.getElementById('bloodPressure').value.trim() || undefined,
+        healthProfile: document.getElementById('healthProfile').value.trim() || undefined,
+        allergies: parseCsv(document.getElementById('allergies').value),
+        restrictions: parseCsv(document.getElementById('restrictions').value),
+        preferences: document.getElementById('preferences').value.trim() || '',
+        minResults: parseInt(document.getElementById('minResults').value, 10) || 1,
+        maxResults: parseInt(document.getElementById('maxResults').value, 10) || 7,
+        householdSize: parseInt(document.getElementById('householdSize').value, 10) || 1
+      };
+
+      const maxCookMinutes = document.getElementById('maxCookMinutes').value;
+      if (maxCookMinutes) {
+        requestBody.maxCookMinutes = parseInt(maxCookMinutes, 10);
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner"></span> Querying API...';
+
+      const startTime = performance.now();
+
+      try {
+        const res = await fetch('/api/meal-plan', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        const duration = Math.round(performance.now() - startTime);
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.message || `Request failed with status ${res.status}`);
+        }
+
+        const data = await res.json();
+        currentResponseData = data;
+
+        // Render meta
+        metaBar.style.display = 'flex';
+        recCount.textContent = (data.recommendations || []).length;
+        timingSpan.textContent = `(${duration}ms)`;
+
+        metaTags.innerHTML = '';
+        if (data.meta) {
+          if (data.meta.mode) metaTags.innerHTML += `<span class="meta-pill">mode: ${data.meta.mode}</span>`;
+          if (data.meta.provider) metaTags.innerHTML += `<span class="meta-pill">provider: ${data.meta.provider}</span>`;
+          if (data.meta.model) metaTags.innerHTML += `<span class="meta-pill">model: ${data.meta.model}</span>`;
+        }
+
+        // Disclaimer
+        if (data.disclaimer) {
+          disclaimerBox.style.display = 'flex';
+          disclaimerText.textContent = data.disclaimer;
+        } else {
+          disclaimerBox.style.display = 'none';
+        }
+
+        // Show tabs
+        resultsTabs.style.display = 'flex';
+        recipesBadge.textContent = (data.recommendations || []).length;
+
+        renderTabContent();
+
+      } catch (err) {
+        displayArea.innerHTML = `
+          <div class="panel-card" style="border-color: var(--danger); background: rgba(239, 68, 68, 0.05);">
+            <h3 style="color: var(--danger); margin-bottom: 0.5rem;">Query Error</h3>
+            <p style="font-size: 0.9rem; color: #fca5a5;">${err.message}</p>
+          </div>
+        `;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Query Meal Plan</span>';
+      }
+    });
+
+    function renderTabContent() {
+      if (!currentResponseData) return;
+
+      if (activeTab === 'recipes') {
+        renderRecipes(currentResponseData.recommendations || []);
+      } else if (activeTab === 'shopping') {
+        renderShopping(currentResponseData.shoppingList);
+      } else if (activeTab === 'raw') {
+        renderRaw(currentResponseData);
+      }
+    }
+
+    function renderRecipes(recipes) {
+      if (recipes.length === 0) {
+        displayArea.innerHTML = `
+          <div class="empty-state">
+            <h3>No matching recipes found</h3>
+            <p>Try loosening restrictions or adjusting filters.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '<div class="recommendations-list">';
+
+      recipes.forEach((item, idx) => {
+        const recipe = item.recipe || {};
+        const tags = item.matchedTags || [];
+        const labelChecks = item.labelCheck || [];
+
+        const tagsHtml = tags.map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join('');
+        const safetyChip = item.allergySafety && item.allergySafety.status === 'safe'
+          ? `<span class="tag-chip allergy-safe">🛡️ ${escapeHtml(item.allergySafety.status)}</span>`
+          : `<span class="tag-chip" style="background: rgba(239, 68, 68, 0.2); color: #f87171;">⚠️ ${escapeHtml(item.allergySafety?.status || 'check')}</span>`;
+
+        const prepTime = recipe.prepMinutes ? `⏱️ ${recipe.prepMinutes} mins` : '';
+        const servings = recipe.servings ? `👥 ${recipe.servings} servings` : '';
+
+        // Ingredients
+        const ingredientsHtml = (recipe.ingredients || []).map(ing => {
+          const qty = ing.quantity ? `${ing.quantity} ${ing.unit || ''}` : '';
+          return `<li><span>${escapeHtml(ing.name || ing.rawText)}</span><span style="color: var(--text-muted); font-family: monospace;">${escapeHtml(qty)}</span></li>`;
+        }).join('');
+
+        // Steps
+        const stepsHtml = (recipe.steps || []).map(s => `<li>${escapeHtml(s)}</li>`).join('');
+
+        // Label check notice
+        let labelCheckNotice = '';
+        if (labelChecks.length > 0) {
+          labelCheckNotice = `
+            <div class="label-check-box">
+              <strong>Allergen check recommended:</strong> ${escapeHtml(labelChecks.join(', '))}
+            </div>
+          `;
+        }
+
+        html += `
+          <div class="recipe-card">
+            <div class="recipe-header">
+              <div>
+                <h3 class="recipe-title">
+                  <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">
+                    ${escapeHtml(item.title)} ↗
+                  </a>
+                </h3>
+                <div class="recipe-channel">
+                  Channel: <strong>${escapeHtml(item.channel || 'YouTube')}</strong>
+                  ${prepTime ? ` • ${prepTime}` : ''}
+                  ${servings ? ` • ${servings}` : ''}
+                </div>
+              </div>
+            </div>
+
+            <div class="recipe-meta-tags">
+              ${safetyChip}
+              ${tagsHtml}
+            </div>
+
+            ${item.whyItFits ? `
+              <div class="why-it-fits">
+                <strong>Why it fits:</strong> ${escapeHtml(item.whyItFits)}
+              </div>
+            ` : ''}
+
+            ${item.healthNotes ? `
+              <div class="health-notes">
+                <strong>Health Notes:</strong> ${escapeHtml(item.healthNotes)}
+              </div>
+            ` : ''}
+
+            ${labelCheckNotice}
+
+            <details>
+              <summary>
+                <span>View Ingredients (${(recipe.ingredients || []).length}) & Preparation Steps</span>
+                <span>▼</span>
+              </summary>
+              <div class="details-content">
+                <div>
+                  <h4 style="font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--accent);">Ingredients</h4>
+                  <ul class="ingredients-list">
+                    ${ingredientsHtml}
+                  </ul>
+                </div>
+                <div>
+                  <h4 style="font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--accent);">Preparation Steps</h4>
+                  <ol class="steps-list">
+                    ${stepsHtml}
+                  </ol>
+                </div>
+              </div>
+            </details>
+          </div>
+        `;
+      });
+
+      html += '</div>';
+      displayArea.innerHTML = html;
+    }
+
+    function renderShopping(shoppingList) {
+      if (!shoppingList || !shoppingList.sections) {
+        displayArea.innerHTML = `
+          <div class="empty-state">
+            <h3>No shopping list generated</h3>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '<div class="shopping-container">';
+
+      if (shoppingList.warnings && shoppingList.warnings.length > 0) {
+        html += `
+          <div class="disclaimer-banner" style="background: rgba(56, 189, 248, 0.08); border-color: rgba(56, 189, 248, 0.25); color: #bae6fd;">
+            <span>ℹ️</span>
+            <div>${shoppingList.warnings.map(w => escapeHtml(w)).join('<br>')}</div>
+          </div>
+        `;
+      }
+
+      html += '<div class="shopping-grid">';
+
+      (shoppingList.sections || []).forEach(sec => {
+        if (!sec.items || sec.items.length === 0) return;
+        html += `
+          <div class="shopping-section">
+            <div class="section-title">📦 ${escapeHtml(sec.section)}</div>
+            ${sec.items.map(item => `
+              <div class="shopping-item">
+                <span>${escapeHtml(item.name)}</span>
+                <span class="qty">${item.amount ? `${item.amount} ${item.unit || ''}` : (item.note || 'as needed')}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      });
+
+      if (shoppingList.pantry && shoppingList.pantry.length > 0) {
+        html += `
+          <div class="shopping-section" style="border-style: dashed;">
+            <div class="section-title" style="color: var(--safe-text);">🧂 Pantry Staples (Check Supply)</div>
+            ${shoppingList.pantry.map(item => `
+              <div class="shopping-item">
+                <span>${escapeHtml(item.name)}</span>
+                <span class="qty">${item.amount ? `${item.amount} ${item.unit || ''}` : (item.note || 'check')}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      html += '</div></div>';
+      displayArea.innerHTML = html;
+    }
+
+    function renderRaw(data) {
+      displayArea.innerHTML = `
+        <pre class="raw-json-box"><code>${escapeHtml(JSON.stringify(data, null, 2))}</code></pre>
+      `;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
