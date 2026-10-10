@@ -23,6 +23,15 @@ services:
         sync: false
       - key: YOUTUBE_API_KEY
         sync: false
+      # S3-compatible storage (e.g. Neon S3). Values set in Render dashboard; sync: false keeps them out of the repo.
+      - key: AWS_ENDPOINT_URL_S3
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        sync: false
       - key: AGENT_MAX_STEPS
         value: "12"
       - key: AGENT_MAX_ANALYSES
