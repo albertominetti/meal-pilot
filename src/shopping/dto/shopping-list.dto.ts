@@ -16,7 +16,7 @@ import { SECTIONS } from '../sections';
 import type { Section } from '../sections';
 
 export class ShoppingListRecipeRequestDto {
-  @ApiProperty({ example: 'veg-low-sodium-01' })
+  @ApiProperty({ example: 'jfKL8pQjBCA' })
   @IsString()
   @MaxLength(64)
   videoId!: string;

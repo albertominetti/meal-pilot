@@ -242,7 +242,7 @@ describe('MealPlanService table-driven safety rules', () => {
     it('returns labelCheck and the label note on recommendations', async () => {
       const svc = await buildService();
       const res = await svc.buildPlan({ maxResults: 3 } as any);
-      const soup = res.recommendations.find((r) => r.videoId === 'veg-low-sodium-01');
+      const soup = res.recommendations.find((r) => r.videoId === 'jfKL8pQjBCA');
       expect(soup).toBeDefined();
       expect(soup!.labelCheck).toContain('low-sodium vegetable stock');
       expect(soup!.labelCheckNote).toBe('Check the product label for allergens');
@@ -256,23 +256,24 @@ describe('MealPlanService table-driven safety rules', () => {
     it('excludes recipes over maxCookMinutes with code too_long', async () => {
       const svc = await buildService();
       const res = await svc.buildPlan({ maxCookMinutes: 25, maxResults: 5 } as any);
-      const soup = res.excluded.find((e) => e.videoId === 'veg-low-sodium-01');
+      const soup = res.excluded.find((e) => e.videoId === 'jfKL8pQjBCA');
       expect(soup).toMatchObject({ code: 'too_long' });
       expect(soup!.reason).toMatch(/^Too long: Takes about 35 min/);
-      expect(res.recommendations.map((r) => r.videoId)).toContain('quick-chicken-03');
+      expect(res.recommendations.map((r) => r.videoId)).toContain('tv6Wrr2-hRU');
     });
 
     it('adds matched health goals to matchedTags', async () => {
       const svc = await buildService();
       const res = await svc.buildPlan({ healthGoals: ['low-sodium'], maxResults: 5 } as any);
-      const soup = res.recommendations.find((r) => r.videoId === 'veg-low-sodium-01');
+      const soup = res.recommendations.find((r) => r.videoId === 'jfKL8pQjBCA');
       expect(soup!.matchedTags).toContain('low-sodium');
     });
 
     it('gives every exclusion a code', async () => {
       const svc = await buildService();
-      const res = await svc.buildPlan({ allergies: ['peanuts'], maxResults: 5 } as any);
-      expect(res.excluded.length).toBeGreaterThan(0);
+      // The quinoa bowl's description lists tahini (sesame).
+      const res = await svc.buildPlan({ allergies: ['sesame'], maxCookMinutes: 25, maxResults: 5 } as any);
+      expect(res.excluded.map((e) => e.code)).toEqual(expect.arrayContaining(['allergen', 'too_long']));
       for (const e of res.excluded) {
         expect(['allergen', 'uncertain', 'unavailable', 'too_long']).toContain(e.code);
       }

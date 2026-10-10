@@ -7,6 +7,16 @@ function build(cached: unknown = null) {
   const analyzer = new MockVideoAnalyzer();
   const analyze = jest.spyOn(analyzer, 'analyze');
   const youtube = new FakeYouTubeService();
+  youtube.addVideo({
+    videoId: 'desc-only-peanut',
+    title: 'Easy Vegetarian Tofu Curry',
+    channel: 'Fixture Kitchen',
+    channelId: 'UC_fixture_kitchen',
+    description: 'Serves 3. Ingredients: 400g firm tofu, 2 tbsp red curry paste, 2 tbsp peanut sauce.',
+    durationSec: 700,
+    privacyStatus: 'public',
+    embeddable: true,
+  });
   const getDetails = jest.spyOn(youtube, 'getDetails');
   const svc = new VideoAnalysisService(
     cache as any,
@@ -21,14 +31,14 @@ describe('VideoAnalysisService description enrichment', () => {
   it('fetches details on a cache miss and passes the description to the analyzer', async () => {
     const { svc, analyze, getDetails } = build();
     const { analysis } = await svc.analyzeWithMeta({
-      videoId: 'tofu-curry-05',
-      title: 'YouTube video tofu-curry-05',
+      videoId: 'desc-only-peanut',
+      title: 'YouTube video desc-only-peanut',
       channel: 'Unknown channel',
     });
-    expect(getDetails).toHaveBeenCalledWith(['tofu-curry-05']);
+    expect(getDetails).toHaveBeenCalledWith(['desc-only-peanut']);
     const target = analyze.mock.calls[0][0];
     expect(target.title).toBe('Easy Vegetarian Tofu Curry');
-    expect(target.channelId).toBe('UC_spice_route');
+    expect(target.channelId).toBe('UC_fixture_kitchen');
     expect(target.description).toMatch(/peanut sauce/);
     expect(analysis.ingredients.some((i) => i.source === 'description')).toBe(true);
   });

@@ -11,23 +11,25 @@ export class FakeYouTubeService implements IYouTubeService {
   private cannedSearches = new Map<string, string[]>();
 
   constructor() {
-    // Seed with common test videos
+    // Real public videos so watch URLs resolve. Channel IDs and descriptions
+    // are offline fixtures (not the real ones) so the mock analyzer can
+    // exercise the description path.
     this.addVideo({
-      videoId: 'veg-low-sodium-01',
-      title: 'Low-Sodium Vegetarian Lentil Soup',
-      channel: 'Healthy Kitchen',
-      channelId: 'UC_healthy_kitchen',
+      videoId: 'jfKL8pQjBCA',
+      title: 'Amazing Red Lentil Soup (Low-Sodium, Vegetarian)',
+      channel: 'Downshiftology',
+      channelId: 'UC_fixture_downshiftology',
       description:
-        'Serves 4. Ingredients: 200g brown lentils, 2 carrots, 1 onion, 2 cloves garlic, 1 l low-sodium vegetable stock, 1 tbsp olive oil.',
+        'Serves 4. Ingredients: 200g red lentils, 2 carrots, 1 onion, 2 cloves garlic, 1 l low-sodium vegetable stock, 1 tbsp olive oil.',
       durationSec: 620,
       privacyStatus: 'public',
       embeddable: true,
     });
     this.addVideo({
-      videoId: 'vegan-quinoa-02',
-      title: 'Vegan Quinoa Buddha Bowl (Gluten-Free)',
-      channel: 'Plant Table',
-      channelId: 'UC_plant_table',
+      videoId: 'mPaJFxzwi-U',
+      title: 'Healthy Quinoa Chickpea Bowl (Vegan, Gluten-Free)',
+      channel: 'Food Impromptu',
+      channelId: 'UC_fixture_food_impromptu',
       description:
         'Serves 2. 150g quinoa, 1 can (400g) chickpeas, 1 avocado, 2 tbsp tahini, 1 lemon.',
       durationSec: 540,
@@ -35,33 +37,22 @@ export class FakeYouTubeService implements IYouTubeService {
       embeddable: true,
     });
     this.addVideo({
-      videoId: 'quick-chicken-03',
-      title: 'Quick 15-Minute Chicken and Veggie Stir Fry',
-      channel: 'Weeknight Cooks',
-      channelId: 'UC_weeknight_cooks',
+      videoId: 'tv6Wrr2-hRU',
+      title: '15 Minute Chicken Stir-Fry',
+      channel: 'The Domestic Geek',
+      channelId: 'UC_fixture_domestic_geek',
       description: 'Dinner in 15 minutes. Full recipe on our blog.',
       durationSec: 900,
       privacyStatus: 'public',
       embeddable: true,
     });
     this.addVideo({
-      videoId: 'peanut-satay-04',
-      title: 'Peanut Satay Noodles',
-      channel: 'Wok House',
-      channelId: 'UC_wok_house',
-      description: '200g rice noodles, 3 tbsp peanut butter, 1 tbsp soy sauce.',
+      videoId: 'ZtK81MzVoJ4',
+      title: 'Easy Thai Peanut Satay Sauce',
+      channel: 'Thai Girl in the Kitchen',
+      channelId: 'UC_fixture_thai_girl',
+      description: '3 tbsp peanut butter, 1 tbsp soy sauce, 200ml coconut milk.',
       durationSec: 480,
-      privacyStatus: 'public',
-      embeddable: true,
-    });
-    this.addVideo({
-      videoId: 'tofu-curry-05',
-      title: 'Easy Vegetarian Tofu Curry',
-      channel: 'Spice Route',
-      channelId: 'UC_spice_route',
-      description:
-        'Serves 3. Ingredients: 400g firm tofu, 2 tbsp red curry paste, 400ml coconut milk, 2 tbsp peanut sauce, 1 red pepper.',
-      durationSec: 700,
       privacyStatus: 'public',
       embeddable: true,
     });

@@ -12,9 +12,7 @@ How to run, test and extend MealPilot locally. Setup commands are also in the [R
 | `live` | Gemini; startup fails without `GEMINI_API_KEY` |
 | `mock` | No network calls to Gemini: `MockLlmClient` and `MockVideoAnalyzer` |
 
-YouTube is selected separately. With `YOUTUBE_API_KEY` set, `YouTubeService` calls the Data API; without it, `FakeYouTubeService` serves canned videos (`src/youtube/fake-youtube.service.ts`). The offline fixtures include:
-- `tofu-curry-05`, whose peanut sauce appears only in its description
-- descriptions with full ingredient lists, so the mock analyzer returns quantities with `source: "description"`
+YouTube is selected separately. With `YOUTUBE_API_KEY` set, `YouTubeService` calls the Data API; without it, `FakeYouTubeService` serves canned videos (`src/youtube/fake-youtube.service.ts`). The canned videos are real public videos, so their watch URLs resolve. Their channel IDs and descriptions are offline fixtures: the descriptions hold full ingredient lists, so the mock analyzer returns quantities with `source: "description"`. Tests that need a special case, such as an allergen named only in the description, add their own video with `addVideo`.
 
 ## Tests
 

@@ -138,8 +138,8 @@ describe('AgentService (tool loop and guardrails)', () => {
           id: 'call_2',
           name: 'analyze_video',
           arguments: {
-            videoId: 'veg-low-sodium-01',
-            title: 'Low-Sodium Vegetarian Lentil Soup',
+            videoId: 'jfKL8pQjBCA',
+            title: 'Amazing Red Lentil Soup',
           },
         },
       ],
@@ -156,7 +156,7 @@ describe('AgentService (tool loop and guardrails)', () => {
           arguments: {
             recommendations: [
               {
-                videoId: 'veg-low-sodium-01',
+                videoId: 'jfKL8pQjBCA',
                 whyItFits: 'High fiber, low sodium lentil soup ideal for blood pressure management.',
               },
             ],
@@ -177,7 +177,7 @@ describe('AgentService (tool loop and guardrails)', () => {
     );
 
     expect(res.recommendations.length).toBe(1);
-    expect(res.recommendations[0].videoId).toBe('veg-low-sodium-01');
+    expect(res.recommendations[0].videoId).toBe('jfKL8pQjBCA');
     expect(res.recommendations[0].allergySafety.status).toBe('safe');
     expect(res.meta.fallbackUsed).toBe(false);
     expect(res.trace).toBeDefined();
@@ -194,7 +194,7 @@ describe('AgentService (tool loop and guardrails)', () => {
           id: 'call_1',
           name: 'analyze_video',
           arguments: {
-            videoId: 'vegan-quinoa-02',
+            videoId: 'mPaJFxzwi-U',
             title: 'Vegan Quinoa Buddha Bowl',
           },
         },
@@ -221,7 +221,7 @@ describe('AgentService (tool loop and guardrails)', () => {
 
     expect(res.meta.fallbackUsed).toBe(true);
     expect(res.recommendations.length).toBe(1);
-    expect(res.recommendations[0].videoId).toBe('vegan-quinoa-02');
+    expect(res.recommendations[0].videoId).toBe('mPaJFxzwi-U');
   });
 
   it('rejects unsafe videos in submit_plan guardrail', async () => {
@@ -229,11 +229,11 @@ describe('AgentService (tool loop and guardrails)', () => {
     const run: any = {
       request: { maxResults: 5, allergies: ['peanuts'] },
       analyzedVideos: new Map([
-        ['peanut-dish', { videoId: 'peanut-dish', title: 'Peanut Satay' }],
+        ['ZtK81MzVoJ4', { videoId: 'ZtK81MzVoJ4', title: 'Peanut Satay' }],
       ]),
       videoSafetyVerdicts: new Map([
         [
-          'peanut-dish',
+          'ZtK81MzVoJ4',
           {
             status: 'unsafe',
             notes: 'Contains peanuts',
@@ -245,7 +245,7 @@ describe('AgentService (tool loop and guardrails)', () => {
     const result: any = await submitTool.execute(
       {
         recommendations: [
-          { videoId: 'peanut-dish', whyItFits: 'A tasty noodle dish' },
+          { videoId: 'ZtK81MzVoJ4', whyItFits: 'A tasty noodle dish' },
         ],
       },
       run,
@@ -302,7 +302,7 @@ describe('AgentService (tool loop and guardrails)', () => {
       (s: any) => s.type === 'function_result' && s.name === 'search_videos',
     ) as any;
     const videos = JSON.parse(searchResult.result).videos;
-    expect(videos[0]).toMatchObject({ videoId: 'vegan-quinoa-02', trustedChannel: true });
+    expect(videos[0]).toMatchObject({ videoId: 'mPaJFxzwi-U', trustedChannel: true });
     expect(videos.slice(1).every((v: any) => v.trustedChannel === false)).toBe(true);
     expect(res.meta.searches).toBe(1);
   });
@@ -332,7 +332,7 @@ describe('AgentService (tool loop and guardrails)', () => {
           call('c1', 'analyze_video', { videoId: 'chk-1' }),
           call('c2', 'analyze_video', { videoId: 'chk-2' }),
           call('c3', 'analyze_video', { videoId: 'chk-3' }),
-          call('c4', 'analyze_video', { videoId: 'veg-low-sodium-01' }),
+          call('c4', 'analyze_video', { videoId: 'jfKL8pQjBCA' }),
         ],
       },
       { outputText: '', steps: [call('c5', 'check_plan_balance', { videoIds: ['chk-1', 'chk-2', 'chk-3'] })] },
@@ -343,7 +343,7 @@ describe('AgentService (tool loop and guardrails)', () => {
             recommendations: [
               { videoId: 'chk-1', whyItFits: 'Chickpea curry, 400 g chickpeas' },
               { videoId: 'chk-2', whyItFits: 'Chickpea salad' },
-              { videoId: 'veg-low-sodium-01', whyItFits: 'Lentil soup swaps out the third chickpea dish' },
+              { videoId: 'jfKL8pQjBCA', whyItFits: 'Lentil soup swaps out the third chickpea dish' },
             ],
           }),
         ],
@@ -362,7 +362,7 @@ describe('AgentService (tool loop and guardrails)', () => {
     expect(balance.warnings.join(' ')).toMatch(/3 recipes use chickpea/);
 
     expect(res.meta.fallbackUsed).toBe(false);
-    expect(res.recommendations.map((r) => r.videoId)).toEqual(['chk-1', 'chk-2', 'veg-low-sodium-01']);
+    expect(res.recommendations.map((r) => r.videoId)).toEqual(['chk-1', 'chk-2', 'jfKL8pQjBCA']);
     expect(res.trace?.map((t) => t.tool)).toContain('check_plan_balance');
 
     const curry = res.recommendations[0];
@@ -384,32 +384,32 @@ describe('AgentService (tool loop and guardrails)', () => {
       {
         outputText: '',
         steps: [
-          call('c1', 'analyze_video', { videoId: 'veg-low-sodium-01' }),
-          call('c2', 'analyze_video', { videoId: 'quick-chicken-03' }),
+          call('c1', 'analyze_video', { videoId: 'jfKL8pQjBCA' }),
+          call('c2', 'analyze_video', { videoId: 'tv6Wrr2-hRU' }),
         ],
       },
       {
         outputText: '',
-        steps: [call('c3', 'submit_plan', { recommendations: [{ videoId: 'veg-low-sodium-01', whyItFits: 'Lentil soup' }] })],
+        steps: [call('c3', 'submit_plan', { recommendations: [{ videoId: 'jfKL8pQjBCA', whyItFits: 'Lentil soup' }] })],
       },
       {
         outputText: '',
-        steps: [call('c4', 'submit_plan', { recommendations: [{ videoId: 'quick-chicken-03', whyItFits: '15-minute stir fry' }] })],
+        steps: [call('c4', 'submit_plan', { recommendations: [{ videoId: 'tv6Wrr2-hRU', whyItFits: '15-minute stir fry' }] })],
       },
     );
 
     const res = await agentService.run({ maxCookMinutes: 20, maxResults: 1 });
 
     const digests = resultsSeenOnTurn(1, 'analyze_video');
-    expect(digests.find((d) => d.videoId === 'veg-low-sodium-01').fitsTime).toBe(false);
-    expect(digests.find((d) => d.videoId === 'quick-chicken-03').fitsTime).toBe(true);
+    expect(digests.find((d) => d.videoId === 'jfKL8pQjBCA').fitsTime).toBe(false);
+    expect(digests.find((d) => d.videoId === 'tv6Wrr2-hRU').fitsTime).toBe(true);
 
     const [rejection] = resultsSeenOnTurn(2, 'submit_plan');
     expect(rejection.accepted).toBe(false);
     expect(rejection.errors[0]).toMatch(/too_long/);
 
-    expect(res.recommendations.map((r) => r.videoId)).toEqual(['quick-chicken-03']);
+    expect(res.recommendations.map((r) => r.videoId)).toEqual(['tv6Wrr2-hRU']);
     expect(res.recommendations[0].fitsTime).toBe(true);
-    expect(res.excluded.find((e) => e.videoId === 'veg-low-sodium-01')?.code).toBe('too_long');
+    expect(res.excluded.find((e) => e.videoId === 'jfKL8pQjBCA')?.code).toBe('too_long');
   });
 });

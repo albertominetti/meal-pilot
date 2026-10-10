@@ -125,7 +125,8 @@ export class MockVideoAnalyzer implements VideoAnalyzer {
         );
       }
     } else if (
-      titleHas('vegetarian', 'veggie', 'lentil', 'salad', 'stir fry', 'stir-fry')
+      titleHas('vegetarian', 'veggie', 'lentil', 'salad', 'stir fry', 'stir-fry') &&
+      !titleHas('chicken', 'beef', 'pork', 'turkey', 'salmon', 'fish', 'shrimp')
     ) {
       restrictionTags.push('vegetarian');
       if (!fromDescription.length) {

@@ -71,11 +71,6 @@ describe('MealPilot API (e2e, offline)', () => {
         expect(res.body.meta).toBeDefined();
         expect(res.body.meta.mode).toBe('mock');
         expect(res.body.meta.provider).toBe('mock');
-        // Peanut sauce appears only in the video description.
-        const curry = res.body.excluded.find(
-          (e: { videoId: string }) => e.videoId === 'tofu-curry-05',
-        );
-        expect(curry?.reason).toMatch(/^Blocked:/);
         for (const r of res.body.recommendations) {
           expect(Array.isArray(r.labelCheck)).toBe(true);
           expect(r.recipe.ingredients.length).toBeGreaterThan(0);
@@ -136,10 +131,10 @@ describe('MealPilot API (e2e, offline)', () => {
     // The meal-plan tests above analysed and cached the seed videos.
     const res = await request(app.getHttpServer())
       .post('/api/shopping-list')
-      .send({ items: [{ videoId: 'veg-low-sodium-01' }, { videoId: 'vegan-quinoa-02' }], householdSize: 2 })
+      .send({ items: [{ videoId: 'jfKL8pQjBCA' }, { videoId: 'mPaJFxzwi-U' }], householdSize: 2 })
       .expect(200);
     const names = res.body.sections.flatMap((s: any) => s.items.map((i: any) => i.name));
-    expect(names).toEqual(expect.arrayContaining(['brown lentil', 'quinoa', 'chickpea']));
+    expect(names).toEqual(expect.arrayContaining(['red lentil', 'quinoa', 'chickpea']));
     expect(res.body.pantry.map((i: any) => i.name)).toContain('olive oil');
     expect(res.body.householdSize).toBe(2);
   });

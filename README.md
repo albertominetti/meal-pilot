@@ -169,17 +169,17 @@ Builds a merged shopping list for recipes that are already analysed. It reads th
 ```bash
 curl -X POST http://localhost:3000/api/shopping-list \
   -H 'Content-Type: application/json' \
-  -d '{ "items": [{ "videoId": "veg-low-sodium-01" }, { "videoId": "vegan-quinoa-02", "servings": 1 }], "householdSize": 2 }'
+  -d '{ "items": [{ "videoId": "jfKL8pQjBCA" }, { "videoId": "mPaJFxzwi-U", "servings": 1 }], "householdSize": 2 }'
 ```
 ```json
 {
   "householdSize": 2,
   "sections": [
     { "section": "dry goods & grains", "items": [
-      { "name": "brown lentil", "amount": 100, "unit": "g", "exactAmount": 100, "uncertain": false, "fromRecipes": ["veg-low-sodium-01"] }
+      { "name": "red lentil", "amount": 100, "unit": "g", "exactAmount": 100, "uncertain": false, "fromRecipes": ["jfKL8pQjBCA"] }
     ] }
   ],
-  "pantry": [{ "name": "olive oil", "amount": 10, "unit": "ml", "exactAmount": 7.5, "uncertain": false, "fromRecipes": ["veg-low-sodium-01"] }],
+  "pantry": [{ "name": "olive oil", "amount": 10, "unit": "ml", "exactAmount": 7.5, "uncertain": false, "fromRecipes": ["jfKL8pQjBCA"] }],
   "warnings": []
 }
 ```
