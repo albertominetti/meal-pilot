@@ -1,0 +1,47 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K26F9FWQANA9DP1SK7ECY5",
+  "session_id": "5ce053c9-f1eb-4487-b482-79642b726a98",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-10T14:06:48.329461Z",
+  "branch": "feat/schema-v3-video-description",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/videos/analyzers/mock-video-analyzer.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "43826b4ac831",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 88,
+    "cache_creation_tokens": 180418,
+    "cache_read_tokens": 6224672,
+    "output_tokens": 42130,
+    "api_call_count": 44
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-10T14:06:48.278531Z",
+    "agent_lines": 163,
+    "agent_removed": 31,
+    "human_added": 869,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1032,
+    "total_lines_changed": 1101,
+    "agent_percentage": 17.620345140781108,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 362,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "docs/plans/close-concept-gaps.md": 362
+      }
+    }
+  ]
+}
