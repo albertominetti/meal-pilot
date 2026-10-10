@@ -78,6 +78,11 @@ describe('MealPilot API (e2e, offline)', () => {
         expect(curry?.reason).toMatch(/^Blocked:/);
         for (const r of res.body.recommendations) {
           expect(Array.isArray(r.labelCheck)).toBe(true);
+          expect(r.recipe.ingredients.length).toBeGreaterThan(0);
+          expect(r.recipe.ingredients[0]).toHaveProperty('rawText');
+          expect(Array.isArray(r.recipe.steps)).toBe(true);
+          expect(r.evidence.allergens).toBe(r.allergySafety.notes);
+          expect(typeof r.trustedChannel).toBe('boolean');
         }
       });
   });

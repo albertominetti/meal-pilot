@@ -8,6 +8,8 @@ import { AgentController } from './agent.controller';
 import { AgentService } from './agent.service';
 import { FallbackPlanner } from './fallback-planner';
 import { AnalyzeVideoTool } from './tools/analyze-video.tool';
+import { RunDigestService } from './run-digest.service';
+import { CheckPlanBalanceTool } from './tools/check-plan-balance.tool';
 import { CheckProfileFitTool } from './tools/check-profile-fit.tool';
 import { ListKnownVideosTool } from './tools/list-known-videos.tool';
 import { SearchVideosTool } from './tools/search-videos.tool';
@@ -27,7 +29,9 @@ import { SubmitPlanTool } from './tools/submit-plan.tool';
     SearchVideosTool,
     AnalyzeVideoTool,
     CheckProfileFitTool,
+    CheckPlanBalanceTool,
     SubmitPlanTool,
+    RunDigestService,
     FallbackPlanner,
     AgentService,
   ],

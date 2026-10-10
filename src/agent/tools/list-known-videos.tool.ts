@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import { MealPlanService } from '../../meal-plan/meal-plan.service';
 import { TranscriptCacheService } from '../../videos/transcript-cache.service';
+import { VideoDigest } from '../../recipes/digest';
 import { AgentRun } from '../agent-run';
+import { RunDigestService } from '../run-digest.service';
 import { AgentTool } from './tool.interface';
 
 const listKnownArgsSchema = z.object({
@@ -14,7 +16,7 @@ type ListKnownArgs = z.infer<typeof listKnownArgsSchema>;
 export class ListKnownVideosTool implements AgentTool<ListKnownArgs> {
   name = 'list_known_videos';
   description =
-    'Inspect previously analyzed and cached recipe videos. Cost-free: reuse these videos to save analysis and search budget.';
+    'Inspect previously analyzed and cached recipe videos as digests (best-ranked first, max 10). Cost-free: reuse these videos to save analysis and search budget.';
 
   parameters: Record<string, unknown> = {
     type: 'object',
@@ -32,6 +34,7 @@ export class ListKnownVideosTool implements AgentTool<ListKnownArgs> {
   constructor(
     private readonly cache: TranscriptCacheService,
     private readonly mealPlanService: MealPlanService,
+    private readonly digests: RunDigestService,
   ) {}
 
   async execute(
@@ -41,7 +44,7 @@ export class ListKnownVideosTool implements AgentTool<ListKnownArgs> {
     const cachedItems = this.cache.list();
     const userAllergies = run.request.allergies ?? [];
 
-    const results: Array<Record<string, unknown>> = [];
+    const results: VideoDigest[] = [];
     for (const item of cachedItems) {
       if (item.status !== 'ok') continue;
 
@@ -62,16 +65,11 @@ export class ListKnownVideosTool implements AgentTool<ListKnownArgs> {
       );
       run.videoSafetyVerdicts.set(item.videoId, verdict);
 
-      results.push({
-        videoId: item.videoId,
-        title: item.title,
-        recipeName: item.recipeName,
-        tags: item.restrictionTags,
-        signals: item.nutritionSignals,
-        allergySafetyStatus: verdict.status,
-      });
+      results.push(this.digests.digest(run, item));
     }
 
+    // Best-ranked first; at most 10 digests to protect the context window.
+    results.sort((x, y) => (y.score ?? 0) - (x.score ?? 0));
     return {
       count: results.length,
       videos: results.slice(0, 10),

@@ -10,6 +10,7 @@ import { MockVideoAnalyzer } from '../videos/analyzers/mock-video-analyzer';
 import { AppConfigService } from '../config/app-config.service';
 import { FakeYouTubeService } from '../youtube/fake-youtube.service';
 import { YOUTUBE_SERVICE } from '../youtube/youtube.interface';
+import { TrustedChannelsService } from '../youtube/trusted-channels.service';
 
 async function buildService() {
   process.env.MEALPILOT_CACHE_DIR = fs.mkdtempSync(
@@ -19,6 +20,7 @@ async function buildService() {
   const mockConfig = {
     effectiveLlmMode: 'mock' as const,
     geminiModel: 'gemini-3.8-flash',
+    trustedChannelsFile: 'test/fixtures/trusted-channels.json',
   };
 
   const moduleRef = await Test.createTestingModule({
@@ -27,6 +29,7 @@ async function buildService() {
       TranscriptCacheService,
       VideoAnalysisService,
       MockVideoAnalyzer,
+      TrustedChannelsService,
       {
         provide: VIDEO_ANALYZER,
         useClass: MockVideoAnalyzer,

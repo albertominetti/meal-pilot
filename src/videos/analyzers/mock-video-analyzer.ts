@@ -207,11 +207,11 @@ export class MockVideoAnalyzer implements VideoAnalyzer {
     }
 
     const names = ingredients.map((i) => i.name).join(' ');
-    if (/tofu/.test(names) || titleHas('tofu')) mainProtein = 'tofu';
+    if (/chicken|turkey/.test(names) || titleHas('chicken', 'turkey')) mainProtein = 'chicken';
+    else if (/salmon|fish/.test(names)) mainProtein = 'fish';
+    else if (/tofu/.test(names) || titleHas('tofu')) mainProtein = 'tofu';
     else if (/chickpea/.test(names)) mainProtein = 'chickpea';
     else if (/lentil/.test(names)) mainProtein = 'lentil';
-    else if (/chicken|turkey/.test(names) || titleHas('chicken', 'turkey')) mainProtein = 'chicken';
-    else if (/salmon|fish/.test(names)) mainProtein = 'fish';
     else if (/beef/.test(names)) mainProtein = 'beef';
     else if (/shrimp/.test(names)) mainProtein = 'seafood';
     else if (/bean/.test(names)) mainProtein = 'bean';

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { MealPlanService } from '../../meal-plan/meal-plan.service';
 import { VideoAnalysisService } from '../../videos/video-analysis.service';
 import { AgentRun } from '../agent-run';
+import { RunDigestService } from '../run-digest.service';
 import { AgentTool } from './tool.interface';
 
 const analyzeVideoArgsSchema = z.object({
@@ -16,7 +17,7 @@ type AnalyzeVideoArgs = z.infer<typeof analyzeVideoArgsSchema>;
 export class AnalyzeVideoTool implements AgentTool<AnalyzeVideoArgs> {
   name = 'analyze_video';
   description =
-    'Analyze the actual cooking video to extract recipe ingredients, steps, EU 14 allergens with timestamp evidence, and safety verdict. Uses analysis budget.';
+    'Analyze the actual cooking video (and its description) and return a digest: key ingredients with quantities, main protein, cuisine, prep time, coverage, fitsTime, label checks and the server-side allergy verdict. Uses analysis budget.';
 
   parameters: Record<string, unknown> = {
     type: 'object',
@@ -36,26 +37,17 @@ export class AnalyzeVideoTool implements AgentTool<AnalyzeVideoArgs> {
   constructor(
     private readonly analysisService: VideoAnalysisService,
     private readonly mealPlanService: MealPlanService,
+    private readonly digests: RunDigestService,
   ) {}
 
   async execute(
     args: AnalyzeVideoArgs,
     run: AgentRun,
   ): Promise<Record<string, unknown>> {
-    // If already analyzed in this run, return cached run result
+    // If already analyzed in this run, return the digest from run memory
     if (run.analyzedVideos.has(args.videoId)) {
       const existing = run.analyzedVideos.get(args.videoId)!;
-      const verdict = run.videoSafetyVerdicts.get(args.videoId)!;
-      return {
-        videoId: args.videoId,
-        title: existing.title,
-        recipeName: existing.recipeName,
-        tags: existing.restrictionTags,
-        signals: existing.nutritionSignals,
-        sodiumSources: existing.sodiumSources,
-        allergySafety: verdict,
-        fromRunMemory: true,
-      };
+      return { ...this.digests.digest(run, existing), fromRunMemory: true };
     }
 
     if (run.analysisCount >= run.budgets.maxAnalyses) {
@@ -92,16 +84,7 @@ export class AnalyzeVideoTool implements AgentTool<AnalyzeVideoArgs> {
     }
 
     return {
-      videoId: args.videoId,
-      recipeName: analysis.recipeName,
-      tags: analysis.restrictionTags,
-      signals: analysis.nutritionSignals,
-      sodiumSources: analysis.sodiumSources,
-      allergySafety: {
-        status: verdict.status,
-        notes: verdict.notes,
-      },
-      summary: analysis.summary,
+      ...this.digests.digest(run, analysis),
       remainingAnalyses: run.budgets.maxAnalyses - run.analysisCount,
     };
   }

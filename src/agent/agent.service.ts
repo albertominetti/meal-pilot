@@ -6,16 +6,17 @@ import {
   excludedForSafety,
   ExcludedVideoDto,
   excludedVideo,
-  labelCheckFields,
   MEDICAL_DISCLAIMER,
   RecommendationDto,
 } from '../meal-plan/dto/meal-plan-response.dto';
-import { checkTime } from '../meal-plan/profile-fit';
-import { watchUrl } from '../videos/youtube.util';
+import { checkTime, matchGoals } from '../meal-plan/profile-fit';
+import { buildRecommendation } from '../meal-plan/recommendation.builder';
+import { TrustedChannelsService } from '../youtube/trusted-channels.service';
 import { AgentRun, AgentRunBudgets, TraceItem } from './agent-run';
 import { buildAgentSystemPrompt } from './agent.prompt';
 import { FallbackPlanner } from './fallback-planner';
 import { AnalyzeVideoTool } from './tools/analyze-video.tool';
+import { CheckPlanBalanceTool } from './tools/check-plan-balance.tool';
 import { CheckProfileFitTool } from './tools/check-profile-fit.tool';
 import { ListKnownVideosTool } from './tools/list-known-videos.tool';
 import { SearchVideosTool } from './tools/search-videos.tool';
@@ -64,8 +65,10 @@ export class AgentService {
     private readonly searchTool: SearchVideosTool,
     private readonly analyzeTool: AnalyzeVideoTool,
     private readonly checkFitTool: CheckProfileFitTool,
+    private readonly planBalanceTool: CheckPlanBalanceTool,
     private readonly submitPlanTool: SubmitPlanTool,
     private readonly fallbackPlanner: FallbackPlanner,
+    private readonly trustedChannels: TrustedChannelsService,
   ) {}
 
   async run(
@@ -85,6 +88,7 @@ export class AgentService {
       this.searchTool,
       this.analyzeTool,
       this.checkFitTool,
+      this.planBalanceTool,
       this.submitPlanTool,
     ];
 
@@ -226,27 +230,29 @@ export class AgentService {
 
     for (const rec of recs) {
       const analysis = run.analyzedVideos.get(rec.videoId);
-      const verdict = run.videoSafetyVerdicts.get(rec.videoId) ?? {
-        status: 'safe' as const,
-        notes: 'Verified safe by agent evaluation.',
-      };
-
-      recommendations.push({
-        videoId: rec.videoId,
-        url: watchUrl(rec.videoId),
-        title: analysis?.title || `YouTube video ${rec.videoId}`,
-        channel: analysis?.channel || 'Unknown channel',
-        whyItFits: rec.whyItFits,
-        matchedTags: [
-          ...(analysis?.restrictionTags || []),
-          ...(analysis?.nutritionSignals || []),
-        ],
-        allergySafety: verdict,
-        healthNotes:
-          rec.healthNotes ||
-          `Estimated signals (model, not measured): ${(analysis?.nutritionSignals || []).join(', ') || 'whole-foods'}`,
-        ...labelCheckFields(analysis),
-      });
+      const verdict = run.videoSafetyVerdicts.get(rec.videoId);
+      // submit_plan only accepts analysed, safe videos; skip anything else.
+      if (!analysis || verdict?.status !== 'safe') continue;
+      const goals = matchGoals(analysis, run.request.healthGoals);
+      recommendations.push(
+        buildRecommendation({
+          analysis,
+          verdict,
+          whyItFits: rec.whyItFits,
+          matchedTags: [
+            ...new Set([
+              ...(analysis.restrictionTags || []),
+              ...(analysis.nutritionSignals || []),
+              ...goals.matched,
+            ]),
+          ],
+          healthNotes:
+            rec.healthNotes ||
+            `Estimated signals (model, not measured): ${(analysis.nutritionSignals || []).join(', ') || 'whole-foods'}`,
+          request: run.request,
+          trusted: this.trustedChannels.isTrusted(analysis.channelId),
+        }),
+      );
     }
 
     const recommended = new Set(recs.map((r) => r.videoId));

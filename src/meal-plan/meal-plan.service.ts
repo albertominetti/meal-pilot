@@ -5,7 +5,6 @@ import {
   ExcludedVideoDto,
   excludedVideo,
   FailureDetailDto,
-  labelCheckFields,
   MealPlanMetaDto,
   MealPlanResponseDto,
   MEDICAL_DISCLAIMER,
@@ -15,14 +14,18 @@ import { MealPlanRequestDto } from './dto/meal-plan-request.dto';
 import { VideoAnalysis } from '../videos/analyzers/analysis.schema';
 import { TranscriptCacheService } from '../videos/transcript-cache.service';
 import { VideoAnalysisService } from '../videos/video-analysis.service';
-import { watchUrl } from '../videos/youtube.util';
+import { selectRanked } from '../recipes/ranking';
+import { normalizeRestriction } from '../recipes/restrictions';
+import { TrustedChannelsService } from '../youtube/trusted-channels.service';
+import { buildRecommendation } from './recommendation.builder';
 import {
   findAllergyMatches,
   haystackMatchesAllergy,
   mapToCanonicalAllergens,
-  normalizeToken,
 } from '../videos/allergy.util';
 import { checkTime, matchGoals } from './profile-fit';
+
+type SafetyVerdict = { status: 'safe' | 'uncertain' | 'unsafe'; notes: string };
 
 interface Candidate {
   videoId: string;
@@ -43,16 +46,13 @@ const KNOWN_RESTRICTION_TAGS = [
   'kosher',
 ];
 
-function normalizeRestriction(r: string): string {
-  return normalizeToken(r).replace(/\s+/g, '-');
-}
-
 @Injectable()
 export class MealPlanService {
   constructor(
     private readonly cache: TranscriptCacheService,
     private readonly analysis: VideoAnalysisService,
     private readonly config: AppConfigService,
+    private readonly trustedChannels: TrustedChannelsService,
   ) {}
 
   async buildPlan(dto: MealPlanRequestDto): Promise<MealPlanResponseDto> {
@@ -70,18 +70,17 @@ export class MealPlanService {
       .filter(Boolean);
     const healthText = `${dto.healthProfile ?? ''} ${dto.preferences ?? ''} ${dto.bloodPressure ?? ''}`.toLowerCase();
 
-    const recommendations: RecommendationDto[] = [];
     const excluded: ExcludedVideoDto[] = [];
     const failures: FailureDetailDto[] = [];
+    const eligible: Array<{ analysis: VideoAnalysis; verdict: SafetyVerdict }> = [];
 
     let analyzedCount = 0;
     let fromCacheCount = 0;
 
+    // Analyse every candidate (cached analyses are free), gate on safety and
+    // time, then rank the rest so the best recipes win, not the first ones.
     const concurrency = Math.max(1, this.config.analysisConcurrency || 3);
-
     for (let i = 0; i < candidates.length; i += concurrency) {
-      if (recommendations.length >= max) break;
-
       const batch = candidates.slice(i, i + concurrency);
       const batchResults = await Promise.all(
         batch.map((c) =>
@@ -94,8 +93,6 @@ export class MealPlanService {
       );
 
       for (let j = 0; j < batch.length; j++) {
-        if (recommendations.length >= max) break;
-
         const c = batch[j];
         const { analysis: analyzed, fromCache } = batchResults[j];
 
@@ -113,7 +110,6 @@ export class MealPlanService {
         }
 
         const verdict = this.evaluateAllergySafety(analyzed, allergies);
-
         if (verdict.status !== 'safe') {
           excluded.push(excludedForSafety(c.videoId, analyzed.title, verdict));
           continue;
@@ -125,34 +121,42 @@ export class MealPlanService {
           continue;
         }
 
-        const goals = matchGoals(analyzed, dto.healthGoals);
-        const matchedTags = [
-          ...new Set([
-            ...this.matchTags(analyzed, restrictions, healthText),
-            ...goals.matched,
-          ]),
-        ];
-        recommendations.push({
-          videoId: c.videoId,
-          url: watchUrl(c.videoId),
-          title: analyzed.title,
-          channel: analyzed.channel,
-          whyItFits: this.explainFit(analyzed, restrictions, dto, matchedTags),
-          matchedTags,
-          allergySafety: verdict,
-          healthNotes: [
-            this.healthNotes(analyzed, dto),
-            time.note,
-            goals.unverifiable.length
-              ? `Goals not yet checkable from the recipe: ${goals.unverifiable.join(', ')}.`
-              : undefined,
-          ]
-            .filter(Boolean)
-            .join(' '),
-          ...labelCheckFields(analyzed),
-        });
+        eligible.push({ analysis: analyzed, verdict });
       }
     }
+
+    const isTrusted = (id: string | undefined) => this.trustedChannels.isTrusted(id);
+    const ranked = selectRanked(
+      eligible.map((e) => e.analysis),
+      { restrictions: dto.restrictions, healthGoals: dto.healthGoals, maxCookMinutes: dto.maxCookMinutes, isTrusted },
+      max,
+    );
+
+    const recommendations: RecommendationDto[] = ranked.map(({ analysis: analyzed }) => {
+      const verdict = eligible.find((e) => e.analysis === analyzed)!.verdict;
+      const time = checkTime(analyzed, dto.maxCookMinutes);
+      const goals = matchGoals(analyzed, dto.healthGoals);
+      const matchedTags = [
+        ...new Set([...this.matchTags(analyzed, restrictions, healthText), ...goals.matched]),
+      ];
+      return buildRecommendation({
+        analysis: analyzed,
+        verdict,
+        whyItFits: this.explainFit(analyzed, restrictions, dto, matchedTags),
+        matchedTags,
+        healthNotes: [
+          this.healthNotes(analyzed, dto),
+          time.note,
+          goals.unverifiable.length
+            ? `Goals not yet checkable from the recipe: ${goals.unverifiable.join(', ')}.`
+            : undefined,
+        ]
+          .filter(Boolean)
+          .join(' '),
+        request: dto,
+        trusted: isTrusted(analyzed.channelId),
+      });
+    });
 
     const meta: MealPlanMetaDto = {
       mode: this.config.effectiveLlmMode,

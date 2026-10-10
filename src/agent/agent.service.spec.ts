@@ -1,4 +1,7 @@
 import { Test } from '@nestjs/testing';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { AgentService } from './agent.service';
 import { LLM_CLIENT, LlmClient, InteractionRequest, InteractionResult } from '../llm/llm-client.interface';
 import { AppConfigService } from '../config/app-config.service';
@@ -6,6 +9,8 @@ import { ListKnownVideosTool } from './tools/list-known-videos.tool';
 import { SearchVideosTool } from './tools/search-videos.tool';
 import { AnalyzeVideoTool } from './tools/analyze-video.tool';
 import { CheckProfileFitTool } from './tools/check-profile-fit.tool';
+import { CheckPlanBalanceTool } from './tools/check-plan-balance.tool';
+import { RunDigestService } from './run-digest.service';
 import { SubmitPlanTool } from './tools/submit-plan.tool';
 import { FallbackPlanner } from './fallback-planner';
 import { TranscriptCacheService } from '../videos/transcript-cache.service';
@@ -42,8 +47,24 @@ class ScriptedLlmClient implements LlmClient {
 describe('AgentService (tool loop and guardrails)', () => {
   let agentService: AgentService;
   let scriptedLlm: ScriptedLlmClient;
+  let fakeYouTube: FakeYouTubeService;
+
+  const call = (id: string, name: string, args: Record<string, unknown>) => ({
+    type: 'function_call' as const,
+    id,
+    name,
+    arguments: args,
+  });
+
+  /** Parsed function results the model received on its N-th turn (0-based). */
+  const resultsSeenOnTurn = (turn: number, name: string): any[] =>
+    (scriptedLlm.callHistory[turn].input as any[])
+      .filter((s) => s.type === 'function_result' && s.name === name)
+      .map((s) => JSON.parse(s.result));
 
   beforeEach(async () => {
+    // Each test gets its own cache so nothing leaks between tests or into data/cache.
+    process.env.MEALPILOT_CACHE_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mealpilot-agent-'));
     scriptedLlm = new ScriptedLlmClient();
     const mockConfig = {
       agentMaxSteps: 5,
@@ -62,8 +83,10 @@ describe('AgentService (tool loop and guardrails)', () => {
         SearchVideosTool,
         AnalyzeVideoTool,
         CheckProfileFitTool,
+        CheckPlanBalanceTool,
         SubmitPlanTool,
         FallbackPlanner,
+        RunDigestService,
         TrustedChannelsService,
         TranscriptCacheService,
         VideoAnalysisService,
@@ -89,6 +112,7 @@ describe('AgentService (tool loop and guardrails)', () => {
     }).compile();
 
     agentService = moduleRef.get(AgentService);
+    fakeYouTube = moduleRef.get(YOUTUBE_SERVICE);
   });
 
   it('runs tool loop: search -> analyze -> submit plan successfully', async () => {
@@ -281,5 +305,107 @@ describe('AgentService (tool loop and guardrails)', () => {
     expect(videos[0]).toMatchObject({ videoId: 'vegan-quinoa-02', trustedChannel: true });
     expect(videos.slice(1).every((v: any) => v.trustedChannel === false)).toBe(true);
     expect(res.meta.searches).toBe(1);
+  });
+
+  it('uses content digests and check_plan_balance to swap a repeated protein', async () => {
+    for (const [id, title] of [
+      ['chk-1', 'Chickpea Curry'],
+      ['chk-2', 'Chickpea Salad'],
+      ['chk-3', 'Chickpea Stew'],
+    ]) {
+      fakeYouTube.addVideo({
+        videoId: id,
+        title,
+        channel: 'Pulse Kitchen',
+        channelId: 'UC_pulse',
+        description: 'Serves 2. Ingredients: 400g chickpeas, 1 onion, 2 cloves garlic.',
+        durationSec: 600,
+        privacyStatus: 'public',
+        embeddable: true,
+      });
+    }
+
+    scriptedLlm.cannedResponses.push(
+      {
+        outputText: '',
+        steps: [
+          call('c1', 'analyze_video', { videoId: 'chk-1' }),
+          call('c2', 'analyze_video', { videoId: 'chk-2' }),
+          call('c3', 'analyze_video', { videoId: 'chk-3' }),
+          call('c4', 'analyze_video', { videoId: 'veg-low-sodium-01' }),
+        ],
+      },
+      { outputText: '', steps: [call('c5', 'check_plan_balance', { videoIds: ['chk-1', 'chk-2', 'chk-3'] })] },
+      {
+        outputText: '',
+        steps: [
+          call('c6', 'submit_plan', {
+            recommendations: [
+              { videoId: 'chk-1', whyItFits: 'Chickpea curry, 400 g chickpeas' },
+              { videoId: 'chk-2', whyItFits: 'Chickpea salad' },
+              { videoId: 'veg-low-sodium-01', whyItFits: 'Lentil soup swaps out the third chickpea dish' },
+            ],
+          }),
+        ],
+      },
+    );
+
+    const res = await agentService.run({ maxResults: 3 }, true);
+
+    const digests = resultsSeenOnTurn(1, 'analyze_video');
+    expect(digests.map((d) => d.mainProtein)).toEqual(['chickpea', 'chickpea', 'chickpea', 'lentil']);
+    expect(digests[0].keyIngredients).toContain('chickpea 400 g');
+    expect(Buffer.byteLength(JSON.stringify(digests[0]))).toBeLessThanOrEqual(1500);
+
+    const [balance] = resultsSeenOnTurn(2, 'check_plan_balance');
+    expect(balance.proteins).toEqual({ chickpea: 3 });
+    expect(balance.warnings.join(' ')).toMatch(/3 recipes use chickpea/);
+
+    expect(res.meta.fallbackUsed).toBe(false);
+    expect(res.recommendations.map((r) => r.videoId)).toEqual(['chk-1', 'chk-2', 'veg-low-sodium-01']);
+    expect(res.trace?.map((t) => t.tool)).toContain('check_plan_balance');
+
+    const curry = res.recommendations[0];
+    expect(curry.recipe.ingredients.find((i) => i.name === 'chickpea')).toMatchObject({
+      quantity: 400,
+      unit: 'g',
+      source: 'description',
+    });
+    expect(curry.recipe.servings).toBe(2);
+    expect(curry.evidence.allergens).toBe(curry.allergySafety.notes);
+  });
+
+  it('shows fitsTime: false in the digest and enforces it in submit_plan', async () => {
+    scriptedLlm.cannedResponses.push(
+      {
+        outputText: '',
+        steps: [
+          call('c1', 'analyze_video', { videoId: 'veg-low-sodium-01' }),
+          call('c2', 'analyze_video', { videoId: 'quick-chicken-03' }),
+        ],
+      },
+      {
+        outputText: '',
+        steps: [call('c3', 'submit_plan', { recommendations: [{ videoId: 'veg-low-sodium-01', whyItFits: 'Lentil soup' }] })],
+      },
+      {
+        outputText: '',
+        steps: [call('c4', 'submit_plan', { recommendations: [{ videoId: 'quick-chicken-03', whyItFits: '15-minute stir fry' }] })],
+      },
+    );
+
+    const res = await agentService.run({ maxCookMinutes: 20, maxResults: 1 });
+
+    const digests = resultsSeenOnTurn(1, 'analyze_video');
+    expect(digests.find((d) => d.videoId === 'veg-low-sodium-01').fitsTime).toBe(false);
+    expect(digests.find((d) => d.videoId === 'quick-chicken-03').fitsTime).toBe(true);
+
+    const [rejection] = resultsSeenOnTurn(2, 'submit_plan');
+    expect(rejection.accepted).toBe(false);
+    expect(rejection.errors[0]).toMatch(/too_long/);
+
+    expect(res.recommendations.map((r) => r.videoId)).toEqual(['quick-chicken-03']);
+    expect(res.recommendations[0].fitsTime).toBe(true);
+    expect(res.excluded.find((e) => e.videoId === 'veg-low-sodium-01')?.code).toBe('too_long');
   });
 });

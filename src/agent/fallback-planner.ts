@@ -1,32 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { checkTime } from '../meal-plan/profile-fit';
-import { AcceptedPlan, AcceptedRecommendation, AgentRun } from './agent-run';
+import { selectRanked } from '../recipes/ranking';
+import { AcceptedPlan, AgentRun } from './agent-run';
+import { RunDigestService } from './run-digest.service';
 
+/**
+ * Used when the agent ends without an accepted plan. Applies the same gates
+ * as submit_plan (safe, within the time limit) and the shared ranking.
+ */
 @Injectable()
 export class FallbackPlanner {
+  constructor(private readonly digests: RunDigestService) {}
+
   build(run: AgentRun): AcceptedPlan {
     const max = run.request.maxResults ?? 5;
-    const recommendations: AcceptedRecommendation[] = [];
+    const eligible = [...run.analyzedVideos.values()].filter(
+      (a) =>
+        a.status === 'ok' &&
+        run.videoSafetyVerdicts.get(a.videoId)?.status === 'safe' &&
+        checkTime(a, run.request.maxCookMinutes).fitsTime !== false,
+    );
 
-    for (const [videoId, analysis] of run.analyzedVideos) {
-      if (recommendations.length >= max) break;
-      const verdict = run.videoSafetyVerdicts.get(videoId);
-      const time = checkTime(analysis, run.request.maxCookMinutes);
-      if (verdict?.status === 'safe' && time.fitsTime !== false) {
-        const whyItFits =
-          analysis.summary ||
-          `Matches requested diet restrictions (${(run.request.restrictions || []).join(', ')}) with safe allergen profile.`;
-        recommendations.push({
-          videoId,
-          whyItFits,
-          healthNotes: `Estimated signals (model, not measured): ${(analysis.nutritionSignals || []).join(', ') || 'whole-foods'}`,
-        });
-      }
-    }
-
+    const ranked = selectRanked(eligible, this.digests.rankingContext(run), max);
     return {
-      recommendations,
-      notes: 'Plan constructed by fallback planner from verified safe recipe analyses.',
+      recommendations: ranked.map(({ analysis }) => ({
+        videoId: analysis.videoId,
+        whyItFits:
+          analysis.summary ||
+          `Matches requested diet restrictions (${(run.request.restrictions || []).join(', ')}) with safe allergen profile.`,
+        healthNotes: `Estimated signals (model, not measured): ${(analysis.nutritionSignals || []).join(', ') || 'whole-foods'}`,
+      })),
+      notes: 'Plan constructed by fallback planner from verified safe recipe analyses, ranked by profile fit.',
     };
   }
 }
