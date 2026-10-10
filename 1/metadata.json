@@ -1,0 +1,20 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K41G69G26C5Y82833116PV",
+  "session_id": "ae310d50-4132-4709-a414-fe306c0eed25",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-10T14:39:01.850606Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [],
+  "agent": "Cursor",
+  "model": "gemini-3.8-flash-high",
+  "turn_id": "fd2586c00aa4",
+  "checkpoint_transcript_start": 58,
+  "transcript_lines_at_start": 58,
+  "compact_transcript_start": 10,
+  "session_metrics": {
+    "duration_ms": 3281266,
+    "turn_count": 3
+  }
+}
