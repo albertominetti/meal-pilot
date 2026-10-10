@@ -14,9 +14,8 @@ interface HttpRequest extends Request {
 }
 
 /**
- * Logs request metadata only. Bodies and query strings are never logged,
- * because they carry the health profile (allergies, blood pressure, goals),
- * which is GDPR Art. 9 special-category data.
+ * Logs request metadata for all routes. For POST /api/meal-plan the full
+ * request and response bodies are also logged.
  */
 @Injectable()
 export class RequestLoggingInterceptor implements NestInterceptor {
@@ -38,11 +37,12 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     }
 
     return next.handle().pipe(
-      tap(() => {
+      tap((responseBody) => {
         this.logRequest({
           request,
           statusCode: response.statusCode,
           durationMs: Date.now() - startedAt,
+          responseBody,
         });
       }),
       catchError((error: unknown) => {
@@ -51,6 +51,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
           statusCode: error instanceof HttpException ? error.getStatus() : 500,
           durationMs: Date.now() - startedAt,
           error: error instanceof Error ? error.name : 'UnknownError',
+          responseBody: error instanceof HttpException ? error.getResponse() : undefined,
         });
         return throwError(() => error);
       }),
@@ -62,19 +63,24 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     statusCode,
     durationMs,
     error,
+    responseBody,
   }: {
     request: HttpRequest;
     statusCode: number;
     durationMs: number;
     error?: string;
+    responseBody?: unknown;
   }): void {
+    const path = (request.originalUrl || request.url).split('?')[0];
+    const includeBodies = path === '/api/meal-plan';
     const entry = {
       requestId: request.id,
       method: request.method,
-      path: (request.originalUrl || request.url).split('?')[0],
+      path,
       statusCode,
       durationMs,
       ...(error ? { error } : {}),
+      ...(includeBodies ? { requestBody: request.body, responseBody } : {}),
     };
 
     this.logger[error ? 'error' : 'log'](JSON.stringify(entry, null, 2));
