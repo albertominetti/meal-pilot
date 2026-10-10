@@ -5,8 +5,17 @@
   "branch": "main",
   "checkpoints_count": 2,
   "files_touched": [
-    "docs/pitch/MealPilot-pitch-deck.pptx",
-    "src/agent/agent.service.ts"
+    "docs/features.md",
+    "docs/safety-and-privacy.md",
+    "src/agent/agent.service.ts",
+    "src/meal-plan/dto/meal-plan-request.dto.ts",
+    "src/meal-plan/dto/profile-fields.dto.ts",
+    "src/plans/plans.service.ts",
+    "src/users/profiles.service.spec.ts",
+    "src/users/profiles.service.ts",
+    "src/users/user-id.pipe.ts",
+    "src/users/users.controller.ts",
+    "test/users.e2e-spec.ts"
   ],
   "sessions": [
     {
@@ -14,7 +23,7 @@
       "transcript": "/0/full.jsonl",
       "compact_transcript": "/0/transcript.jsonl",
       "content_hash": "/0/content_hash.txt",
-      "prompt": "/0/prompt.txt"
+      "prompt": ""
     },
     {
       "metadata": "/1/metadata.json",
@@ -25,11 +34,11 @@
     }
   ],
   "token_usage": {
-    "input_tokens": 352,
-    "cache_creation_tokens": 392083,
-    "cache_read_tokens": 39635569,
-    "output_tokens": 210815,
-    "api_call_count": 176
+    "input_tokens": 2,
+    "cache_creation_tokens": 1462,
+    "cache_read_tokens": 413140,
+    "output_tokens": 447,
+    "api_call_count": 1
   },
   "combined_attribution": {
     "calculated_at": "2026-10-10T16:11:47.730477Z",
