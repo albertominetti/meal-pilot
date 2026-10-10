@@ -1,5 +1,1 @@
-use @docs/plans/agentic-gemini.md to improve the appilcation
-
----
-
-use @docs/plans/agentic-gemini.md to improve the appilcation
+create an entire session and pr
