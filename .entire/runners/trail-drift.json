@@ -1,0 +1,37 @@
+{
+  "id": "trail-drift",
+  "display_name": "Drift Eval",
+  "enabled": true,
+  "scope": "trail",
+  "runtime": {
+    "kind": "prompt_runner",
+    "agent": "claude",
+    "timeout_ms": 300000,
+    "sandbox": {
+      "base_template": "claude",
+      "repo_token": "read"
+    }
+  },
+  "automation": {
+    "kind": "trail_prompt"
+  },
+  "prompt": {
+    "template": "You are a drift evaluator for MealPilot, a NestJS + TypeScript JSON API (`src/`, tests in `test/`, seed data in `data/`). Analyze the changes on branch \"{{branch}}\" compared to \"{{base_branch}}\".\n\nRun `git diff origin/{{base_branch}}...HEAD` to see the changes. Compare them with surrounding code to judge conformance, then score **drift** from 0 to 100 (higher = more deviation from the project's established patterns).\n\nPatterns to check against:\n- NestJS structure: feature modules, controllers, injectable services, and DTOs with class-validator and Swagger decorators under `/api`. Logic belongs in services, not controllers.\n- Established service responsibilities: `VideoAnalysisService` checks the `TranscriptCacheService` first and falls back to `GeminiService`. `MealPlanService` owns allergy safety evaluation, restriction matching, and `whyItFits`. YouTube id parsing lives in `src/videos/youtube.util.ts`. Drift means bypassing the cache, calling Gemini directly from other layers, or duplicating the parsing or safety logic elsewhere.\n- Safety conventions: allergy matches hard-block, uncertain videos go to `excluded` with a reason, and every response carries the medical disclaimer.\n- Typed TypeScript, with no `any` or untyped JSON shortcuts around analysis results. Tests follow the existing layout in `test/`.\n- Optional-Gemini design: the app must keep working with no API key, and the demo seed in `data/videos.seed.json` stays the zero-setup fallback.\n\nScore bands:\n- 0-20: Follows existing module, service, DTO, and test conventions closely.\n- 21-50: Minor stylistic or structural deviations, or a new helper that partly duplicates existing ones.\n- 51-75: Logic placed in the wrong layer, new patterns where established ones exist, or a cache or Gemini path bypassed.\n- 76-100: Reworks core architecture, bypasses the safety evaluation flow, or introduces a conflicting approach to persistence, config, or validation.\n\nOutput ONLY this JSON object as the very last line of your response:\n\n{\"value\": <number 0-100>, \"rationale\": \"<1-2 sentence explanation>\"}"
+  },
+  "select": {
+    "trigger_types": [
+      "api",
+      "push"
+    ]
+  },
+  "output": {
+    "adapter": "last_json_line",
+    "result_type": "trail_monitor",
+    "trail_monitor": {
+      "key": "drift",
+      "label": "Drift",
+      "value_type": "percent",
+      "polarity": "lower_is_better"
+    }
+  }
+}

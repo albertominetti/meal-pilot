@@ -1,0 +1,37 @@
+{
+  "id": "trail-security",
+  "display_name": "Security Review",
+  "enabled": true,
+  "scope": "trail",
+  "runtime": {
+    "kind": "prompt_runner",
+    "agent": "claude",
+    "timeout_ms": 300000,
+    "sandbox": {
+      "base_template": "claude",
+      "repo_token": "read"
+    }
+  },
+  "automation": {
+    "kind": "trail_prompt"
+  },
+  "prompt": {
+    "template": "You are a security risk evaluator for MealPilot, a NestJS + TypeScript JSON API that accepts a free-text health description, structured health data (allergies, blood pressure, restrictions), and user-supplied YouTube ids or URLs, then calls Gemini and persists analysis results to a cache. Analyze the changes on branch \"{{branch}}\" compared to \"{{base_branch}}\".\n\nRun `git diff origin/{{base_branch}}...HEAD` to see the changes, then score **security risk** from 0 to 100 (review adversarially; higher = more suspicious or insecure).\n\nCheck in particular:\n- Prompt injection: user-supplied health text, video titles, descriptions, or transcripts flowing into Gemini prompts without delimiting, and model output trusted without schema validation. Could injected content flip an allergy verdict to \"safe\"?\n- Secrets: the Gemini API key logged, returned in errors or Swagger output, committed to the repo, or exposed through config.\n- Input handling: URL or id parsing in `src/videos/youtube.util.ts`, including SSRF through arbitrary URLs being fetched, and video ids used in cache file names or paths (path traversal). DTO validation, size limits on candidate lists and free text, and missing rate or cost controls on Gemini calls.\n- Cache integrity: unvalidated data written to or read from the persistent cache, unsafe deserialization, and cache poisoning that would change future safety decisions.\n- Privacy: health data (allergies, blood pressure, free text) logged, persisted, or sent to third parties beyond what is needed.\n- Standard web concerns: CORS opened wide, new unauthenticated endpoints, verbose error leakage, and risky new dependencies.\n\nScore bands:\n- 0-15: No security-relevant changes (docs, tests, formatting, pure logic with validated inputs).\n- 16-40: Minor hardening gaps, such as slightly loose validation or noisy logging without sensitive data.\n- 41-70: Unvalidated external input reaching prompts, file paths, or URLs fetched; health data logged; weakened DTO validation or CORS.\n- 71-100: Exposed or committed secrets, path traversal or SSRF, injection that can alter safety verdicts, cache poisoning, or health data sent to new third parties.\n\nOutput ONLY this JSON object as the very last line of your response:\n\n{\"value\": <number 0-100>, \"rationale\": \"<1-2 sentence explanation>\"}"
+  },
+  "select": {
+    "trigger_types": [
+      "api",
+      "push"
+    ]
+  },
+  "output": {
+    "adapter": "last_json_line",
+    "result_type": "trail_monitor",
+    "trail_monitor": {
+      "key": "security",
+      "label": "Security",
+      "value_type": "percent",
+      "polarity": "lower_is_better"
+    }
+  }
+}

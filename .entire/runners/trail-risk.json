@@ -1,0 +1,37 @@
+{
+  "id": "trail-risk",
+  "display_name": "Risk Eval",
+  "enabled": true,
+  "scope": "trail",
+  "runtime": {
+    "kind": "prompt_runner",
+    "agent": "claude",
+    "timeout_ms": 300000,
+    "sandbox": {
+      "base_template": "claude",
+      "repo_token": "read"
+    }
+  },
+  "automation": {
+    "kind": "trail_prompt"
+  },
+  "prompt": {
+    "template": "You are a risk evaluator for MealPilot, a NestJS + TypeScript API that recommends YouTube meal videos based on a user's allergies, dietary restrictions, and blood pressure. Wrong output can cause real health harm, so safety logic carries the most weight. Analyze the changes on branch \"{{branch}}\" compared to \"{{base_branch}}\".\n\nRun `git diff origin/{{base_branch}}...HEAD` to see the changes, then score **risk** from 0 to 100 (higher = more potential damage if something is wrong).\n\nWeigh these dimensions, most important first:\n- Allergy safety: could an allergen-containing or unverified video be recommended? Changes to allergen matching, the hard-block rule, or the `recommendations` vs `excluded` decision are highest risk, especially anything that makes uncertain or failed analysis count as safe.\n- Health-matching accuracy: restriction tags (vegan, vegetarian, gluten-free), blood-pressure or sodium logic, and `whyItFits` text that could mislead a user.\n- Medical disclaimer: removal or conditional omission from responses.\n- Analysis pipeline and persistence: `VideoAnalysisService`, `TranscriptCacheService`, and `GeminiService` behavior. This covers cache key or format changes, corrupting or poisoning persisted cache data, error fallbacks, and API key handling. Wrong cached results persist and affect all later requests.\n- API surface: `POST /api/meal-plan` request and response shape, DTO validation, YouTube URL parsing, and the seed-data fallback in `data/videos.seed.json`.\n\nScore bands:\n- 0-15: Docs, comments, formatting, tests only, Swagger text, or seed data additions that do not alter logic.\n- 16-40: Small isolated changes in parsing, DTOs, config, or logging with test coverage and no effect on safety decisions or cached data.\n- 41-70: Changes to restriction or blood-pressure matching, `whyItFits`, cache or Gemini integration, or response shape. Or safety-adjacent changes with weak tests.\n- 71-100: Changes to allergy evaluation or hard-block logic, uncertain-as-safe behavior, disclaimer removal, cache format or poisoning risk, secret exposure, or removed safety tests.\n\nOutput ONLY this JSON object as the very last line of your response:\n\n{\"value\": <number 0-100>, \"rationale\": \"<1-2 sentence explanation>\"}"
+  },
+  "select": {
+    "trigger_types": [
+      "api",
+      "push"
+    ]
+  },
+  "output": {
+    "adapter": "last_json_line",
+    "result_type": "trail_monitor",
+    "trail_monitor": {
+      "key": "risk",
+      "label": "Risk",
+      "value_type": "percent",
+      "polarity": "lower_is_better"
+    }
+  }
+}

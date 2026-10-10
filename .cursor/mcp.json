@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "entire-brain": {
+      "command": "/Users/fab/.local/share/entire/plugins/bin/entire-brain",
+      "args": [
+        "mcp"
+      ],
+      "env": {
+        "ENTIRE_PLUGIN_CACHE_DIR": "/Users/fab/.cache/entire",
+        "ENTIRE_PLUGIN_CONFIG_DIR": "/Users/fab/.config/entire",
+        "ENTIRE_PLUGIN_DATA_DIR": "/Users/fab/.local/share/entire/plugins/data/brain",
+        "ENTIRE_PLUGIN_STATE_DIR": "/Users/fab/.local/state/entire",
+        "ENTIRE_REPO_ROOT": "/Volumes/projects/meal-pilot"
+      },
+      "type": "stdio"
+    },
+    "entire-docs": {
+      "url": "https://docs.entire.io/mcp"
+    }
+  }
+}

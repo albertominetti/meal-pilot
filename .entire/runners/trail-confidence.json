@@ -1,0 +1,37 @@
+{
+  "id": "trail-confidence",
+  "display_name": "Confidence Eval",
+  "enabled": true,
+  "scope": "trail",
+  "runtime": {
+    "kind": "prompt_runner",
+    "agent": "claude",
+    "timeout_ms": 300000,
+    "sandbox": {
+      "base_template": "claude",
+      "repo_token": "read"
+    }
+  },
+  "automation": {
+    "kind": "trail_prompt"
+  },
+  "prompt": {
+    "template": "You are a confidence evaluator for MealPilot, a NestJS + TypeScript API that matches YouTube meal videos to a user's health profile (allergies, restrictions, blood pressure) and returns safety-sensitive recommendations. Analyze the changes on branch \"{{branch}}\" compared to \"{{base_branch}}\".\n\nRun `git diff origin/{{base_branch}}...HEAD` to see the changes. Also inspect the tests under `test/` and any touched files in `src/` and `data/`. Then score **confidence** from 0 to 100 (higher = more confident the changes are correct and well-tested).\n\nWeigh these dimensions, most important first:\n- Allergy-safety correctness: allergen matching, hard-block logic, and the split between `recommendations` and `excluded` (uncertain or unknown must exclude, never recommend). Are edge cases tested (synonyms, plural forms, hidden allergens, missing or empty analysis data)?\n- Restriction and blood-pressure matching (vegan, vegetarian, gluten-free, sodium, etc.) and the `whyItFits` explanation: does it stay accurate to the data?\n- Video analysis pipeline: cache-first lookup, Gemini call, cache persistence, fallback when no API key is set or Gemini fails or returns malformed output. Are failure paths tested, with no stale or poisoned cache entries?\n- YouTube id resolution (watch, youtu.be, shorts, embed URLs, bare ids, invalid input) and request DTO validation.\n- Medical disclaimer is still present on every response; empty `videoCandidates` still falls back to the seed list in `data/videos.seed.json`.\n\nScore bands:\n- 85-100: Allergy/restriction logic changes come with focused tests covering unsafe, safe, and uncertain cases; failure paths covered; behavior clearly correct.\n- 60-84: Logic looks correct, but tests are partial or miss edge cases or failure paths. Or the change is low-risk (docs, config, Swagger, refactors with existing coverage).\n- 30-59: Safety-relevant, cache, or Gemini-integration changes with little or no test coverage, or with unclear behavior on errors.\n- 0-29: Likely to recommend an unsafe video, drop the disclaimer, or break the endpoint; tests removed, weakened, or contradicting the code.\n\nOutput ONLY this JSON object as the very last line of your response:\n\n{\"value\": <number 0-100>, \"rationale\": \"<1-2 sentence explanation>\"}"
+  },
+  "select": {
+    "trigger_types": [
+      "api",
+      "push"
+    ]
+  },
+  "output": {
+    "adapter": "last_json_line",
+    "result_type": "trail_monitor",
+    "trail_monitor": {
+      "key": "confidence",
+      "label": "Confidence",
+      "value_type": "percent",
+      "polarity": "higher_is_better"
+    }
+  }
+}
