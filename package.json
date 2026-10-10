@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "MealPilot: NestJS JSON API that matches YouTube meal videos to a health profile, using Gemini plus transcript analysis.",
   "license": "MIT",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "build": "nest build",
     "start": "node dist/main",
