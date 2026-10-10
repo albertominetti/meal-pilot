@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import { MealPlanService } from '../../meal-plan/meal-plan.service';
-import { TranscriptCacheService } from '../../videos/transcript-cache.service';
+import { ANALYSIS_STORE, AnalysisStore } from '../../videos/analysis-store';
 import { VideoDigest } from '../../recipes/digest';
 import { AgentRun } from '../agent-run';
 import { RunDigestService } from '../run-digest.service';
@@ -32,7 +32,7 @@ export class ListKnownVideosTool implements AgentTool<ListKnownArgs> {
   zodSchema = listKnownArgsSchema;
 
   constructor(
-    private readonly cache: TranscriptCacheService,
+    @Inject(ANALYSIS_STORE) private readonly cache: AnalysisStore,
     private readonly mealPlanService: MealPlanService,
     private readonly digests: RunDigestService,
   ) {}
@@ -41,7 +41,7 @@ export class ListKnownVideosTool implements AgentTool<ListKnownArgs> {
     args: ListKnownArgs,
     run: AgentRun,
   ): Promise<Record<string, unknown>> {
-    const cachedItems = this.cache.list();
+    const cachedItems = await this.cache.list();
     const userAllergies = run.request.allergies ?? [];
 
     const results: VideoDigest[] = [];

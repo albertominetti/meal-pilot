@@ -23,6 +23,17 @@ services:
         sync: false
       - key: YOUTUBE_API_KEY
         sync: false
+      # Neon Postgres lives outside Render (project meal-pilot, eu-central-1).
+      # DATABASE_URL is the pooled URL; DATABASE_URL_DIRECT is the direct URL,
+      # used to migrate at startup because the free plan has no pre-deploy step.
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_URL_DIRECT
+        sync: false
+      - key: FDC_API_KEY
+        sync: false
+      - key: MEALPILOT_APP_KEY
+        sync: false
       # S3-compatible storage (e.g. Neon S3). Values set in Render dashboard; sync: false keeps them out of the repo.
       - key: AWS_ENDPOINT_URL_S3
         sync: false

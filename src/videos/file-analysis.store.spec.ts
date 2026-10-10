@@ -1,15 +1,15 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { TranscriptCacheService } from './transcript-cache.service';
+import { FileAnalysisStore } from './file-analysis.store';
 import { ANALYSIS_SCHEMA_VERSION, VideoAnalysis } from './analyzers/analysis.schema';
 
-describe('TranscriptCacheService', () => {
-  it('persists and reads back versioned entries', () => {
+describe('FileAnalysisStore', () => {
+  it('persists and reads back versioned entries', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mealpilot-cache-'));
     process.env.MEALPILOT_CACHE_DIR = dir;
-    const svc = new TranscriptCacheService();
-    expect(svc.get('missing', 'mock', 'mock')).toBeNull();
+    const svc = new FileAnalysisStore();
+    expect(await svc.get('missing', 'mock', 'mock')).toBeNull();
 
     const sampleEntry: VideoAnalysis = {
       videoId: 'vid1',
@@ -59,26 +59,29 @@ describe('TranscriptCacheService', () => {
       analyzedAt: new Date().toISOString(),
     };
 
-    svc.set(sampleEntry);
+    await svc.set(sampleEntry);
 
-    const fetched = svc.get('vid1', 'mock', 'mock');
+    const fetched = await svc.get('vid1', 'mock', 'mock');
     expect(fetched?.title).toBe('T');
     expect(fetched?.schemaVersion).toBe(ANALYSIS_SCHEMA_VERSION);
 
     // New instance reads from disk
-    const svc2 = new TranscriptCacheService();
-    expect(svc2.get('vid1', 'mock', 'mock')?.title).toBe('T');
-    expect(svc2.list().length).toBe(1);
+    const svc2 = new FileAnalysisStore();
+    expect((await svc2.get('vid1', 'mock', 'mock'))?.title).toBe('T');
+    expect((await svc2.list()).length).toBe(1);
 
-    svc2.clear();
-    expect(svc2.list().length).toBe(0);
+    fs.writeFileSync(path.join(dir, 'fdc-mappings.json'), '{}');
+    await svc2.clear();
+    expect((await svc2.list()).length).toBe(0);
+    // Other stores share the directory; clearing analyses leaves them alone.
+    expect(fs.existsSync(path.join(dir, 'fdc-mappings.json'))).toBe(true);
     delete process.env.MEALPILOT_CACHE_DIR;
   });
 
-  it('never persists unavailable results', () => {
+  it('never persists unavailable results', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mealpilot-cache-'));
     process.env.MEALPILOT_CACHE_DIR = dir;
-    const svc = new TranscriptCacheService();
+    const svc = new FileAnalysisStore();
 
     const unavailableEntry: VideoAnalysis = {
       videoId: 'bad-vid',
@@ -110,9 +113,9 @@ describe('TranscriptCacheService', () => {
       analyzedAt: new Date().toISOString(),
     };
 
-    svc.set(unavailableEntry);
-    expect(svc.get('bad-vid', 'gemini', 'gemini-3.8-flash')).toBeNull();
-    expect(svc.list().length).toBe(0);
+    await svc.set(unavailableEntry);
+    expect(await svc.get('bad-vid', 'gemini', 'gemini-3.8-flash')).toBeNull();
+    expect((await svc.list()).length).toBe(0);
     delete process.env.MEALPILOT_CACHE_DIR;
   });
 });

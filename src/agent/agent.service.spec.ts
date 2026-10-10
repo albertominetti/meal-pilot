@@ -13,7 +13,8 @@ import { CheckPlanBalanceTool } from './tools/check-plan-balance.tool';
 import { RunDigestService } from './run-digest.service';
 import { SubmitPlanTool } from './tools/submit-plan.tool';
 import { FallbackPlanner } from './fallback-planner';
-import { TranscriptCacheService } from '../videos/transcript-cache.service';
+import { ANALYSIS_STORE } from '../videos/analysis-store';
+import { FileAnalysisStore } from '../videos/file-analysis.store';
 import { VideoAnalysisService } from '../videos/video-analysis.service';
 import { MealPlanService } from '../meal-plan/meal-plan.service';
 import { FakeYouTubeService } from '../youtube/fake-youtube.service';
@@ -88,7 +89,7 @@ describe('AgentService (tool loop and guardrails)', () => {
         FallbackPlanner,
         RunDigestService,
         TrustedChannelsService,
-        TranscriptCacheService,
+        { provide: ANALYSIS_STORE, useClass: FileAnalysisStore },
         VideoAnalysisService,
         MealPlanService,
         MockVideoAnalyzer,

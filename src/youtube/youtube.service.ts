@@ -1,5 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { AppConfigService } from '../config/app-config.service';
+import { MemorySearchCache, SEARCH_CACHE, SearchCacheStore } from './search-cache.store';
 import {
   IYouTubeService,
   parseIsoDuration,
@@ -7,21 +8,20 @@ import {
   YouTubeVideoDetails,
 } from './youtube.interface';
 
-interface SearchCacheEntry {
-  ids: string[];
-  expiresAt: number;
-}
-
 @Injectable()
 export class YouTubeService implements IYouTubeService {
   private readonly logger = new Logger(YouTubeService.name);
-  private readonly searchCache = new Map<string, SearchCacheEntry>();
 
   private unitsUsedToday = 0;
   private currentDay = new Date().toISOString().slice(0, 10);
   private readonly dailyCap = 9000; // Leave margin below the 10,000 unit default
 
-  constructor(private readonly config: AppConfigService) {}
+  constructor(
+    private readonly config: AppConfigService,
+    @Optional()
+    @Inject(SEARCH_CACHE)
+    private readonly searchCache: SearchCacheStore = new MemorySearchCache(),
+  ) {}
 
   private checkAndResetQuota(): void {
     const today = new Date().toISOString().slice(0, 10);
@@ -47,9 +47,9 @@ export class YouTubeService implements IYouTubeService {
     }
 
     const normQuery = query.trim().toLowerCase();
-    const cached = this.searchCache.get(normQuery);
-    if (cached && cached.expiresAt > Date.now()) {
-      return cached.ids;
+    const cached = await this.cachedSearch(normQuery);
+    if (cached) {
+      return cached;
     }
 
     this.checkAndResetQuota();
@@ -90,13 +90,23 @@ export class YouTubeService implements IYouTubeService {
       .map((item: any) => item.id?.videoId)
       .filter(Boolean);
 
-    // Cache for 24 hours
-    this.searchCache.set(normQuery, {
-      ids,
-      expiresAt: Date.now() + 24 * 60 * 60 * 1000,
-    });
+    try {
+      await this.searchCache.set(normQuery, ids);
+    } catch (err) {
+      this.logger.warn(`Could not cache search results: ${(err as Error).message}`);
+    }
 
     return ids;
+  }
+
+  /** A cache outage must not block searching; it only costs quota. */
+  private async cachedSearch(normQuery: string): Promise<string[] | null> {
+    try {
+      return await this.searchCache.get(normQuery);
+    } catch (err) {
+      this.logger.warn(`Search cache unavailable: ${(err as Error).message}`);
+      return null;
+    }
   }
 
   async getDetails(ids: string[]): Promise<YouTubeVideoDetails[]> {

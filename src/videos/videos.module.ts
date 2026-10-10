@@ -9,7 +9,10 @@ import {
   VIDEO_ANALYZER,
   VideoAnalyzer,
 } from './analyzers/video-analyzer.interface';
-import { TranscriptCacheService } from './transcript-cache.service';
+import { DatabaseService } from '../db/database.service';
+import { ANALYSIS_STORE, AnalysisStore } from './analysis-store';
+import { FileAnalysisStore } from './file-analysis.store';
+import { PgAnalysisStore } from './pg-analysis.store';
 import { VideoAnalysisService } from './video-analysis.service';
 import { VideosController } from './videos.controller';
 
@@ -28,18 +31,25 @@ const videoAnalyzerProvider: Provider = {
   inject: [AppConfigService, GeminiVideoAnalyzer, MockVideoAnalyzer],
 };
 
+const analysisStoreProvider: Provider = {
+  provide: ANALYSIS_STORE,
+  useFactory: (database: DatabaseService): AnalysisStore =>
+    database.enabled ? new PgAnalysisStore(database) : new FileAnalysisStore(),
+  inject: [DatabaseService],
+};
+
 @Module({
   imports: [AppConfigModule, LlmModule, YouTubeModule],
   controllers: [VideosController],
   providers: [
-    TranscriptCacheService,
+    analysisStoreProvider,
     GeminiVideoAnalyzer,
     MockVideoAnalyzer,
     videoAnalyzerProvider,
     VideoAnalysisService,
   ],
   exports: [
-    TranscriptCacheService,
+    ANALYSIS_STORE,
     VideoAnalysisService,
     VIDEO_ANALYZER,
     GeminiVideoAnalyzer,

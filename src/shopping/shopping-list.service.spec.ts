@@ -10,19 +10,19 @@ describe('ShoppingListService', () => {
   const analyzer = { provider: () => 'mock', model: () => 'mock', analyze: jest.fn() };
   const svc = new ShoppingListService(cache as any, analyzer as any);
 
-  it('builds from cached analyses and never analyses', () => {
-    const list = svc.fromCache({ items: [{ videoId: 'soup' }], householdSize: 4 });
+  it('builds from cached analyses and never analyses', async () => {
+    const list = await svc.fromCache({ items: [{ videoId: 'soup' }], householdSize: 4 });
     expect(list.sections[0].items[0]).toMatchObject({ name: 'lentil', exactAmount: 400 });
     expect(analyzer.analyze).not.toHaveBeenCalled();
   });
 
-  it('falls back to analyses cached under another model', () => {
-    const list = svc.fromCache({ items: [{ videoId: 'other-model' }] });
+  it('falls back to analyses cached under another model', async () => {
+    const list = await svc.fromCache({ items: [{ videoId: 'other-model' }] });
     expect(list.sections[0].items[0].name).toBe('rice');
   });
 
-  it('warns about videos that were never analysed', () => {
-    const list = svc.fromCache({ items: [{ videoId: 'soup' }, { videoId: 'nope' }] });
+  it('warns about videos that were never analysed', async () => {
+    const list = await svc.fromCache({ items: [{ videoId: 'soup' }, { videoId: 'nope' }] });
     expect(list.warnings[0]).toMatch(/No analysis cached for nope/);
   });
 });

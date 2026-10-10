@@ -3,7 +3,7 @@ import { VideoAnalysisService } from './video-analysis.service';
 import { FakeYouTubeService } from '../youtube/fake-youtube.service';
 
 function build(cached: unknown = null) {
-  const cache = { get: jest.fn().mockReturnValue(cached), set: jest.fn() };
+  const cache = { get: jest.fn().mockResolvedValue(cached), set: jest.fn().mockResolvedValue(undefined) };
   const analyzer = new MockVideoAnalyzer();
   const analyze = jest.spyOn(analyzer, 'analyze');
   const youtube = new FakeYouTubeService();

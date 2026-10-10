@@ -3,7 +3,8 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { MealPlanService } from './meal-plan.service';
-import { TranscriptCacheService } from '../videos/transcript-cache.service';
+import { ANALYSIS_STORE } from '../videos/analysis-store';
+import { FileAnalysisStore } from '../videos/file-analysis.store';
 import { VideoAnalysisService } from '../videos/video-analysis.service';
 import { VIDEO_ANALYZER } from '../videos/analyzers/video-analyzer.interface';
 import { MockVideoAnalyzer } from '../videos/analyzers/mock-video-analyzer';
@@ -26,7 +27,7 @@ async function buildService() {
   const moduleRef = await Test.createTestingModule({
     providers: [
       MealPlanService,
-      TranscriptCacheService,
+      { provide: ANALYSIS_STORE, useClass: FileAnalysisStore },
       VideoAnalysisService,
       MockVideoAnalyzer,
       TrustedChannelsService,

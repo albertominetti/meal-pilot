@@ -12,7 +12,7 @@ import {
 } from './dto/meal-plan-response.dto';
 import { MealPlanRequestDto } from './dto/meal-plan-request.dto';
 import { VideoAnalysis } from '../videos/analyzers/analysis.schema';
-import { TranscriptCacheService } from '../videos/transcript-cache.service';
+import { loadSeedVideos } from '../videos/seed-videos';
 import { VideoAnalysisService } from '../videos/video-analysis.service';
 import { selectRanked } from '../recipes/ranking';
 import { normalizeRestriction } from '../recipes/restrictions';
@@ -50,7 +50,6 @@ const KNOWN_RESTRICTION_TAGS = [
 @Injectable()
 export class MealPlanService {
   constructor(
-    private readonly cache: TranscriptCacheService,
     private readonly analysis: VideoAnalysisService,
     private readonly config: AppConfigService,
     private readonly trustedChannels: TrustedChannelsService,
@@ -181,7 +180,7 @@ export class MealPlanService {
   }
 
   private async resolveCandidates(): Promise<Candidate[]> {
-    return this.cache.loadSeed().map((s) => ({
+    return loadSeedVideos().map((s) => ({
       videoId: s.videoId,
       title: s.title,
       channel: s.channel,

@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { VideoAnalysis } from '../videos/analyzers/analysis.schema';
-import { TranscriptCacheService } from '../videos/transcript-cache.service';
+import { ANALYSIS_STORE, AnalysisStore } from '../videos/analysis-store';
 import { VideoAnalysisService } from '../videos/video-analysis.service';
 import { ShoppingListRequestDto } from './dto/shopping-list.dto';
 import { buildShoppingList, ShoppingList } from './shopping-list';
@@ -8,22 +8,20 @@ import { buildShoppingList, ShoppingList } from './shopping-list';
 @Injectable()
 export class ShoppingListService {
   constructor(
-    private readonly cache: TranscriptCacheService,
+    @Inject(ANALYSIS_STORE) private readonly cache: AnalysisStore,
     private readonly analysis: VideoAnalysisService,
   ) {}
 
   /** Builds the list from cached analyses only; never calls Gemini. */
-  fromCache(dto: ShoppingListRequestDto): ShoppingList {
+  async fromCache(dto: ShoppingListRequestDto): Promise<ShoppingList> {
     const householdSize = dto.householdSize ?? 1;
     const missing: string[] = [];
-    const inputs = dto.items.flatMap((item) => {
-      const cached = this.findCached(item.videoId);
-      if (!cached) {
-        missing.push(item.videoId);
-        return [];
-      }
-      return [{ analysis: cached, servings: item.servings }];
-    });
+    const inputs: Array<{ analysis: VideoAnalysis; servings?: number }> = [];
+    for (const item of dto.items) {
+      const cached = await this.findCached(item.videoId);
+      if (cached) inputs.push({ analysis: cached, servings: item.servings });
+      else missing.push(item.videoId);
+    }
 
     const list = buildShoppingList(inputs, householdSize);
     for (const id of missing) {
@@ -32,9 +30,9 @@ export class ShoppingListService {
     return list;
   }
 
-  private findCached(videoId: string): VideoAnalysis | null {
-    const exact = this.cache.get(videoId, this.analysis.provider(), this.analysis.model());
+  private async findCached(videoId: string): Promise<VideoAnalysis | null> {
+    const exact = await this.cache.get(videoId, this.analysis.provider(), this.analysis.model());
     if (exact) return exact;
-    return this.cache.list().find((a) => a.videoId === videoId && a.status === 'ok') ?? null;
+    return (await this.cache.list()).find((a) => a.videoId === videoId && a.status === 'ok') ?? null;
   }
 }

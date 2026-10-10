@@ -16,7 +16,7 @@ export class ShoppingListController {
       'Reads analyses from the cache (never calls Gemini). Amounts are scaled to the household, merged across recipes, rounded to buying units and grouped by supermarket section. Unclear amounts are flagged, never invented.',
   })
   @ApiOkResponse({ type: ShoppingListDto })
-  create(@Body() dto: ShoppingListRequestDto): ShoppingListDto {
+  create(@Body() dto: ShoppingListRequestDto): Promise<ShoppingListDto> {
     return this.shoppingList.fromCache(dto);
   }
 }

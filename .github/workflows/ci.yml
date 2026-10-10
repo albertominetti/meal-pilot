@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run test:e2e
+      - run: npm run build
+
+  # Runs the db suite on a temporary Neon branch made from main and deleted
+  # afterwards. Needs the NEON_PROJECT_ID variable and NEON_API_KEY secret.
+  db-neon:
+    if: vars.NEON_PROJECT_ID != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - id: branch
+        uses: neondatabase/create-branch-action@v6
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          parent_branch: main
+          branch_name: ci-${{ github.run_id }}-${{ github.run_attempt }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+      - run: npm run test:db
+        env:
+          TEST_DATABASE_URL: ${{ steps.branch.outputs.db_url }}
+      - if: always()
+        uses: neondatabase/delete-branch-action@v3
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch: ${{ steps.branch.outputs.branch_id }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+
+  # Until Neon is configured, run the same suite against a throwaway Postgres.
+  db-local:
+    if: vars.NEON_PROJECT_ID == ''
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: mealpilot_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:db
+        env:
+          TEST_DATABASE_URL: postgres://postgres:test@localhost:5432/mealpilot_test

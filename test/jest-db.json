@@ -1,0 +1,11 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "testRegex": "\\.db-spec\\.ts$",
+  "setupFiles": ["<rootDir>/test/setup-e2e.ts", "<rootDir>/test/setup-db.ts"],
+  "maxWorkers": 1,
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  }
+}

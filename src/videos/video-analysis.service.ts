@@ -10,7 +10,7 @@ import {
   VideoAnalyzer,
   VideoTarget,
 } from './analyzers/video-analyzer.interface';
-import { TranscriptCacheService } from './transcript-cache.service';
+import { ANALYSIS_STORE, AnalysisStore } from './analysis-store';
 
 export interface AnalysisResultWithCacheMeta {
   analysis: VideoAnalysis;
@@ -22,7 +22,7 @@ export class VideoAnalysisService {
   private readonly logger = new Logger(VideoAnalysisService.name);
 
   constructor(
-    private readonly cache: TranscriptCacheService,
+    @Inject(ANALYSIS_STORE) private readonly cache: AnalysisStore,
     @Inject(VIDEO_ANALYZER) private readonly analyzer: VideoAnalyzer,
     private readonly config: AppConfigService,
     @Inject(YOUTUBE_SERVICE) private readonly youtube: IYouTubeService,
@@ -31,7 +31,7 @@ export class VideoAnalysisService {
   async analyzeWithMeta(
     target: VideoTarget,
   ): Promise<AnalysisResultWithCacheMeta> {
-    const cached = this.cache.get(
+    const cached = await this.cache.get(
       target.videoId,
       this.analyzer.provider(),
       this.analyzer.model(),
@@ -43,7 +43,7 @@ export class VideoAnalysisService {
     const enriched = await this.withDetails(target);
     const result = await this.analyzer.analyze(enriched);
     if (result.status === 'ok') {
-      this.cache.set(result, this.config.effectiveLlmMode);
+      await this.cache.set(result, this.config.effectiveLlmMode);
     }
 
     return { analysis: result, fromCache: false };
