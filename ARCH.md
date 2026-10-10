@@ -6,83 +6,17 @@ This document provides a high-level architectural overview of the **JJFit** mobi
 
 ## 1. High-Level Architecture Diagram
 
-```mermaid
-flowchart TD
-    subgraph Client["Mobile Client Layer"]
-        JJFit["📱 JJFit Mobile App<br/>(iOS & Android)<br/>- User Health Profile<br/>- Blood Pressure & Allergies<br/>- Video Playback & Feed"]
-    end
+![JJFit and MealPilot high-level architecture](docs/assets/architecture-overview.png)
 
-    subgraph Backend["MealPilot Backend (NestJS Service)"]
-        API["REST API Layer<br/>(/api/meal-plan)"]
-        MealPlanService["Meal Plan Engine<br/>(Allergy Check & Tag Matching)"]
-        AnalysisService["Video Analysis Service"]
-        GeminiClient["Gemini Service<br/>(LLM Reasoning & Video Candidate Retrieval)"]
-        YouTubeClient["YouTube Integration / Metadata Fetcher<br/>(Video ID, Metadata, Links & Thumbnails)"]
-        Cache["Persistent Cache Layer<br/>(File / Database Store)"]
-    end
-
-    subgraph External["External Services & APIs"]
-        Gemini["✨ Google Gemini AI<br/>- Retrieve relevant meal video suggestions<br/>- Recipe & ingredient extraction<br/>- Nutritional & allergen signals"]
-        YouTube["▶️ YouTube Data API / Platform<br/>- Video metadata, title, channel<br/>- Watch URLs & embed links"]
-    end
-
-    %% Flow connections
-    JJFit -->|"1. POST /api/meal-plan<br/>(Health Profile, BP, Restrictions, Allergies)"| API
-    API --> MealPlanService
-    MealPlanService --> AnalysisService
-
-    AnalysisService <-->|"Read / Write Cache"| Cache
-    AnalysisService -->|"2. Query video candidates & recipe analysis"| GeminiClient
-    GeminiClient -->|"Prompt with health context"| Gemini
-    Gemini -->|"Returns candidate video ideas & nutrition facts"| GeminiClient
-
-    AnalysisService -->|"3. Resolve video links & verify metadata"| YouTubeClient
-    YouTubeClient -->|"Fetch metadata & watch links"| YouTube
-    YouTube -->|"Return video details & playable URLs"| YouTubeClient
-
-    MealPlanService -->|"4. Return validated recommendations & reasons"| API
-    API -->|"5. Response JSON (Ranked videos, whyItFits, allergy safety)"| JJFit
-    JJFit -.->|"6. Stream / Embed video playback"| YouTube
-```
+*The JJFit mobile app sends a health-aware meal-plan request to the MealPilot backend. The backend coordinates Gemini analysis, YouTube metadata and links, allergy filtering, and cached results before returning ranked recommendations.*
 
 ---
 
 ## 2. Sequence Diagram (End-to-End User Flow)
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User as 👤 User
-    participant App as 📱 JJFit (iOS / Android)
-    participant Backend as ⚙️ MealPilot Backend
-    participant Gemini as ✨ Google Gemini API
-    participant YouTube as ▶️ YouTube API / Platform
+![JJFit and MealPilot request sequence](docs/assets/sequence-flow.png)
 
-    User->>App: Input health profile (e.g., BP 140/90, vegan, peanut allergy)
-    App->>Backend: POST /api/meal-plan (profile, restrictions, allergies)
-    
-    activate Backend
-    Backend->>Gemini: Query for meal videos & recipe recommendations matching profile
-    activate Gemini
-    Gemini-->>Backend: Suggested video concepts, recipes, ingredients, & nutritional signals
-    deactivate Gemini
-
-    Backend->>YouTube: Query metadata, channel info & playable watch/embed URLs
-    activate YouTube
-    YouTube-->>Backend: Video metadata, channel, title, video ID & links
-    deactivate YouTube
-
-    rect rgb(240, 248, 255)
-        note over Backend: Allergy Safety & Filtering Engine<br/>1. Hard-block detected allergen matches<br/>2. Match dietary restriction tags<br/>3. Compute 'whyItFits' personalized reasoning
-    end
-
-    Backend-->>App: 200 OK (Ranked recommendations, safety verdict, disclaimer)
-    deactivate Backend
-
-    App->>User: Display curated meal plan cards & warnings
-    User->>App: Tap to watch recommended meal video
-    App->>YouTube: Stream video via embedded player or deep link
-```
+*The numbered flow shows the request lifecycle: JJFit captures the profile, the backend asks Gemini for analysis, enriches candidates with YouTube metadata and links, applies safety rules, and returns a curated response for playback in the app.*
 
 ---
 

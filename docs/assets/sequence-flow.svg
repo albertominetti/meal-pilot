@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 860" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="seqBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16" />
+      <stop offset="50%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#111827" />
+    </linearGradient>
+
+    <!-- Header Gradients for Actors -->
+    <linearGradient id="userGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="appGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#4338ca" />
+    </linearGradient>
+    <linearGradient id="backendGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14b8a6" />
+      <stop offset="100%" stop-color="#0f766e" />
+    </linearGradient>
+    <linearGradient id="geminiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="ytGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="100%" stop-color="#b91c1c" />
+    </linearGradient>
+
+    <!-- Markers -->
+    <marker id="mBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#38bdf8" />
+    </marker>
+    <marker id="mPurple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#c084fc" />
+    </marker>
+    <marker id="mRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#f87171" />
+    </marker>
+    <marker id="mGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#34d399" />
+    </marker>
+    <marker id="mAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#fbbf24" />
+    </marker>
+
+    <!-- Shadow -->
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <style>
+    .seq-title { font-family: system-ui, -apple-system, sans-serif; font-size: 26px; font-weight: 800; fill: #ffffff; }
+    .seq-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; fill: #94a3b8; }
+    .actor-title { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
+    .actor-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #cbd5e1; text-anchor: middle; }
+    .msg-text { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; font-weight: 600; fill: #e2e8f0; }
+    .msg-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #94a3b8; }
+    .pill { rx: 11; stroke-width: 1.2; }
+    .step-circ { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; font-weight: 800; fill: #ffffff; text-anchor: middle; }
+  </style>
+
+  <!-- Background -->
+  <rect width="1100" height="860" fill="url(#seqBg)" rx="20" />
+  <rect width="1098" height="858" x="1" y="1" fill="none" stroke="#334155" stroke-width="2" rx="19" />
+
+  <!-- Header -->
+  <g transform="translate(60, 42)">
+    <circle cx="20" cy="18" r="14" fill="#38bdf8"/>
+    <text x="20" y="24" text-anchor="middle" font-family="system-ui" font-size="16" fill="#fff" font-weight="900">🔄</text>
+    <text x="48" y="24" class="seq-title">End-to-End Meal Plan Recommendation Flow</text>
+    <text x="48" y="44" class="seq-sub">Complete lifecycle from user profile submission to Gemini video retrieval, YouTube metadata enrichments, and streaming</text>
+  </g>
+
+  <!-- ================= ACTOR COLUMNS ================= -->
+  <!-- Col X: User=120, App=320, Backend=560, Gemini=800, YouTube=980 -->
+
+  <!-- Lifelines -->
+  <line x1="120" y1="170" x2="120" y2="800" stroke="#334155" stroke-width="2" stroke-dasharray="4,4"/>
+  <line x1="320" y1="170" x2="320" y2="800" stroke="#334155" stroke-width="2" stroke-dasharray="4,4"/>
+  <line x1="560" y1="170" x2="560" y2="800" stroke="#334155" stroke-width="2" stroke-dasharray="4,4"/>
+  <line x1="800" y1="170" x2="800" y2="800" stroke="#334155" stroke-width="2" stroke-dasharray="4,4"/>
+  <line x1="980" y1="170" x2="980" y2="800" stroke="#334155" stroke-width="2" stroke-dasharray="4,4"/>
+
+  <!-- Actor 1: User -->
+  <g transform="translate(50, 110)">
+    <rect width="140" height="56" rx="12" fill="url(#userGrad)" filter="url(#cardShadow)"/>
+    <text x="70" y="26" class="actor-title">👤 User</text>
+    <text x="70" y="42" class="actor-sub">Patient / Health Seeker</text>
+  </g>
+
+  <!-- Actor 2: JJFit Mobile App -->
+  <g transform="translate(245, 110)">
+    <rect width="150" height="56" rx="12" fill="url(#appGrad)" filter="url(#cardShadow)"/>
+    <text x="75" y="26" class="actor-title">📱 JJFit Mobile</text>
+    <text x="75" y="42" class="actor-sub">iOS &amp; Android App</text>
+  </g>
+
+  <!-- Actor 3: MealPilot Backend -->
+  <g transform="translate(480, 110)">
+    <rect width="160" height="56" rx="12" fill="url(#backendGrad)" filter="url(#cardShadow)"/>
+    <text x="80" y="26" class="actor-title">⚙️ MealPilot Backend</text>
+    <text x="80" y="42" class="actor-sub">NestJS + TypeScript</text>
+  </g>
+
+  <!-- Actor 4: Google Gemini AI -->
+  <g transform="translate(725, 110)">
+    <rect width="150" height="56" rx="12" fill="url(#geminiGrad)" filter="url(#cardShadow)"/>
+    <text x="75" y="26" class="actor-title">✨ Google Gemini</text>
+    <text x="75" y="42" class="actor-sub">Multimodal LLM</text>
+  </g>
+
+  <!-- Actor 5: YouTube Platform -->
+  <g transform="translate(905, 110)">
+    <rect width="150" height="56" rx="12" fill="url(#ytGrad)" filter="url(#cardShadow)"/>
+    <text x="75" y="26" class="actor-title">▶️ YouTube</text>
+    <text x="75" y="42" class="actor-sub">Data API &amp; Media Host</text>
+  </g>
+
+  <!-- ================= STEP 1: USER INPUT ================= -->
+  <!-- User -> App -->
+  <line x1="120" y1="205" x2="315" y2="205" stroke="#fbbf24" stroke-width="2.2" marker-end="url(#mAmber)"/>
+  <circle cx="140" cy="195" r="9" fill="#d97706" />
+  <text x="140" y="198.5" class="step-circ">1</text>
+  <text x="156" y="199" class="msg-text">Enters health profile &amp; restrictions</text>
+  <text x="156" y="217" class="msg-desc">BP: 140/90, Vegan, Allergies: [peanuts, shellfish]</text>
+
+  <!-- ================= STEP 2: APP TO BACKEND ================= -->
+  <!-- App -> Backend -->
+  <line x1="320" y1="265" x2="555" y2="265" stroke="#38bdf8" stroke-width="2.2" marker-end="url(#mBlue)"/>
+  <circle cx="340" cy="255" r="9" fill="#0284c7" />
+  <text x="340" y="258.5" class="step-circ">2</text>
+  <text x="356" y="259" class="msg-text">POST /api/meal-plan</text>
+  <text x="356" y="277" class="msg-desc">Payload: healthProfile, restrictions, allergies, maxResults</text>
+
+  <!-- ================= STEP 3: BACKEND -> GEMINI ================= -->
+  <!-- Backend -> Gemini -->
+  <line x1="560" y1="325" x2="795" y2="325" stroke="#c084fc" stroke-width="2.2" marker-end="url(#mPurple)"/>
+  <circle cx="580" cy="315" r="9" fill="#7c3aed" />
+  <text x="580" y="318.5" class="step-circ">3</text>
+  <text x="596" y="319" class="msg-text">Query meal concepts &amp; video candidates</text>
+  <text x="596" y="337" class="msg-desc">Gemini reasoner suggests recipes matched to health data</text>
+
+  <!-- ================= STEP 4: GEMINI -> BACKEND ================= -->
+  <!-- Gemini -> Backend (dashed) -->
+  <line x1="800" y1="385" x2="565" y2="385" stroke="#c084fc" stroke-width="2.2" stroke-dasharray="6,4" marker-end="url(#mPurple)"/>
+  <circle cx="780" cy="375" r="9" fill="#7c3aed" />
+  <text x="780" y="378.5" class="step-circ">4</text>
+  <text x="596" y="379" class="msg-text">Candidate recipes &amp; nutritional signals</text>
+  <text x="596" y="397" class="msg-desc">Ingredients, transcript summary, and potential allergen markers</text>
+
+  <!-- ================= STEP 5: BACKEND -> YOUTUBE ================= -->
+  <!-- Backend -> YouTube -->
+  <line x1="560" y1="445" x2="975" y2="445" stroke="#f87171" stroke-width="2.2" marker-end="url(#mRed)"/>
+  <circle cx="580" cy="435" r="9" fill="#dc2626" />
+  <text x="580" y="438.5" class="step-circ">5</text>
+  <text x="596" y="439" class="msg-text">Resolve video metadata &amp; playable links</text>
+  <text x="596" y="457" class="msg-desc">Fetches channel, titles, thumbnails, and verify watch URLs</text>
+
+  <!-- ================= STEP 6: YOUTUBE -> BACKEND ================= -->
+  <!-- YouTube -> Backend (dashed) -->
+  <line x1="980" y1="505" x2="565" y2="505" stroke="#f87171" stroke-width="2.2" stroke-dasharray="6,4" marker-end="url(#mRed)"/>
+  <circle cx="960" cy="495" r="9" fill="#dc2626" />
+  <text x="960" y="498.5" class="step-circ">6</text>
+  <text x="616" y="499" class="msg-text">Metadata &amp; watch URLs returned</text>
+  <text x="616" y="517" class="msg-desc">Verified channel name, verified video ID, duration &amp; links</text>
+
+  <!-- ================= BOX: INTERNAL BACKEND PROCESSING ================= -->
+  <g transform="translate(420, 545)">
+    <rect width="280" height="74" rx="12" fill="#0f2b2b" stroke="#14b8a6" stroke-width="1.6" filter="url(#cardShadow)"/>
+    <circle cx="20" cy="22" r="9" fill="#0d9488" />
+    <text x="20" y="25.5" class="step-circ">7</text>
+    <text x="36" y="25" class="msg-text" fill="#2dd4bf">Allergy Safety &amp; Ranking Engine</text>
+    <text x="16" y="46" class="msg-desc">• Hard-blocks allergen matches (peanut, dairy, etc.)</text>
+    <text x="16" y="62" class="msg-desc">• Generates personalized "whyItFits" medical notes</text>
+  </g>
+
+  <!-- ================= STEP 8: BACKEND -> APP ================= -->
+  <!-- Backend -> App (dashed response) -->
+  <line x1="560" y1="655" x2="325" y2="655" stroke="#34d399" stroke-width="2.2" stroke-dasharray="6,4" marker-end="url(#mGreen)"/>
+  <circle cx="540" cy="645" r="9" fill="#059669" />
+  <text x="540" y="648.5" class="step-circ">8</text>
+  <text x="340" y="649" class="msg-text" fill="#34d399">200 OK (Ranked recommendations + disclaimer)</text>
+  <text x="340" y="667" class="msg-desc">Includes matchedTags, safety status, and whyItFits explanation</text>
+
+  <!-- ================= STEP 9: APP PRESENTS TO USER ================= -->
+  <line x1="320" y1="710" x2="125" y2="710" stroke="#fbbf24" stroke-width="2.2" stroke-dasharray="6,4" marker-end="url(#mAmber)"/>
+  <circle cx="300" cy="700" r="9" fill="#d97706" />
+  <text x="300" y="703.5" class="step-circ">9</text>
+  <text x="135" y="702" class="msg-text">Displays curated meal cards &amp; safety tags</text>
+  <text x="135" y="720" class="msg-desc">User views why each recipe fits their specific health plan</text>
+
+  <!-- ================= STEP 10: USER WATCHES VIDEO ================= -->
+  <line x1="320" y1="765" x2="975" y2="765" stroke="#ef4444" stroke-width="2.5" marker-end="url(#mRed)"/>
+  <circle cx="340" cy="755" r="9" fill="#dc2626" />
+  <text x="340" y="758.5" class="step-circ">10</text>
+  <text x="356" y="759" class="msg-text" fill="#f87171">Direct Stream / Embed Video Playback</text>
+  <text x="356" y="777" class="msg-desc">Native YouTube in-app player or redirect to watch link</text>
+</svg>

@@ -1,0 +1,310 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 780" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#090d16" />
+    </linearGradient>
+
+    <!-- Card Gradients -->
+    <linearGradient id="mobileGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4338ca" />
+      <stop offset="100%" stop-color="#312e81" />
+    </linearGradient>
+
+    <linearGradient id="backendGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f766e" />
+      <stop offset="100%" stop-color="#115e59" />
+    </linearGradient>
+
+    <linearGradient id="geminiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="50%" stop-color="#7c3aed" />
+      <stop offset="100%" stop-color="#db2777" />
+    </linearGradient>
+
+    <linearGradient id="ytGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#dc2626" />
+      <stop offset="100%" stop-color="#991b1b" />
+    </linearGradient>
+
+    <linearGradient id="subcardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+
+    <linearGradient id="accentCyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+
+    <!-- Drop Shadows -->
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+    <filter id="subShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+    <filter id="glowMobile" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#6366f1" flood-opacity="0.6"/>
+    </filter>
+    <filter id="glowGemini" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#a855f7" flood-opacity="0.6"/>
+    </filter>
+    <filter id="glowYT" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#ef4444" flood-opacity="0.6"/>
+    </filter>
+
+    <!-- Markers -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#38bdf8" />
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#c084fc" />
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#f87171" />
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#34d399" />
+    </marker>
+  </defs>
+
+  <style>
+    .title { font-family: system-ui, -apple-system, sans-serif; font-size: 26px; font-weight: 800; fill: #ffffff; letter-spacing: -0.5px; }
+    .subtitle { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; fill: #94a3b8; }
+    .card-title { font-family: system-ui, -apple-system, sans-serif; font-size: 16px; font-weight: 700; fill: #ffffff; }
+    .card-badge { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; }
+    .card-text { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #cbd5e1; line-height: 1.5; }
+    .subcard-title { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; font-weight: 700; fill: #38bdf8; }
+    .subcard-detail { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #94a3b8; }
+    .label { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; font-weight: 600; fill: #e2e8f0; }
+    .label-bg { fill: #0f172a; stroke: #334155; stroke-width: 1; rx: 6; }
+    .step-num { font-family: system-ui, -apple-system, sans-serif; font-size: 10px; font-weight: 800; fill: #ffffff; }
+  </style>
+
+  <!-- Deep Canvas Background -->
+  <rect width="1100" height="780" fill="url(#bgGrad)" rx="20" />
+  <rect width="1098" height="778" x="1" y="1" fill="none" stroke="#334155" stroke-width="2" rx="19" />
+
+  <!-- Header -->
+  <g transform="translate(60, 48)">
+    <circle cx="20" cy="18" r="14" fill="url(#accentCyan)"/>
+    <text x="20" y="23" text-anchor="middle" font-family="system-ui" font-size="16" fill="#fff" font-weight="900">⚡</text>
+    <text x="48" y="24" class="title">MealPilot &amp; JJFit System Architecture</text>
+    <text x="48" y="44" class="subtitle">High-level interaction between JJFit Mobile App, NestJS Backend, Gemini AI, and YouTube Platform</text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- LEFT: JJFit Mobile Application (iOS / Android) -->
+  <!-- ======================================================== -->
+  <g transform="translate(60, 130)">
+    <!-- Container -->
+    <rect width="250" height="580" rx="18" fill="#18182f" stroke="#4f46e5" stroke-width="2" filter="url(#shadow)" />
+    
+    <!-- Header Banner -->
+    <rect width="250" height="75" rx="18" fill="url(#mobileGrad)" />
+    <rect width="250" height="20" y="55" fill="#18182f" />
+    
+    <!-- Phone Top Notch Decoration -->
+    <rect x="85" y="8" width="80" height="5" rx="2.5" fill="#312e81" />
+    
+    <text x="24" y="38" class="card-badge" fill="#a5b4fc">Mobile Client Layer</text>
+    <text x="24" y="58" class="card-title">📱 JJFit App (iOS/Android)</text>
+
+    <!-- Sub components inside Mobile -->
+    <g transform="translate(18, 90)">
+      <rect width="214" height="96" rx="12" fill="url(#subcardGrad)" stroke="#312e81" stroke-width="1.2" filter="url(#subShadow)" />
+      <text x="14" y="24" class="subcard-title" fill="#818cf8">👤 Health Profile Intake</text>
+      <text x="14" y="45" class="card-text">• Blood pressure (e.g. 140/90)</text>
+      <text x="14" y="63" class="card-text">• Health notes &amp; conditions</text>
+      <text x="14" y="81" class="card-text">• Custom user preferences</text>
+    </g>
+
+    <g transform="translate(18, 200)">
+      <rect width="214" height="96" rx="12" fill="url(#subcardGrad)" stroke="#312e81" stroke-width="1.2" filter="url(#subShadow)" />
+      <text x="14" y="24" class="subcard-title" fill="#818cf8">🛡️ Diet &amp; Allergy Guard</text>
+      <text x="14" y="45" class="card-text">• Strict allergens (peanuts, milk)</text>
+      <text x="14" y="63" class="card-text">• Restrictions (vegan, low-sodium)</text>
+      <text x="14" y="81" class="card-text">• Real-time safety validation</text>
+    </g>
+
+    <g transform="translate(18, 310)">
+      <rect width="214" height="110" rx="12" fill="url(#subcardGrad)" stroke="#312e81" stroke-width="1.2" filter="url(#subShadow)" />
+      <text x="14" y="24" class="subcard-title" fill="#818cf8">🥗 Curated Meal Feed</text>
+      <text x="14" y="45" class="card-text">• Ranked recipe video cards</text>
+      <text x="14" y="63" class="card-text">• Personalized "Why it fits"</text>
+      <text x="14" y="81" class="card-text">• Allergy safety badges</text>
+      <text x="14" y="99" class="card-text">• Medical disclaimer guard</text>
+    </g>
+
+    <g transform="translate(18, 434)">
+      <rect width="214" height="120" rx="12" fill="url(#subcardGrad)" stroke="#dc2626" stroke-width="1.2" filter="url(#subShadow)" />
+      <text x="14" y="26" class="subcard-title" fill="#f87171">▶️ Media Player &amp; Deep Link</text>
+      <text x="14" y="48" class="card-text">• Native video player stream</text>
+      <text x="14" y="66" class="card-text">• Embedded YouTube iframe</text>
+      <text x="14" y="84" class="card-text">• Deep link to YouTube app</text>
+      <text x="14" y="102" class="card-text">• Replay &amp; favorite bookmarks</text>
+    </g>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- CENTER: MealPilot Backend Service (NestJS) -->
+  <!-- ======================================================== -->
+  <g transform="translate(370, 130)">
+    <rect width="360" height="580" rx="18" fill="#0f1f22" stroke="#14b8a6" stroke-width="2" filter="url(#shadow)" />
+    
+    <!-- Header Banner -->
+    <rect width="360" height="75" rx="18" fill="url(#backendGrad)" />
+    <rect width="360" height="20" y="55" fill="#0f1f22" />
+    <text x="24" y="38" class="card-badge" fill="#99f6e4">Backend Service (NestJS + TypeScript)</text>
+    <text x="24" y="58" class="card-title">⚙️ MealPilot Engine</text>
+
+    <!-- Sub components inside Backend -->
+    <!-- 1. REST API Controller -->
+    <g transform="translate(20, 88)">
+      <rect width="320" height="72" rx="10" fill="url(#subcardGrad)" stroke="#0d9488" stroke-width="1.2" filter="url(#subShadow)" />
+      <text x="16" y="24" class="subcard-title" fill="#2dd4bf">1. REST API Layer (/api/meal-plan)</text>
+      <text x="16" y="44" class="card-text">Validates DTO, parses health params &amp; video candidate list</text>
+      <text x="16" y="60" class="subcard-detail">Swagger Docs (/api/docs) • Healthcheck (/api/health)</text>
+    </g>
+
+    <!-- 2. Meal Plan & Allergy Safety Service -->
+    <g transform="translate(20, 172)">
+      <rect width="320" height="96" rx="10" fill="url(#subcardGrad)" stroke="#0d9488" stroke-width="1.2" filter="url(#subShadow)" />
+      <text x="16" y="24" class="subcard-title" fill="#2dd4bf">2. Safety &amp; Tag Matching Engine</text>
+      <text x="16" y="44" class="card-text">• Hard allergen block (peanuts, shellfish, dairy, gluten)</text>
+      <text x="16" y="62" class="card-text">• Restriction matching (vegan, low-sodium, low-carb)</text>
+      <text x="16" y="80" class="card-text">• Formulates custom "whyItFits" health reasoning</text>
+    </g>
+
+    <!-- 3. Video Analysis Orchestrator -->
+    <g transform="translate(20, 280)">
+      <rect width="320" height="80" rx="10" fill="url(#subcardGrad)" stroke="#0d9488" stroke-width="1.2" filter="url(#subShadow)" />
+      <text x="16" y="24" class="subcard-title" fill="#2dd4bf">3. Video Analysis Orchestrator</text>
+      <text x="16" y="44" class="card-text">Checks cache first; delegates to Gemini for analysis,</text>
+      <text x="16" y="62" class="card-text">then coordinates YouTube metadata validation</text>
+    </g>
+
+    <!-- 4. Persistent Cache -->
+    <g transform="translate(20, 372)">
+      <rect width="320" height="80" rx="10" fill="url(#subcardGrad)" stroke="#0d9488" stroke-width="1.2" filter="url(#subShadow)" />
+      <text x="16" y="24" class="subcard-title" fill="#2dd4bf">4. Persistent Cache Layer (data/cache)</text>
+      <text x="16" y="44" class="card-text">Caches video transcripts, ingredients &amp; tags to avoid</text>
+      <text x="16" y="62" class="card-text">redundant LLM calls and speed up response times</text>
+    </g>
+
+    <!-- 5. Client Integrations inside Backend (Gemini + YouTube) -->
+    <g transform="translate(20, 464)">
+      <rect width="154" height="96" rx="10" fill="url(#subcardGrad)" stroke="#7c3aed" stroke-width="1.2" filter="url(#subShadow)" />
+      <text x="12" y="22" class="subcard-title" fill="#c084fc">Gemini Service</text>
+      <text x="12" y="42" class="subcard-detail">• Prompts LLM for meal</text>
+      <text x="12" y="58" class="subcard-detail">  ideas matching profile</text>
+      <text x="12" y="74" class="subcard-detail">• Extracts ingredients</text>
+      <text x="12" y="90" class="subcard-detail">• Identifies allergens</text>
+    </g>
+
+    <g transform="translate(186, 464)">
+      <rect width="154" height="96" rx="10" fill="url(#subcardGrad)" stroke="#dc2626" stroke-width="1.2" filter="url(#subShadow)" />
+      <text x="12" y="22" class="subcard-title" fill="#f87171">YouTube Util/API</text>
+      <text x="12" y="42" class="subcard-detail">• Parses URL &amp; video ID</text>
+      <text x="12" y="58" class="subcard-detail">• Resolves metadata</text>
+      <text x="12" y="74" class="subcard-detail">• Obtains channel &amp; title</text>
+      <text x="12" y="90" class="subcard-detail">• Constructs watch links</text>
+    </g>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- RIGHT: External AI & Media Platforms -->
+  <!-- ======================================================== -->
+  <g transform="translate(790, 130)">
+    <!-- 1. Google Gemini Cloud -->
+    <g>
+      <rect width="250" height="260" rx="18" fill="#1e1338" stroke="#a855f7" stroke-width="2" filter="url(#shadow)" />
+      <rect width="250" height="65" rx="18" fill="url(#geminiGrad)" />
+      <rect width="250" height="20" y="45" fill="#1e1338" />
+      <text x="22" y="32" class="card-badge" fill="#f3e8ff">Multimodal AI Service</text>
+      <text x="22" y="52" class="card-title">✨ Google Gemini AI</text>
+
+      <g transform="translate(18, 76)">
+        <rect width="214" height="165" rx="10" fill="url(#subcardGrad)" stroke="#9333ea" stroke-width="1.2" />
+        <text x="14" y="24" class="subcard-title" fill="#d8b4fe">Capabilities:</text>
+        <text x="14" y="46" class="card-text">💡 Recommends meal video concepts</text>
+        <text x="14" y="66" class="card-text">🍲 Reconstructs recipe transcripts</text>
+        <text x="14" y="86" class="card-text">🔬 Deconstructs ingredients</text>
+        <text x="14" y="106" class="card-text">⚠️ Flags subtle allergen risks</text>
+        <text x="14" y="126" class="card-text">🩺 Generates medical rationale</text>
+        <text x="14" y="146" class="subcard-detail">(Offline mock available for fallback)</text>
+      </g>
+    </g>
+
+    <!-- 2. YouTube Platform -->
+    <g transform="translate(0, 310)">
+      <rect width="250" height="270" rx="18" fill="#241014" stroke="#ef4444" stroke-width="2" filter="url(#shadow)" />
+      <rect width="250" height="65" rx="18" fill="url(#ytGrad)" />
+      <rect width="250" height="20" y="45" fill="#241014" />
+      <text x="22" y="32" class="card-badge" fill="#fecaca">Video Platform &amp; API</text>
+      <text x="22" y="52" class="card-title">▶️ YouTube Platform</text>
+
+      <g transform="translate(18, 76)">
+        <rect width="214" height="175" rx="10" fill="url(#subcardGrad)" stroke="#b91c1c" stroke-width="1.2" />
+        <text x="14" y="24" class="subcard-title" fill="#fca5a5">Metadata &amp; Streaming:</text>
+        <text x="14" y="46" class="card-text">📌 Video title, channel &amp; tags</text>
+        <text x="14" y="66" class="card-text">🔗 Watch URLs &amp; embed links</text>
+        <text x="14" y="86" class="card-text">🖼️ High-res video thumbnails</text>
+        <text x="14" y="106" class="card-text">🎬 Native streaming to client</text>
+        <text x="14" y="126" class="card-text">⏱️ Duration &amp; upload metadata</text>
+        <text x="14" y="152" class="subcard-detail">Supports watch, shorts &amp; embeds</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- CONNECTION ARROWS & LABELS -->
+  <!-- ======================================================== -->
+  <!-- 1. JJFit -> Backend (Request) -->
+  <path d="M 310 240 L 370 240" fill="none" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#arrow)" />
+  <g transform="translate(295, 205)">
+    <rect x="-10" y="0" width="94" height="26" class="label-bg"/>
+    <circle cx="2" cy="13" r="7" fill="#0284c7" />
+    <text x="2" y="16.5" text-anchor="middle" class="step-num">1</text>
+    <text x="15" y="17" class="label" fill="#38bdf8">POST /plan</text>
+  </g>
+
+  <!-- 2. Backend -> JJFit (Response) -->
+  <path d="M 370 340 L 310 340" fill="none" stroke="#34d399" stroke-width="2.5" marker-end="url(#arrowGreen)" />
+  <g transform="translate(285, 348)">
+    <rect x="-10" y="0" width="112" height="26" class="label-bg"/>
+    <circle cx="2" cy="13" r="7" fill="#059669" />
+    <text x="2" y="16.5" text-anchor="middle" class="step-num">5</text>
+    <text x="15" y="17" class="label" fill="#34d399">JSON Response</text>
+  </g>
+
+  <!-- 3. Backend -> Gemini -->
+  <path d="M 730 480 C 760 480, 760 300, 790 300" fill="none" stroke="#c084fc" stroke-width="2.5" marker-end="url(#arrowPurple)" />
+  <g transform="translate(735, 340)">
+    <rect x="0" y="0" width="102" height="26" class="label-bg" stroke="#7c3aed" />
+    <circle cx="12" cy="13" r="7" fill="#7c3aed" />
+    <text x="12" y="16.5" text-anchor="middle" class="step-num">2</text>
+    <text x="25" y="17" class="label" fill="#c084fc">Query AI</text>
+  </g>
+
+  <!-- 4. Backend -> YouTube -->
+  <path d="M 730 550 C 760 550, 760 490, 790 490" fill="none" stroke="#f87171" stroke-width="2.5" marker-end="url(#arrowRed)" />
+  <g transform="translate(735, 520)">
+    <rect x="0" y="0" width="110" height="26" class="label-bg" stroke="#dc2626" />
+    <circle cx="12" cy="13" r="7" fill="#dc2626" />
+    <text x="12" y="16.5" text-anchor="middle" class="step-num">3</text>
+    <text x="25" y="17" class="label" fill="#f87171">Fetch Meta</text>
+  </g>
+
+  <!-- 5. JJFit Direct Video Stream from YouTube (Bottom Curved Dash) -->
+  <path d="M 790 575 C 560 760, 420 760, 232 585" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowRed)" />
+  <g transform="translate(450, 720)">
+    <rect x="0" y="0" width="220" height="28" class="label-bg" stroke="#ef4444" />
+    <circle cx="14" cy="14" r="8" fill="#dc2626" />
+    <text x="14" y="18" text-anchor="middle" class="step-num">6</text>
+    <text x="30" y="18" class="label" fill="#f87171">Direct Playback / Stream</text>
+  </g>
+</svg>
