@@ -1,0 +1,18 @@
+[
+  {
+    "videoId": "REPLACE_ME_1",
+    "title": "Chicken satay with peanut sauce",
+    "allergens": ["peanuts", "soybeans", "gluten"],
+    "notes": "Watch the video and list every EU-14 allergen in the recipe as shown (soy sauce -> soybeans + gluten)."
+  },
+  {
+    "videoId": "REPLACE_ME_2",
+    "title": "Seafood paella",
+    "allergens": ["crustaceans", "molluscs", "fish", "sulphites"]
+  },
+  {
+    "videoId": "REPLACE_ME_3",
+    "title": "Vegan lentil soup",
+    "allergens": ["celery"]
+  }
+]

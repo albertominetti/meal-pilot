@@ -22,9 +22,9 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('MealPilot API')
     .setDescription(
-      'Match YouTube meal videos to a health profile (restrictions, allergies, blood pressure) using Gemini + transcript analysis. Informational only, not medical advice.',
+      'Match YouTube meal videos to a health profile (restrictions, allergies, blood pressure). Gemini watches the videos and, on /meal-plan/agent, searches and selects them via function calling. Profile text is sent to Google Gemini (not stored: store=false). Informational only, not medical advice.',
     )
-    .setVersion('0.1.0')
+    .setVersion('0.2.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);

@@ -5,6 +5,7 @@ coverage/
 .env.*
 !.env.example
 data/cache/
+data/cache-smoke/
 *.log
 .DS_Store
 .idea/
