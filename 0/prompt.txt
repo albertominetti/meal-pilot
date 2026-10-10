@@ -1,0 +1,9 @@
+now, the video proposed rickrolled me. why?
+
+---
+
+what is: the deterministic offline mock prov
+
+---
+
+create an high level overview of the architecture in the ARCH.md . it should show the  backend application and a frontend appilication named JJFit (as mobile application in iOS or Android) that queries the bakcned,. then the backend holds the logic to query Gemini to retrieve the videos, and the backend then queries youtube to get the metadata of the video and the links. Use marmeid and/or images, what ever renders better
