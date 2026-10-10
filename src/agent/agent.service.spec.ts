@@ -373,6 +373,10 @@ describe('AgentService (tool loop and guardrails)', () => {
     });
     expect(curry.recipe.servings).toBe(2);
     expect(curry.evidence.allergens).toBe(curry.allergySafety.notes);
+    const chickpeaLine = res.shoppingList.sections
+      .flatMap((sec) => sec.items)
+      .find((i) => i.name === 'chickpea');
+    expect(chickpeaLine?.fromRecipes).toEqual(['chk-1', 'chk-2']);
   });
 
   it('shows fitsTime: false in the digest and enforces it in submit_plan', async () => {

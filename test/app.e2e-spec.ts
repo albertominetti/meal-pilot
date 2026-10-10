@@ -132,6 +132,42 @@ describe('MealPilot API (e2e, offline)', () => {
       });
   });
 
+  it('POST /api/shopping-list builds a list from cached analyses', async () => {
+    // The meal-plan tests above analysed and cached the seed videos.
+    const res = await request(app.getHttpServer())
+      .post('/api/shopping-list')
+      .send({ items: [{ videoId: 'veg-low-sodium-01' }, { videoId: 'vegan-quinoa-02' }], householdSize: 2 })
+      .expect(200);
+    const names = res.body.sections.flatMap((s: any) => s.items.map((i: any) => i.name));
+    expect(names).toEqual(expect.arrayContaining(['brown lentil', 'quinoa', 'chickpea']));
+    expect(res.body.pantry.map((i: any) => i.name)).toContain('olive oil');
+    expect(res.body.householdSize).toBe(2);
+  });
+
+  it('POST /api/shopping-list validates input', async () => {
+    await request(app.getHttpServer()).post('/api/shopping-list').send({ items: [] }).expect(400);
+    await request(app.getHttpServer())
+      .post('/api/shopping-list')
+      .send({ items: [{ videoId: 'x', servings: 0 }] })
+      .expect(400);
+  });
+
+  it('POST /api/meal-plan includes a shopping list for the recommendations', () => {
+    return request(app.getHttpServer())
+      .post('/api/meal-plan')
+      .send({ householdSize: 3, maxResults: 2 })
+      .expect(201)
+      .expect((res) => {
+        expect(res.body.shoppingList.householdSize).toBe(3);
+        const recipeIds = new Set(res.body.recommendations.map((r: any) => r.videoId));
+        for (const section of res.body.shoppingList.sections) {
+          for (const item of section.items) {
+            for (const id of item.fromRecipes) expect(recipeIds.has(id)).toBe(true);
+          }
+        }
+      });
+  });
+
   it('GET /api/videos/cache lists entries', () => {
     return request(app.getHttpServer())
       .get('/api/videos/cache')

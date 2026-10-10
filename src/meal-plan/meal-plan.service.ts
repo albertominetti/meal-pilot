@@ -18,6 +18,7 @@ import { selectRanked } from '../recipes/ranking';
 import { normalizeRestriction } from '../recipes/restrictions';
 import { TrustedChannelsService } from '../youtube/trusted-channels.service';
 import { buildRecommendation } from './recommendation.builder';
+import { buildShoppingList } from '../shopping/shopping-list';
 import {
   findAllergyMatches,
   haystackMatchesAllergy,
@@ -171,6 +172,10 @@ export class MealPlanService {
       recommendations,
       excluded,
       disclaimer: MEDICAL_DISCLAIMER,
+      shoppingList: buildShoppingList(
+        ranked.map((r) => ({ analysis: r.analysis })),
+        dto.householdSize ?? 1,
+      ),
       meta,
     };
   }

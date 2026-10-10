@@ -12,6 +12,7 @@ import {
 import { checkTime, matchGoals } from '../meal-plan/profile-fit';
 import { buildRecommendation } from '../meal-plan/recommendation.builder';
 import { TrustedChannelsService } from '../youtube/trusted-channels.service';
+import { buildShoppingList, ShoppingList } from '../shopping/shopping-list';
 import { AgentRun, AgentRunBudgets, TraceItem } from './agent-run';
 import { buildAgentSystemPrompt } from './agent.prompt';
 import { FallbackPlanner } from './fallback-planner';
@@ -38,6 +39,7 @@ export interface AgentMealPlanResponse {
   recommendations: RecommendationDto[];
   excluded: ExcludedVideoDto[];
   disclaimer: string;
+  shoppingList: ShoppingList;
   meta: AgentMealPlanMeta;
   trace?: TraceItem[];
 }
@@ -293,6 +295,10 @@ export class AgentService {
       recommendations,
       excluded,
       disclaimer: MEDICAL_DISCLAIMER,
+      shoppingList: buildShoppingList(
+        recommendations.map((r) => ({ analysis: run.analyzedVideos.get(r.videoId)! })),
+        run.request.householdSize ?? 1,
+      ),
       meta,
       trace: debug ? run.trace : undefined,
     };

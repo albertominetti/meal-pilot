@@ -13,6 +13,7 @@ import {
   Unit,
 } from '../../videos/analyzers/analysis.schema';
 import { HEALTH_GOALS, HealthGoal } from '../profile-fit';
+import { ShoppingListDto } from '../../shopping/dto/shopping-list.dto';
 import { watchUrl } from '../../videos/youtube.util';
 
 export class AllergySafetyDto {
@@ -145,6 +146,9 @@ export class MealPlanResponseDto {
 
   @ApiProperty()
   disclaimer!: string;
+
+  @ApiProperty({ type: ShoppingListDto, description: 'Shopping list for the returned recommendations.' })
+  shoppingList!: ShoppingListDto;
 
   @ApiPropertyOptional({ type: MealPlanMetaDto })
   meta?: MealPlanMetaDto;
