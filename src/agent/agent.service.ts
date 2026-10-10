@@ -3,11 +3,14 @@ import { AppConfigService } from '../config/app-config.service';
 import { LLM_CLIENT, LlmClient, InteractionStep } from '../llm/llm-client.interface';
 import { MealPlanRequestDto } from '../meal-plan/dto/meal-plan-request.dto';
 import {
+  excludedForSafety,
   ExcludedVideoDto,
+  excludedVideo,
   labelCheckFields,
   MEDICAL_DISCLAIMER,
   RecommendationDto,
 } from '../meal-plan/dto/meal-plan-response.dto';
+import { checkTime } from '../meal-plan/profile-fit';
 import { watchUrl } from '../videos/youtube.util';
 import { AgentRun, AgentRunBudgets, TraceItem } from './agent-run';
 import { buildAgentSystemPrompt } from './agent.prompt';
@@ -246,25 +249,26 @@ export class AgentService {
       });
     }
 
+    const recommended = new Set(recs.map((r) => r.videoId));
     for (const [videoId, analysis] of run.analyzedVideos) {
+      if (recommended.has(videoId)) continue;
       const verdict = run.videoSafetyVerdicts.get(videoId);
       if (analysis.status === 'unavailable') {
-        excluded.push({
-          videoId,
-          url: watchUrl(videoId),
-          title: analysis.title,
-          reason: `Needs review: ${analysis.error || 'Video analysis unavailable'}`,
-        });
+        excluded.push(
+          excludedVideo(
+            videoId,
+            analysis.title,
+            'unavailable',
+            analysis.error || 'Video analysis unavailable',
+          ),
+        );
       } else if (verdict && verdict.status !== 'safe') {
-        excluded.push({
-          videoId,
-          url: watchUrl(videoId),
-          title: analysis.title,
-          reason:
-            verdict.status === 'unsafe'
-              ? `Blocked: ${verdict.notes}`
-              : `Needs review: ${verdict.notes}`,
-        });
+        excluded.push(excludedForSafety(videoId, analysis.title, verdict));
+      } else {
+        const time = checkTime(analysis, run.request.maxCookMinutes);
+        if (time.fitsTime === false) {
+          excluded.push(excludedVideo(videoId, analysis.title, 'too_long', time.note!));
+        }
       }
     }
 

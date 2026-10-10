@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
+import { checkTime } from '../../meal-plan/profile-fit';
 import { AgentRun } from '../agent-run';
 import { AgentTool } from './tool.interface';
 
@@ -93,6 +94,11 @@ export class SubmitPlanTool implements AgentTool<SubmitPlanArgs> {
           `Video ${rec.videoId} is not safe (verdict: ${verdict?.status || 'unverified'}). Reason: ${verdict?.notes || 'Unknown'}. Only safe recipes may be recommended.`,
         );
       }
+
+      const time = checkTime(analysis, run.request.maxCookMinutes);
+      if (time.fitsTime === false) {
+        errors.push(`Video ${rec.videoId} is too_long: ${time.note}`);
+      }
     }
 
     if (errors.length > 0) {
@@ -100,7 +106,7 @@ export class SubmitPlanTool implements AgentTool<SubmitPlanArgs> {
         accepted: false,
         errors,
         instruction:
-          'Please correct the plan errors: replace or remove unsafe/unanalyzed videos and call submit_plan again.',
+          'Please correct the plan errors: replace or remove unsafe, too long or unanalyzed videos and call submit_plan again.',
       };
     }
 

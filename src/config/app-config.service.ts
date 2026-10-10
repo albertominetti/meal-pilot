@@ -50,6 +50,10 @@ export class AppConfigService {
     return this.config.get('MEALPILOT_CACHE_DIR', { infer: true });
   }
 
+  get trustedChannelsFile(): string {
+    return this.config.get('TRUSTED_CHANNELS_FILE', { infer: true });
+  }
+
   get effectiveLlmMode(): 'live' | 'mock' {
     return this.config.get('effectiveLlmMode', { infer: true });
   }

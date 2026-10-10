@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
+import { checkTime, matchGoals } from '../../meal-plan/profile-fit';
 import { AgentRun } from '../agent-run';
 import { AgentTool } from './tool.interface';
 
@@ -12,7 +13,7 @@ type CheckFitArgs = z.infer<typeof checkFitArgsSchema>;
 export class CheckProfileFitTool implements AgentTool<CheckFitArgs> {
   name = 'check_profile_fit';
   description =
-    'Deterministic check comparing an analyzed video against the user requested dietary restrictions and health profile.';
+    'Deterministic check comparing an analyzed video against the user requested dietary restrictions, health goals and cooking-time limit.';
 
   parameters: Record<string, unknown> = {
     type: 'object',
@@ -55,6 +56,8 @@ export class CheckProfileFitTool implements AgentTool<CheckFitArgs> {
     );
 
     const safety = run.videoSafetyVerdicts.get(args.videoId);
+    const goals = matchGoals(analysis, run.request.healthGoals);
+    const time = checkTime(analysis, run.request.maxCookMinutes);
 
     return {
       videoId: args.videoId,
@@ -66,6 +69,12 @@ export class CheckProfileFitTool implements AgentTool<CheckFitArgs> {
       sodiumSources: analysis.sodiumSources,
       coverage: analysis.coverage,
       fitsUserRestrictions: missingRestrictions.length === 0,
+      matchedGoals: goals.matched,
+      missingGoals: goals.missing,
+      unverifiableGoals: goals.unverifiable,
+      prepMinutes: analysis.prepMinutes ?? null,
+      fitsTime: time.fitsTime,
+      timeNote: time.note,
     };
   }
 }

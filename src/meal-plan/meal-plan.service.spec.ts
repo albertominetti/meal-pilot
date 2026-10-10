@@ -248,4 +248,31 @@ describe('MealPlanService table-driven safety rules', () => {
       }
     });
   });
+
+  describe('profile fields', () => {
+    it('excludes recipes over maxCookMinutes with code too_long', async () => {
+      const svc = await buildService();
+      const res = await svc.buildPlan({ maxCookMinutes: 25, maxResults: 5 } as any);
+      const soup = res.excluded.find((e) => e.videoId === 'veg-low-sodium-01');
+      expect(soup).toMatchObject({ code: 'too_long' });
+      expect(soup!.reason).toMatch(/^Too long: Takes about 35 min/);
+      expect(res.recommendations.map((r) => r.videoId)).toContain('quick-chicken-03');
+    });
+
+    it('adds matched health goals to matchedTags', async () => {
+      const svc = await buildService();
+      const res = await svc.buildPlan({ healthGoals: ['low-sodium'], maxResults: 5 } as any);
+      const soup = res.recommendations.find((r) => r.videoId === 'veg-low-sodium-01');
+      expect(soup!.matchedTags).toContain('low-sodium');
+    });
+
+    it('gives every exclusion a code', async () => {
+      const svc = await buildService();
+      const res = await svc.buildPlan({ allergies: ['peanuts'], maxResults: 5 } as any);
+      expect(res.excluded.length).toBeGreaterThan(0);
+      for (const e of res.excluded) {
+        expect(['allergen', 'uncertain', 'unavailable', 'too_long']).toContain(e.code);
+      }
+    });
+  });
 });

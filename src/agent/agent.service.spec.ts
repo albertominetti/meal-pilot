@@ -15,6 +15,7 @@ import { FakeYouTubeService } from '../youtube/fake-youtube.service';
 import { YOUTUBE_SERVICE } from '../youtube/youtube.interface';
 import { VIDEO_ANALYZER } from '../videos/analyzers/video-analyzer.interface';
 import { MockVideoAnalyzer } from '../videos/analyzers/mock-video-analyzer';
+import { TrustedChannelsService } from '../youtube/trusted-channels.service';
 
 class ScriptedLlmClient implements LlmClient {
   public cannedResponses: InteractionResult[] = [];
@@ -51,6 +52,7 @@ describe('AgentService (tool loop and guardrails)', () => {
       agentTimeoutMs: 10000,
       geminiModel: 'gemini-3.8-flash',
       effectiveLlmMode: 'mock' as const,
+      trustedChannelsFile: 'test/fixtures/trusted-channels.json',
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -62,6 +64,7 @@ describe('AgentService (tool loop and guardrails)', () => {
         CheckProfileFitTool,
         SubmitPlanTool,
         FallbackPlanner,
+        TrustedChannelsService,
         TranscriptCacheService,
         VideoAnalysisService,
         MealPlanService,
@@ -227,5 +230,56 @@ describe('AgentService (tool loop and guardrails)', () => {
     expect(result.accepted).toBe(false);
     expect(result.errors.length).toBeGreaterThan(0);
     expect(result.errors[0]).toMatch(/is not safe/);
+  });
+
+  it('rejects a recipe over the cooking-time limit in submit_plan (too_long)', async () => {
+    const submitTool = new SubmitPlanTool();
+    const run: any = {
+      request: { maxResults: 5, maxCookMinutes: 20 },
+      analyzedVideos: new Map([['slow-stew', { videoId: 'slow-stew', prepMinutes: 90 }]]),
+      videoSafetyVerdicts: new Map([['slow-stew', { status: 'safe', notes: 'ok' }]]),
+    };
+    const result: any = await submitTool.execute(
+      { recommendations: [{ videoId: 'slow-stew', whyItFits: 'Hearty stew' }] },
+      run,
+    );
+    expect(result.accepted).toBe(false);
+    expect(result.errors[0]).toMatch(/too_long/);
+  });
+
+  it('allows a recipe with unknown prep time under a time limit', async () => {
+    const submitTool = new SubmitPlanTool();
+    const run: any = {
+      request: { maxResults: 5, maxCookMinutes: 20 },
+      analyzedVideos: new Map([['mystery', { videoId: 'mystery' }]]),
+      videoSafetyVerdicts: new Map([['mystery', { status: 'safe', notes: 'ok' }]]),
+    };
+    const result: any = await submitTool.execute(
+      { recommendations: [{ videoId: 'mystery', whyItFits: 'Unknown timing' }] },
+      run,
+    );
+    expect(result.accepted).toBe(true);
+  });
+
+  it('marks trusted channels in search results and lists them first', async () => {
+    scriptedLlm.cannedResponses.push({
+      outputText: '',
+      steps: [
+        {
+          type: 'function_call',
+          id: 'call_1',
+          name: 'search_videos',
+          arguments: { query: 'vegan lentil quinoa', maxResults: 5 },
+        },
+      ],
+    });
+    const res = await agentService.run({ restrictions: ['vegan'], maxResults: 1 }, true);
+    const searchResult = (scriptedLlm.callHistory[1].input as any[]).find(
+      (s: any) => s.type === 'function_result' && s.name === 'search_videos',
+    ) as any;
+    const videos = JSON.parse(searchResult.result).videos;
+    expect(videos[0]).toMatchObject({ videoId: 'vegan-quinoa-02', trustedChannel: true });
+    expect(videos.slice(1).every((v: any) => v.trustedChannel === false)).toBe(true);
+    expect(res.meta.searches).toBe(1);
   });
 });

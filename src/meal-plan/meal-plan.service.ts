@@ -1,7 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { AppConfigService } from '../config/app-config.service';
 import {
+  excludedForSafety,
   ExcludedVideoDto,
+  excludedVideo,
   FailureDetailDto,
   labelCheckFields,
   MealPlanMetaDto,
@@ -20,6 +22,7 @@ import {
   mapToCanonicalAllergens,
   normalizeToken,
 } from '../videos/allergy.util';
+import { checkTime, matchGoals } from './profile-fit';
 
 interface Candidate {
   videoId: string;
@@ -105,31 +108,30 @@ export class MealPlanService {
         if (analyzed.status === 'unavailable') {
           const reason = analyzed.error || 'Video analysis unavailable';
           failures.push({ videoId: c.videoId, reason });
-          excluded.push({
-            videoId: c.videoId,
-            url: watchUrl(c.videoId),
-            title: analyzed.title,
-            reason: `Needs review: ${reason}`,
-          });
+          excluded.push(excludedVideo(c.videoId, analyzed.title, 'unavailable', reason));
           continue;
         }
 
         const verdict = this.evaluateAllergySafety(analyzed, allergies);
 
         if (verdict.status !== 'safe') {
-          excluded.push({
-            videoId: c.videoId,
-            url: watchUrl(c.videoId),
-            title: analyzed.title,
-            reason:
-              verdict.status === 'unsafe'
-                ? `Blocked: ${verdict.notes}`
-                : `Needs review: ${verdict.notes}`,
-          });
+          excluded.push(excludedForSafety(c.videoId, analyzed.title, verdict));
           continue;
         }
 
-        const matchedTags = this.matchTags(analyzed, restrictions, healthText);
+        const time = checkTime(analyzed, dto.maxCookMinutes);
+        if (time.fitsTime === false) {
+          excluded.push(excludedVideo(c.videoId, analyzed.title, 'too_long', time.note!));
+          continue;
+        }
+
+        const goals = matchGoals(analyzed, dto.healthGoals);
+        const matchedTags = [
+          ...new Set([
+            ...this.matchTags(analyzed, restrictions, healthText),
+            ...goals.matched,
+          ]),
+        ];
         recommendations.push({
           videoId: c.videoId,
           url: watchUrl(c.videoId),
@@ -138,7 +140,15 @@ export class MealPlanService {
           whyItFits: this.explainFit(analyzed, restrictions, dto, matchedTags),
           matchedTags,
           allergySafety: verdict,
-          healthNotes: this.healthNotes(analyzed, dto),
+          healthNotes: [
+            this.healthNotes(analyzed, dto),
+            time.note,
+            goals.unverifiable.length
+              ? `Goals not yet checkable from the recipe: ${goals.unverifiable.join(', ')}.`
+              : undefined,
+          ]
+            .filter(Boolean)
+            .join(' '),
           ...labelCheckFields(analyzed),
         });
       }

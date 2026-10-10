@@ -101,6 +101,32 @@ describe('MealPilot API (e2e, offline)', () => {
       });
   });
 
+  it('POST /api/meal-plan validates profile fields', async () => {
+    await request(app.getHttpServer())
+      .post('/api/meal-plan')
+      .send({ maxCookMinutes: 2 })
+      .expect(400);
+    await request(app.getHttpServer())
+      .post('/api/meal-plan')
+      .send({ healthGoals: ['eat-more-cake'] })
+      .expect(400);
+    await request(app.getHttpServer())
+      .post('/api/meal-plan')
+      .send({ budget: 'free' })
+      .expect(400);
+  });
+
+  it('POST /api/meal-plan applies the cooking-time limit', () => {
+    return request(app.getHttpServer())
+      .post('/api/meal-plan')
+      .send({ maxCookMinutes: 25, householdSize: 2, budget: 'low', healthGoals: ['high-protein'] })
+      .expect(201)
+      .expect((res) => {
+        const codes = res.body.excluded.map((e: { code: string }) => e.code);
+        expect(codes).toContain('too_long');
+      });
+  });
+
   it('GET /api/videos/cache lists entries', () => {
     return request(app.getHttpServer())
       .get('/api/videos/cache')

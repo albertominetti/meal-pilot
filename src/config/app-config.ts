@@ -12,6 +12,7 @@ export const configSchema = z.object({
   AGENT_TIMEOUT_MS: z.coerce.number().int().positive().default(90000),
   ANALYSIS_CONCURRENCY: z.coerce.number().int().positive().default(3),
   MEALPILOT_CACHE_DIR: z.string().default(''),
+  TRUSTED_CHANNELS_FILE: z.string().default(''),
 });
 
 export type RawAppConfig = z.infer<typeof configSchema>;

@@ -2,6 +2,7 @@ import { Module, Provider } from '@nestjs/common';
 import { AppConfigModule } from '../config/config.module';
 import { AppConfigService } from '../config/app-config.service';
 import { FakeYouTubeService } from './fake-youtube.service';
+import { TrustedChannelsService } from './trusted-channels.service';
 import { IYouTubeService, YOUTUBE_SERVICE } from './youtube.interface';
 import { YouTubeService } from './youtube.service';
 
@@ -25,8 +26,9 @@ const youTubeServiceProvider: Provider = {
   providers: [
     YouTubeService,
     FakeYouTubeService,
+    TrustedChannelsService,
     youTubeServiceProvider,
   ],
-  exports: [YOUTUBE_SERVICE, YouTubeService, FakeYouTubeService],
+  exports: [YOUTUBE_SERVICE, YouTubeService, FakeYouTubeService, TrustedChannelsService],
 })
 export class YouTubeModule {}

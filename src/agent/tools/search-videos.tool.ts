@@ -4,6 +4,7 @@ import {
   IYouTubeService,
   YOUTUBE_SERVICE,
 } from '../../youtube/youtube.interface';
+import { TrustedChannelsService } from '../../youtube/trusted-channels.service';
 import { AgentRun } from '../agent-run';
 import { AgentTool } from './tool.interface';
 
@@ -17,7 +18,7 @@ type SearchVideosArgs = z.infer<typeof searchVideosArgsSchema>;
 export class SearchVideosTool implements AgentTool<SearchVideosArgs> {
   name = 'search_videos';
   description =
-    'Search YouTube for public cooking and recipe videos (4-20 minutes). Uses search budget.';
+    'Search YouTube for public cooking and recipe videos (4-20 minutes). Results from team-trusted channels come first and are marked trustedChannel. Uses search budget.';
 
   parameters: Record<string, unknown> = {
     type: 'object',
@@ -41,6 +42,7 @@ export class SearchVideosTool implements AgentTool<SearchVideosArgs> {
 
   constructor(
     @Inject(YOUTUBE_SERVICE) private readonly youtube: IYouTubeService,
+    private readonly trustedChannels: TrustedChannelsService,
   ) {}
 
   async execute(
@@ -70,13 +72,17 @@ export class SearchVideosTool implements AgentTool<SearchVideosArgs> {
       }
 
       const details = await this.youtube.getDetails(ids);
-      const results = details.map((d) => ({
-        videoId: d.videoId,
-        title: d.title,
-        channel: d.channel,
-        durationSec: d.durationSec,
-        alreadyAnalyzed: run.analyzedVideos.has(d.videoId),
-      }));
+      // Trusted channels first; otherwise keep YouTube's relevance order.
+      const results = details
+        .map((d) => ({
+          videoId: d.videoId,
+          title: d.title,
+          channel: d.channel,
+          trustedChannel: this.trustedChannels.isTrusted(d.channelId),
+          durationSec: d.durationSec,
+          alreadyAnalyzed: run.analyzedVideos.has(d.videoId),
+        }))
+        .sort((a, b) => Number(b.trustedChannel) - Number(a.trustedChannel));
 
       return {
         query: args.query,
