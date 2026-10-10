@@ -1,57 +1,111 @@
 import {
-  AnalysisOutputSchema,
-  ANALYSIS_JSON_SCHEMA,
   ANALYSIS_SCHEMA_VERSION,
+  AnalysisOutputSchema,
+  IngredientSchema,
+  INGREDIENT_UNITS,
+  MAIN_PROTEINS,
+  MEAL_TYPES,
 } from './analysis.schema';
 
-describe('Analysis schema v2', () => {
-  it('validates correct analysis payload', () => {
-    const valid = {
-      recipeName: 'Lentil Stew',
+describe('Analysis Schema v3', () => {
+  it('has schema version 3', () => {
+    expect(ANALYSIS_SCHEMA_VERSION).toBe(3);
+  });
+
+  it('validates a complete v3 ingredient with unit and quantity', () => {
+    const raw = {
+      name: 'chickpea',
+      quantity: 400,
+      unit: 'g',
+      rawText: '1 can (400g) chickpeas, drained',
+      confidence: 'high',
+      source: 'both',
+      packaged: false,
+    };
+    const parsed = IngredientSchema.parse(raw);
+    expect(parsed.name).toBe('chickpea');
+    expect(parsed.quantity).toBe(400);
+    expect(parsed.unit).toBe('g');
+    expect(parsed.packaged).toBe(false);
+  });
+
+  it('allows null quantity and null unit for unspecified amounts', () => {
+    const raw = {
+      name: 'olive oil',
+      quantity: null,
+      unit: null,
+      rawText: 'a generous drizzle of olive oil',
+      confidence: 'low',
+      source: 'video',
+      packaged: false,
+    };
+    const parsed = IngredientSchema.parse(raw);
+    expect(parsed.quantity).toBeNull();
+    expect(parsed.unit).toBeNull();
+  });
+
+  it('validates a complete v3 analysis output with prepMinutes and metadata', () => {
+    const raw = {
+      recipeName: 'Chickpea Coconut Curry',
       servings: 4,
-      ingredients: [{ name: 'brown lentils' }, { name: 'carrots' }],
-      steps: ['Sauté carrots', 'Simmer lentils with water'],
-      allergens: [
+      prepMinutes: 25,
+      mainProtein: 'chickpea',
+      cuisine: 'indian',
+      mealType: ['lunch', 'dinner'],
+      ingredients: [
         {
-          allergen: 'celery',
-          evidence: 'chopped celery added at 01:15',
-          confidence: 'confirmed',
+          name: 'chickpea',
+          quantity: 400,
+          unit: 'g',
+          rawText: '400g chickpeas',
+          confidence: 'high',
+          source: 'description',
+          packaged: false,
+        },
+        {
+          name: 'curry paste',
+          quantity: 2,
+          unit: 'tbsp',
+          rawText: '2 tbsp red curry paste',
+          confidence: 'high',
+          source: 'both',
+          packaged: true,
         },
       ],
+      steps: ['Sauté paste', 'Add chickpeas and simmer'],
+      allergens: [],
       crossContactNotes: [],
-      sodiumSources: ['sea salt'],
-      nutritionSignals: ['low-sodium', 'high-fiber'],
+      sodiumSources: [],
+      nutritionSignals: ['whole-foods'],
       restrictionTags: ['vegan', 'gluten-free'],
-      summary: 'A nutritious low-sodium vegetable and lentil stew.',
+      summary: 'A fast chickpea curry',
       coverage: 'full',
     };
-
-    const parsed = AnalysisOutputSchema.safeParse(valid);
-    expect(parsed.success).toBe(true);
-    expect(ANALYSIS_SCHEMA_VERSION).toBe(2);
+    const parsed = AnalysisOutputSchema.parse(raw);
+    expect(parsed.recipeName).toBe('Chickpea Coconut Curry');
+    expect(parsed.prepMinutes).toBe(25);
+    expect(parsed.mainProtein).toBe('chickpea');
+    expect(parsed.cuisine).toBe('indian');
+    expect(parsed.mealType).toEqual(['lunch', 'dinner']);
+    expect(parsed.ingredients[1].packaged).toBe(true);
   });
 
-  it('rejects invalid allergen enum', () => {
-    const invalid = {
-      recipeName: 'Salad',
-      ingredients: [{ name: 'lettuce' }],
-      steps: ['Toss'],
-      allergens: [
-        {
-          allergen: 'not-a-real-allergen',
-          evidence: 'none',
-          confidence: 'likely',
-        },
-      ],
-      summary: 'Salad',
+  it('rejects unknown unit strings not in the unit enum', () => {
+    const raw = {
+      name: 'parsley',
+      quantity: 1,
+      unit: 'handful',
+      rawText: '1 handful parsley',
+      confidence: 'low',
+      source: 'video',
+      packaged: false,
     };
-
-    const parsed = AnalysisOutputSchema.safeParse(invalid);
-    expect(parsed.success).toBe(false);
+    expect(() => IngredientSchema.parse(raw)).toThrow();
   });
 
-  it('provides JSON schema with required fields', () => {
-    expect(ANALYSIS_JSON_SCHEMA.required).toContain('recipeName');
-    expect(ANALYSIS_JSON_SCHEMA.required).toContain('allergens');
+  it('exports expected constants', () => {
+    expect(INGREDIENT_UNITS).toContain('g');
+    expect(MAIN_PROTEINS).toContain('chickpea');
+    expect(MEAL_TYPES).toContain('dinner');
   });
 });
