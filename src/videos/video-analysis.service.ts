@@ -28,32 +28,9 @@ export class VideoAnalysisService {
     @Inject(YOUTUBE_SERVICE) private readonly youtube: IYouTubeService,
   ) {}
 
-  async analyzeWithMeta(target: VideoTarget): Promise<AnalysisResultWithCacheMeta>;
   async analyzeWithMeta(
-    videoId: string,
-    title: string,
-    channel: string,
-    channelId?: string,
-    description?: string,
-  ): Promise<AnalysisResultWithCacheMeta>;
-  async analyzeWithMeta(
-    targetOrVideoId: VideoTarget | string,
-    title?: string,
-    channel?: string,
-    channelId?: string,
-    description?: string,
+    target: VideoTarget,
   ): Promise<AnalysisResultWithCacheMeta> {
-    const target: VideoTarget =
-      typeof targetOrVideoId === 'string'
-        ? {
-            videoId: targetOrVideoId,
-            title: title || '',
-            channel: channel || '',
-            channelId,
-            description,
-          }
-        : targetOrVideoId;
-
     const cached = this.cache.get(
       target.videoId,
       this.analyzer.provider(),
@@ -72,31 +49,8 @@ export class VideoAnalysisService {
     return { analysis: result, fromCache: false };
   }
 
-  async analyze(target: VideoTarget): Promise<VideoAnalysis>;
-  async analyze(
-    videoId: string,
-    title: string,
-    channel: string,
-    channelId?: string,
-    description?: string,
-  ): Promise<VideoAnalysis>;
-  async analyze(
-    targetOrVideoId: VideoTarget | string,
-    title?: string,
-    channel?: string,
-    channelId?: string,
-    description?: string,
-  ): Promise<VideoAnalysis> {
-    const { analysis } =
-      typeof targetOrVideoId === 'string'
-        ? await this.analyzeWithMeta(
-            targetOrVideoId,
-            title || '',
-            channel || '',
-            channelId,
-            description,
-          )
-        : await this.analyzeWithMeta(targetOrVideoId);
+  async analyze(target: VideoTarget): Promise<VideoAnalysis> {
+    const { analysis } = await this.analyzeWithMeta(target);
     return analysis;
   }
 

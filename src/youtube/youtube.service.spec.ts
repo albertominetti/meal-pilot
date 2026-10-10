@@ -4,12 +4,6 @@ import { YouTubeService } from './youtube.service';
 
 describe('YouTubeService and helpers', () => {
   const realFetch = global.fetch;
-  let service: YouTubeService;
-
-  beforeEach(() => {
-    service = new YouTubeService({ youtubeApiKey: 'k' } as any);
-  });
-
   afterEach(() => {
     global.fetch = realFetch;
   });
@@ -34,33 +28,6 @@ describe('YouTubeService and helpers', () => {
     expect(searchResults.length).toBeGreaterThan(0);
   });
 
-  it('extracts channelId and description from snippet in getDetails', async () => {
-    const mockFetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        items: [
-          {
-            id: 'v123',
-            snippet: {
-              title: 'Test Dish',
-              channelTitle: 'Test Channel',
-              channelId: 'UC12345',
-              description: 'Ingredients: 400g chickpeas, 1 tsp salt.',
-            },
-            contentDetails: { duration: 'PT10M' },
-            status: { privacyStatus: 'public', embeddable: true },
-          },
-        ],
-      }),
-    });
-    global.fetch = mockFetch as unknown as typeof fetch;
-
-    const details = await service.getDetails(['v123']);
-    expect(details).toHaveLength(1);
-    expect(details[0].channelId).toBe('UC12345');
-    expect(details[0].description).toBe('Ingredients: 400g chickpeas, 1 tsp salt.');
-  });
-
   it('maps channelId and description from the snippet in getDetails (1 unit)', async () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
@@ -80,6 +47,7 @@ describe('YouTubeService and helpers', () => {
         ],
       }),
     }) as unknown as typeof fetch;
+    const service = new YouTubeService({ youtubeApiKey: 'k' } as any);
 
     const details = await service.getDetails(['v123']);
     expect(details).toHaveLength(1);
