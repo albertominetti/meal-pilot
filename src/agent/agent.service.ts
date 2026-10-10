@@ -4,6 +4,7 @@ import { LLM_CLIENT, LlmClient, InteractionStep } from '../llm/llm-client.interf
 import { MealPlanRequestDto } from '../meal-plan/dto/meal-plan-request.dto';
 import {
   ExcludedVideoDto,
+  labelCheckFields,
   MEDICAL_DISCLAIMER,
   RecommendationDto,
 } from '../meal-plan/dto/meal-plan-response.dto';
@@ -240,7 +241,8 @@ export class AgentService {
         allergySafety: verdict,
         healthNotes:
           rec.healthNotes ||
-          `Signals: ${(analysis?.nutritionSignals || []).join(', ') || 'whole-foods'}`,
+          `Estimated signals (model, not measured): ${(analysis?.nutritionSignals || []).join(', ') || 'whole-foods'}`,
+        ...labelCheckFields(analysis),
       });
     }
 

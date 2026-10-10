@@ -132,10 +132,24 @@ export interface VideoAnalysis extends AnalysisOutput {
   model: string;
   analyzedAt: string;
   schemaVersion: number;
+  /** Packaged ingredients whose label the user should check for allergens. */
   labelCheck: string[];
+  /** nutritionSignals are model estimates until computed from a food database. */
+  nutritionSignalsSource: 'model';
   // Computed helpers for backwards-compatibility:
   transcript: string;
   detectedAllergens: string[];
+}
+
+export const LABEL_CHECK_NOTE = 'Check the product label for allergens';
+
+/** Names of store-bought ingredients (sauces, stock, pastes), deduplicated. */
+export function deriveLabelCheck(ingredients: Ingredient[]): string[] {
+  return [
+    ...new Set(
+      ingredients.filter((i) => i.packaged).map((i) => i.name.trim()),
+    ),
+  ].filter(Boolean);
 }
 
 /**

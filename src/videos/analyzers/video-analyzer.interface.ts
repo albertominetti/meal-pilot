@@ -4,6 +4,9 @@ export interface VideoTarget {
   videoId: string;
   title: string;
   channel: string;
+  channelId?: string;
+  /** Untrusted uploader text; the analyzer treats it as data, never instructions. */
+  description?: string;
 }
 
 export interface VideoAnalyzer {

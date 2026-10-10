@@ -3,6 +3,7 @@ import { AppConfigService } from '../config/app-config.service';
 import {
   ExcludedVideoDto,
   FailureDetailDto,
+  labelCheckFields,
   MealPlanMetaDto,
   MealPlanResponseDto,
   MEDICAL_DISCLAIMER,
@@ -81,7 +82,11 @@ export class MealPlanService {
       const batch = candidates.slice(i, i + concurrency);
       const batchResults = await Promise.all(
         batch.map((c) =>
-          this.analysis.analyzeWithMeta(c.videoId, c.title, c.channel),
+          this.analysis.analyzeWithMeta({
+            videoId: c.videoId,
+            title: c.title,
+            channel: c.channel,
+          }),
         ),
       );
 
@@ -134,6 +139,7 @@ export class MealPlanService {
           matchedTags,
           allergySafety: verdict,
           healthNotes: this.healthNotes(analyzed, dto),
+          ...labelCheckFields(analyzed),
         });
       }
     }
@@ -175,7 +181,7 @@ export class MealPlanService {
    */
   evaluateAllergySafety(
     analyzed: Partial<VideoAnalysis> & {
-      ingredients?: Array<string | { name: string }>;
+      ingredients?: Array<string | { name: string; rawText?: string }>;
       detectedAllergens?: string[];
       transcript?: string;
     },
@@ -243,10 +249,11 @@ export class MealPlanService {
       }
     }
 
-    // 4: Direct alias check in ingredients and steps
+    // 4: Direct alias check in ingredients (normalised name and raw text as
+    // said or written, e.g. "peanut satay sauce") and steps
     const rawIngredients = (analyzed.ingredients ?? [])
-      .map((i) => (typeof i === 'string' ? i : i.name))
-      .join(' ');
+      .map((i) => (typeof i === 'string' ? i : `${i.name} ${i.rawText ?? ''}`))
+      .join(' ; ');
     const rawSteps = (analyzed.steps ?? []).join(' ');
     const detectedAllergensHay = (analyzed.detectedAllergens ?? []).join(' ');
 
@@ -372,6 +379,6 @@ export class MealPlanService {
   ): string {
     const signals =
       analyzed.nutritionSignals.join(', ') || 'no nutrition signals extracted';
-    return `Signals: ${signals}. Profile: ${dto.healthProfile ?? 'not provided'}; BP: ${dto.bloodPressure ?? 'not provided'}. Informational only — not medical advice.`;
+    return `Estimated signals (model, not measured): ${signals}. Profile: ${dto.healthProfile ?? 'not provided'}; BP: ${dto.bloodPressure ?? 'not provided'}. Informational only — not medical advice.`;
   }
 }

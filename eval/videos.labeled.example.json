@@ -1,0 +1,47 @@
+[
+  {
+    "videoId": "veg-low-sodium-01",
+    "title": "Low-Sodium Vegetarian Lentil Soup",
+    "channel": "Healthy Kitchen",
+    "expectedAllergens": [],
+    "expectedIngredients": [
+      { "name": "brown lentil", "quantity": 200, "unit": "g" },
+      { "name": "garlic", "quantity": 2, "unit": "clove" },
+      { "name": "vegetable stock", "quantity": 1, "unit": "l" },
+      { "name": "olive oil", "quantity": 1, "unit": "tbsp" }
+    ]
+  },
+  {
+    "videoId": "vegan-quinoa-02",
+    "title": "Vegan Quinoa Buddha Bowl (Gluten-Free)",
+    "channel": "Plant Table",
+    "expectedAllergens": ["sesame"],
+    "expectedIngredients": [
+      { "name": "quinoa", "quantity": 150, "unit": "g" },
+      { "name": "chickpea", "quantity": 1, "unit": "can" },
+      { "name": "tahini", "quantity": 2, "unit": "tbsp" }
+    ]
+  },
+  {
+    "videoId": "peanut-satay-04",
+    "title": "Peanut Satay Noodles",
+    "channel": "Wok House",
+    "expectedAllergens": ["peanuts", "soy"],
+    "expectedIngredients": [
+      { "name": "rice noodle", "quantity": 200, "unit": "g" },
+      { "name": "peanut butter", "quantity": 3, "unit": "tbsp" },
+      { "name": "soy sauce", "quantity": 1, "unit": "tbsp" }
+    ]
+  },
+  {
+    "videoId": "tofu-curry-05",
+    "title": "Easy Vegetarian Tofu Curry",
+    "channel": "Spice Route",
+    "expectedAllergens": ["peanuts", "soy"],
+    "expectedIngredients": [
+      { "name": "firm tofu", "quantity": 400, "unit": "g" },
+      { "name": "red curry paste", "quantity": 2, "unit": "tbsp" },
+      { "name": "coconut milk", "quantity": 400, "unit": "ml" }
+    ]
+  }
+]

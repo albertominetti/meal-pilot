@@ -4,7 +4,7 @@ import * as path from 'path';
 import { TranscriptCacheService } from './transcript-cache.service';
 import { ANALYSIS_SCHEMA_VERSION, VideoAnalysis } from './analyzers/analysis.schema';
 
-describe('TranscriptCacheService (v2)', () => {
+describe('TranscriptCacheService', () => {
   it('persists and reads back versioned entries', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mealpilot-cache-'));
     process.env.MEALPILOT_CACHE_DIR = dir;
@@ -18,7 +18,20 @@ describe('TranscriptCacheService (v2)', () => {
       recipeName: 'T',
       transcript: 'hello',
       steps: ['step 1'],
-      ingredients: [{ name: 'rice' }],
+      mealType: ['dinner'],
+      ingredients: [
+        {
+          name: 'rice',
+          quantity: 150,
+          unit: 'g',
+          rawText: '150g rice',
+          confidence: 'high',
+          source: 'video',
+          packaged: false,
+        },
+      ],
+      labelCheck: [],
+      nutritionSignalsSource: 'model',
       allergens: [],
       crossContactNotes: [],
       sodiumSources: [],
@@ -60,6 +73,9 @@ describe('TranscriptCacheService (v2)', () => {
       title: 'Bad Video',
       channel: 'C',
       recipeName: 'Bad Video',
+      mealType: [],
+      labelCheck: [],
+      nutritionSignalsSource: 'model',
       transcript: '',
       steps: [],
       ingredients: [],

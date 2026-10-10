@@ -2,6 +2,7 @@ import { Module, Provider } from '@nestjs/common';
 import { AppConfigModule } from '../config/config.module';
 import { AppConfigService } from '../config/app-config.service';
 import { LlmModule } from '../llm/llm.module';
+import { YouTubeModule } from '../youtube/youtube.module';
 import { GeminiVideoAnalyzer } from './analyzers/gemini-video-analyzer';
 import { MockVideoAnalyzer } from './analyzers/mock-video-analyzer';
 import {
@@ -28,7 +29,7 @@ const videoAnalyzerProvider: Provider = {
 };
 
 @Module({
-  imports: [AppConfigModule, LlmModule],
+  imports: [AppConfigModule, LlmModule, YouTubeModule],
   controllers: [VideosController],
   providers: [
     TranscriptCacheService,

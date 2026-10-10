@@ -2,6 +2,9 @@ export interface YouTubeVideoDetails {
   videoId: string;
   title: string;
   channel: string;
+  channelId: string;
+  /** Untrusted free text written by the uploader. Often holds the recipe. */
+  description: string;
   durationSec: number;
   privacyStatus: string;
   embeddable: boolean;

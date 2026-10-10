@@ -147,6 +147,8 @@ export class YouTubeService implements IYouTubeService {
           videoId: item.id,
           title: item.snippet?.title || `YouTube video ${item.id}`,
           channel: item.snippet?.channelTitle || 'Unknown channel',
+          channelId: item.snippet?.channelId || '',
+          description: item.snippet?.description || '',
           durationSec,
           privacyStatus,
           embeddable,

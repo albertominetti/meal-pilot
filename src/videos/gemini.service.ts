@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { MockVideoAnalyzer } from './analyzers/mock-video-analyzer';
-import { VideoAnalysis } from './analyzers/analysis.schema';
+import {
+  ANALYSIS_SCHEMA_VERSION,
+  VideoAnalysis,
+} from './analyzers/analysis.schema';
 
 /**
  * Compatibility adapter for GeminiService.
@@ -32,7 +35,27 @@ export class GeminiService {
       title,
       channel,
       recipeName: title,
-      ingredients: [{ name: 'olive oil' }, { name: 'vegetables' }],
+      mealType: ['dinner'],
+      ingredients: [
+        {
+          name: 'olive oil',
+          quantity: 1,
+          unit: 'tbsp',
+          rawText: '1 tbsp olive oil',
+          confidence: 'high',
+          source: 'video',
+          packaged: false,
+        },
+        {
+          name: 'mixed vegetable',
+          quantity: 300,
+          unit: 'g',
+          rawText: '300g vegetables',
+          confidence: 'medium',
+          source: 'video',
+          packaged: false,
+        },
+      ],
       steps: ['Prepare ingredients', 'Cook and serve'],
       allergens: title.toLowerCase().includes('peanut')
         ? [
@@ -51,11 +74,13 @@ export class GeminiService {
         : [],
       summary: `Mock analysis of ${title}`,
       coverage: 'full',
+      labelCheck: [],
+      nutritionSignalsSource: 'model',
       status: 'ok',
       provider: 'mock',
       model: 'mock',
       analyzedAt: new Date().toISOString(),
-      schemaVersion: 2,
+      schemaVersion: ANALYSIS_SCHEMA_VERSION,
       transcript: `Mock transcript for ${title}`,
       detectedAllergens: title.toLowerCase().includes('peanut')
         ? ['peanuts']

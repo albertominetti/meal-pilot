@@ -64,11 +64,11 @@ export class AnalyzeVideoTool implements AgentTool<AnalyzeVideoArgs> {
       };
     }
 
-    const { analysis, fromCache } = await this.analysisService.analyzeWithMeta(
-      args.videoId,
-      args.title || `YouTube video ${args.videoId}`,
-      args.channel || 'Unknown channel',
-    );
+    const { analysis, fromCache } = await this.analysisService.analyzeWithMeta({
+      videoId: args.videoId,
+      title: args.title || `YouTube video ${args.videoId}`,
+      channel: args.channel || 'Unknown channel',
+    });
 
     if (!fromCache) {
       run.analysisCount++;

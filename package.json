@@ -12,7 +12,8 @@
     "start:dev": "nest start --watch",
     "test": "jest",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\""
+    "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
+    "eval:analysis": "ts-node scripts/eval-analysis.ts"
   },
   "dependencies": {
     "@google/genai": "^2.28.0",

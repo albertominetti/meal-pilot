@@ -163,4 +163,89 @@ describe('MealPlanService table-driven safety rules', () => {
     );
     expect(safeVerdict.status).toBe('safe');
   });
+
+  describe('schema v3 allergy haystack', () => {
+    function v3Analysis(ingredients: any[]): any {
+      return {
+        status: 'ok',
+        provider: 'gemini',
+        allergens: [],
+        crossContactNotes: [],
+        steps: ['Mix the sauce with the tofu'],
+        coverage: 'full',
+        transcript: '',
+        ingredients,
+      };
+    }
+
+    it('blocks a peanut sauce listed only in the description (rawText)', async () => {
+      const svc = await buildService();
+      const verdict = svc.evaluateAllergySafety(
+        v3Analysis([
+          {
+            name: 'satay sauce',
+            quantity: 2,
+            unit: 'tbsp',
+            rawText: '2 tbsp spicy peanut satay sauce',
+            confidence: 'high',
+            source: 'description',
+            packaged: true,
+          },
+        ]),
+        ['peanuts'],
+      );
+      expect(verdict.status).toBe('unsafe');
+      expect(verdict.notes).toMatch(/Detected allergen match/);
+    });
+
+    it('still matches on the normalised name when rawText is vague', async () => {
+      const svc = await buildService();
+      const verdict = svc.evaluateAllergySafety(
+        v3Analysis([
+          {
+            name: 'tahini',
+            quantity: null,
+            unit: null,
+            rawText: 'a spoonful of that paste',
+            confidence: 'low',
+            source: 'video',
+            packaged: true,
+          },
+        ]),
+        ['sesame'],
+      );
+      expect(verdict.status).toBe('unsafe');
+    });
+
+    it('keeps a packaged ingredient without allergen words safe but flags its label', async () => {
+      const svc = await buildService();
+      const verdict = svc.evaluateAllergySafety(
+        v3Analysis([
+          {
+            name: 'vegetable stock',
+            quantity: 500,
+            unit: 'ml',
+            rawText: '500ml vegetable stock',
+            confidence: 'high',
+            source: 'both',
+            packaged: true,
+          },
+        ]),
+        ['peanuts'],
+      );
+      expect(verdict.status).toBe('safe');
+    });
+
+    it('returns labelCheck and the label note on recommendations', async () => {
+      const svc = await buildService();
+      const res = await svc.buildPlan({ maxResults: 3 } as any);
+      const soup = res.recommendations.find((r) => r.videoId === 'veg-low-sodium-01');
+      expect(soup).toBeDefined();
+      expect(soup!.labelCheck).toContain('low-sodium vegetable stock');
+      expect(soup!.labelCheckNote).toBe('Check the product label for allergens');
+      for (const r of res.recommendations) {
+        expect(Array.isArray(r.labelCheck)).toBe(true);
+      }
+    });
+  });
 });

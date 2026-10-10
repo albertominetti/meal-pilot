@@ -71,6 +71,14 @@ describe('MealPilot API (e2e, offline)', () => {
         expect(res.body.meta).toBeDefined();
         expect(res.body.meta.mode).toBe('mock');
         expect(res.body.meta.provider).toBe('mock');
+        // Peanut sauce appears only in the video description.
+        const curry = res.body.excluded.find(
+          (e: { videoId: string }) => e.videoId === 'tofu-curry-05',
+        );
+        expect(curry?.reason).toMatch(/^Blocked:/);
+        for (const r of res.body.recommendations) {
+          expect(Array.isArray(r.labelCheck)).toBe(true);
+        }
       });
   });
 

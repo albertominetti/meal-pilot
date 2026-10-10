@@ -17,7 +17,7 @@ export class FallbackPlanner {
         recommendations.push({
           videoId,
           whyItFits,
-          healthNotes: `Signals: ${(analysis.nutritionSignals || []).join(', ') || 'whole-foods'}`,
+          healthNotes: `Estimated signals (model, not measured): ${(analysis.nutritionSignals || []).join(', ') || 'whole-foods'}`,
         });
       }
     }

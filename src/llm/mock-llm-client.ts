@@ -24,7 +24,31 @@ export class MockLlmClient implements LlmClient {
       return {
         outputText: JSON.stringify({
           recipeName: 'Mock Dish',
-          ingredients: [{ name: 'olive oil' }, { name: 'vegetables' }],
+          prepMinutes: 25,
+          servings: 2,
+          mainProtein: 'none',
+          cuisine: 'european',
+          mealType: ['dinner'],
+          ingredients: [
+            {
+              name: 'olive oil',
+              quantity: 1,
+              unit: 'tbsp',
+              rawText: '1 tbsp olive oil',
+              confidence: 'high',
+              source: 'video',
+              packaged: false,
+            },
+            {
+              name: 'mixed vegetable',
+              quantity: 300,
+              unit: 'g',
+              rawText: '300g vegetables',
+              confidence: 'medium',
+              source: 'video',
+              packaged: false,
+            },
+          ],
           steps: ['Chop vegetables', 'Cook in olive oil'],
           allergens: [],
           crossContactNotes: [],
