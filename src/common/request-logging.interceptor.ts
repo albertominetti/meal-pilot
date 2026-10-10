@@ -32,6 +32,10 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     }
 
     const startedAt = Date.now();
+    const url = request.originalUrl || request.url;
+    if (url === '/api/health' || url.startsWith('/api/health?')) {
+      return next.handle();
+    }
 
     return next.handle().pipe(
       tap(() => {
