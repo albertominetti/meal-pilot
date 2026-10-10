@@ -1,4 +1,9 @@
-import { expandAllergy, findAllergyMatches, haystackMatchesAllergy } from './allergy.util';
+import {
+  expandAllergy,
+  findAllergyMatches,
+  haystackMatchesAllergy,
+  mapToCanonicalAllergens,
+} from './allergy.util';
 
 describe('allergy.util (safety-critical)', () => {
   it('normalizes plurals and aliases (peanuts -> peanut)', () => {
@@ -16,5 +21,17 @@ describe('allergy.util (safety-critical)', () => {
   it('expands tree-nut aliases', () => {
     const expanded = expandAllergy('tree nuts');
     expect(expanded.join(' ')).toMatch(/almond/);
+  });
+
+  it('maps user free-text allergies to EU-14 canonical allergens', () => {
+    expect(mapToCanonicalAllergens('peanut')).toContain('peanuts');
+    expect(mapToCanonicalAllergens('shrimp')).toContain('crustaceans');
+    expect(mapToCanonicalAllergens('clam')).toContain('molluscs');
+    expect(mapToCanonicalAllergens('shellfish')).toEqual(
+      expect.arrayContaining(['crustaceans', 'molluscs']),
+    );
+    expect(mapToCanonicalAllergens('celery stalk')).toContain('celery');
+    expect(mapToCanonicalAllergens('dijon')).toContain('mustard');
+    expect(mapToCanonicalAllergens('unknown exotic spice')).toEqual([]);
   });
 });

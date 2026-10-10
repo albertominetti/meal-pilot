@@ -1,14 +1,28 @@
-import { Injectable } from '@nestjs/common';
-import { MealPlanRequestDto } from './dto/meal-plan-request.dto';
+import { Inject, Injectable } from '@nestjs/common';
+import { AppConfigService } from '../config/app-config.service';
 import {
   ExcludedVideoDto,
+  FailureDetailDto,
+  MealPlanMetaDto,
+  MealPlanResponseDto,
   MEDICAL_DISCLAIMER,
   RecommendationDto,
 } from './dto/meal-plan-response.dto';
+import { MealPlanRequestDto } from './dto/meal-plan-request.dto';
+import { VideoAnalysis } from '../videos/analyzers/analysis.schema';
 import { TranscriptCacheService } from '../videos/transcript-cache.service';
 import { VideoAnalysisService } from '../videos/video-analysis.service';
 import { extractVideoId, watchUrl } from '../videos/youtube.util';
-import { findAllergyMatches, normalizeToken } from '../videos/allergy.util';
+import {
+  findAllergyMatches,
+  haystackMatchesAllergy,
+  mapToCanonicalAllergens,
+  normalizeToken,
+} from '../videos/allergy.util';
+import {
+  IYouTubeService,
+  YOUTUBE_SERVICE,
+} from '../youtube/youtube.interface';
 
 interface Candidate {
   videoId: string;
@@ -38,69 +52,146 @@ export class MealPlanService {
   constructor(
     private readonly cache: TranscriptCacheService,
     private readonly analysis: VideoAnalysisService,
+    private readonly config: AppConfigService,
+    @Inject(YOUTUBE_SERVICE) private readonly youtube: IYouTubeService,
   ) {}
 
-  async buildPlan(dto: MealPlanRequestDto): Promise<{
-    recommendations: RecommendationDto[];
-    excluded: ExcludedVideoDto[];
-    disclaimer: string;
-  }> {
-    const candidates = this.resolveCandidates(dto);
+  async buildPlan(dto: MealPlanRequestDto): Promise<MealPlanResponseDto> {
+    const candidates = await this.resolveCandidates(dto);
     const max = dto.maxResults ?? 5;
     const allergies = (dto.allergies ?? []).map((a) => a.trim()).filter(Boolean);
-    const restrictions = (dto.restrictions ?? []).map(normalizeRestriction).filter(Boolean);
+    const restrictions = (dto.restrictions ?? [])
+      .map(normalizeRestriction)
+      .filter(Boolean);
     const healthText = `${dto.healthProfile ?? ''} ${dto.preferences ?? ''} ${dto.bloodPressure ?? ''}`.toLowerCase();
 
     const recommendations: RecommendationDto[] = [];
     const excluded: ExcludedVideoDto[] = [];
+    const failures: FailureDetailDto[] = [];
 
-    for (const c of candidates) {
+    let analyzedCount = 0;
+    let fromCacheCount = 0;
+
+    const concurrency = Math.max(1, this.config.analysisConcurrency || 3);
+
+    for (let i = 0; i < candidates.length; i += concurrency) {
       if (recommendations.length >= max) break;
-      const analyzed = await this.analysis.analyze(c.videoId, c.title, c.channel);
-      const verdict = this.evaluateAllergySafety(analyzed, allergies);
 
-      if (verdict.status !== 'safe') {
-        excluded.push({
+      const batch = candidates.slice(i, i + concurrency);
+      const batchResults = await Promise.all(
+        batch.map((c) =>
+          this.analysis.analyzeWithMeta(c.videoId, c.title, c.channel),
+        ),
+      );
+
+      for (let j = 0; j < batch.length; j++) {
+        if (recommendations.length >= max) break;
+
+        const c = batch[j];
+        const { analysis: analyzed, fromCache } = batchResults[j];
+
+        if (fromCache) {
+          fromCacheCount++;
+        } else {
+          analyzedCount++;
+        }
+
+        if (analyzed.status === 'unavailable') {
+          const reason = analyzed.error || 'Video analysis unavailable';
+          failures.push({ videoId: c.videoId, reason });
+          excluded.push({
+            videoId: c.videoId,
+            url: watchUrl(c.videoId),
+            title: analyzed.title,
+            reason: `Needs review: ${reason}`,
+          });
+          continue;
+        }
+
+        const verdict = this.evaluateAllergySafety(analyzed, allergies);
+
+        if (verdict.status !== 'safe') {
+          excluded.push({
+            videoId: c.videoId,
+            url: watchUrl(c.videoId),
+            title: analyzed.title,
+            reason:
+              verdict.status === 'unsafe'
+                ? `Blocked: ${verdict.notes}`
+                : `Needs review: ${verdict.notes}`,
+          });
+          continue;
+        }
+
+        const matchedTags = this.matchTags(analyzed, restrictions, healthText);
+        recommendations.push({
           videoId: c.videoId,
           url: watchUrl(c.videoId),
           title: analyzed.title,
-          reason:
-            verdict.status === 'unsafe'
-              ? `Blocked: ${verdict.notes}`
-              : `Needs review: ${verdict.notes}`,
+          channel: analyzed.channel,
+          whyItFits: this.explainFit(analyzed, restrictions, dto, matchedTags),
+          matchedTags,
+          allergySafety: verdict,
+          healthNotes: this.healthNotes(analyzed, dto),
         });
-        continue;
       }
-
-      const matchedTags = this.matchTags(analyzed, restrictions, healthText);
-      recommendations.push({
-        videoId: c.videoId,
-        url: watchUrl(c.videoId),
-        title: analyzed.title,
-        channel: analyzed.channel,
-        whyItFits: this.explainFit(analyzed, restrictions, dto, matchedTags),
-        matchedTags,
-        allergySafety: verdict,
-        healthNotes: this.healthNotes(analyzed, dto),
-      });
     }
 
-    return { recommendations, excluded, disclaimer: MEDICAL_DISCLAIMER };
+    const meta: MealPlanMetaDto = {
+      mode: this.config.effectiveLlmMode,
+      provider: this.analysis.provider(),
+      model: this.analysis.model(),
+      analyzed: analyzedCount,
+      fromCache: fromCacheCount,
+      failures,
+    };
+
+    return {
+      recommendations,
+      excluded,
+      disclaimer: MEDICAL_DISCLAIMER,
+      meta,
+    };
   }
 
-  private resolveCandidates(dto: MealPlanRequestDto): Candidate[] {
+  private async resolveCandidates(dto: MealPlanRequestDto): Promise<Candidate[]> {
     const fromRequest: Candidate[] = [];
+    const missingMetadataIds: string[] = [];
+
     for (const v of dto.videoCandidates ?? []) {
       const id = extractVideoId(v.idOrUrl);
       if (!id) continue;
+      const title = v.title?.trim();
+      const channel = v.channel?.trim();
       fromRequest.push({
         videoId: id,
-        title: v.title?.trim() || `YouTube video ${id}`,
-        channel: v.channel?.trim() || 'Unknown channel',
+        title: title || `YouTube video ${id}`,
+        channel: channel || 'Unknown channel',
       });
+      if (!title || !channel) {
+        missingMetadataIds.push(id);
+      }
     }
-    if (fromRequest.length > 0) return fromRequest;
-    // Demo fallback: committed seed list.
+
+    if (fromRequest.length > 0) {
+      if (missingMetadataIds.length > 0) {
+        try {
+          const details = await this.youtube.getDetails(missingMetadataIds);
+          const detailsMap = new Map(details.map((d) => [d.videoId, d]));
+          for (const cand of fromRequest) {
+            const found = detailsMap.get(cand.videoId);
+            if (found) {
+              if (cand.title.startsWith('YouTube video')) cand.title = found.title;
+              if (cand.channel === 'Unknown channel') cand.channel = found.channel;
+            }
+          }
+        } catch {
+          // Keep existing candidate strings on error
+        }
+      }
+      return fromRequest;
+    }
+
     return this.cache.loadSeed().map((s) => ({
       videoId: s.videoId,
       title: s.title,
@@ -109,53 +200,141 @@ export class MealPlanService {
   }
 
   /**
-   * ALLERGY SAFETY (critical path):
-   * - Any detected-allergen match against the user's allergy list -> unsafe.
-   * - Any ingredient/transcript mention of an allergy -> unsafe (conservative).
-   * - "Free-from" uncertainty for severe allergens (peanut/shellfish/etc.)
-   *   without explicit evidence -> uncertain (excluded from recommendations).
+   * ALLERGY SAFETY (table-driven safety rules):
+   * 1. If analysis is unavailable -> uncertain (excluded from recommendations).
+   * 2. Any matching allergen with confirmed or likely confidence -> unsafe.
+   * 3. Matching allergen with possible confidence, or matched in crossContactNotes -> uncertain.
+   * 4. Alias hit in ingredients or steps text -> unsafe.
+   * 5. coverage: partial and user has severe allergies -> uncertain.
+   * 6. Offline mock analysis cannot prove absence of severe allergens -> uncertain.
+   * 7. Otherwise -> safe (with "verify recipe" note).
    */
   evaluateAllergySafety(
-    analyzed: { ingredients: string[]; detectedAllergens: string[]; transcript: string },
+    analyzed: Partial<VideoAnalysis> & {
+      ingredients?: Array<string | { name: string }>;
+      detectedAllergens?: string[];
+      transcript?: string;
+    },
     allergies: string[],
   ): { status: 'safe' | 'uncertain' | 'unsafe'; notes: string } {
+    if (analyzed.status === 'unavailable') {
+      return {
+        status: 'uncertain',
+        notes: `Analysis unavailable (${analyzed.error || 'unprocessed'}). Excluded as uncertain to prevent unsafe assumptions.`,
+      };
+    }
+
     if (!allergies.length) {
       return {
         status: 'safe',
         notes: 'No allergies declared; always verify ingredients yourself.',
       };
     }
-    const ingredientHay = analyzed.ingredients.join(' ');
-    const allergenHay = analyzed.detectedAllergens.join(' ');
-    const combined = `${ingredientHay} ${allergenHay} ${analyzed.transcript}`;
 
-    const direct = findAllergyMatches(`${ingredientHay} ${allergenHay}`, allergies);
-    if (direct.length > 0) {
+    // Map user allergies to canonical EU 14 allergens
+    const userCanonical = new Set<string>();
+    for (const a of allergies) {
+      for (const c of mapToCanonicalAllergens(a)) {
+        userCanonical.add(c);
+      }
+    }
+
+    // 2 & 3: Check structured allergen evidence
+    if (analyzed.allergens && analyzed.allergens.length > 0) {
+      for (const evidence of analyzed.allergens) {
+        const isMatched =
+          userCanonical.has(evidence.allergen) ||
+          allergies.some((a) => haystackMatchesAllergy(evidence.allergen, a));
+
+        if (isMatched) {
+          if (
+            evidence.confidence === 'confirmed' ||
+            evidence.confidence === 'likely'
+          ) {
+            return {
+              status: 'unsafe',
+              notes: `Detected allergen ${evidence.allergen} (${evidence.confidence}): ${evidence.evidence}. Do not use this recipe.`,
+            };
+          }
+          if (evidence.confidence === 'possible') {
+            return {
+              status: 'uncertain',
+              notes: `Possible allergen ${evidence.allergen}: ${evidence.evidence}. Excluded as uncertain.`,
+            };
+          }
+        }
+      }
+    }
+
+    // 3: Check cross-contact notes
+    if (analyzed.crossContactNotes && analyzed.crossContactNotes.length > 0) {
+      for (const note of analyzed.crossContactNotes) {
+        const crossMatches = findAllergyMatches(note, allergies);
+        if (crossMatches.length > 0) {
+          return {
+            status: 'uncertain',
+            notes: `Cross-contact risk noted for ${crossMatches.join(', ')}: "${note}". Excluded as uncertain.`,
+          };
+        }
+      }
+    }
+
+    // 4: Direct alias check in ingredients and steps
+    const rawIngredients = (analyzed.ingredients ?? [])
+      .map((i) => (typeof i === 'string' ? i : i.name))
+      .join(' ');
+    const rawSteps = (analyzed.steps ?? []).join(' ');
+    const detectedAllergensHay = (analyzed.detectedAllergens ?? []).join(' ');
+
+    const directMatches = findAllergyMatches(
+      `${rawIngredients} ${rawSteps} ${detectedAllergensHay}`,
+      allergies,
+    );
+    if (directMatches.length > 0) {
       return {
         status: 'unsafe',
-        notes: `Detected allergen match (${direct.join(', ')}) in analyzed ingredients/allergens. Do not use this recipe.`,
+        notes: `Detected allergen match (${directMatches.join(', ')}) in analyzed ingredients/steps. Do not use this recipe.`,
       };
     }
-    const transcriptHits = findAllergyMatches(analyzed.transcript, allergies);
-    if (transcriptHits.length > 0) {
-      return {
-        status: 'unsafe',
-        notes: `Allergen mention (${transcriptHits.join(', ')}) found in video transcript/summary. Treated as unsafe.`,
-      };
-    }
-    // Uncertain: mock/offline provider cannot prove absence of cross-contact.
-    if ((analyzed as { provider?: string }).provider === 'mock') {
-      const severe = allergies.filter((a) =>
-        /peanut|tree.?nut|almond|walnut|cashew|shellfish|shrimp|fish|sesame|milk|egg|soy/i.test(a),
-      );
-      if (severe.length > 0 && /no common allergens detected/i.test(analyzed.transcript)) {
+
+    // Check transcript if present
+    if (analyzed.transcript) {
+      const transcriptMatches = findAllergyMatches(analyzed.transcript, allergies);
+      if (transcriptMatches.length > 0) {
         return {
-          status: 'uncertain',
-          notes: `Offline mock analysis cannot confirm absence of ${severe.join(', ')} (cross-contact unknown). Review the full video/recipe before cooking.`,
+          status: 'unsafe',
+          notes: `Allergen mention (${transcriptMatches.join(', ')}) found in video transcript/summary. Treated as unsafe.`,
         };
       }
     }
-    void combined;
+
+    const severeAllergies = allergies.filter((a) =>
+      /peanut|tree.?nut|almond|walnut|cashew|shellfish|shrimp|fish|sesame|milk|egg|soy/i.test(
+        a,
+      ),
+    );
+
+    // 5: Partial coverage with severe allergies
+    if (analyzed.coverage === 'partial' && severeAllergies.length > 0) {
+      return {
+        status: 'uncertain',
+        notes: `Video coverage was only partial and user declared severe allergies (${severeAllergies.join(', ')}). Excluded as uncertain.`,
+      };
+    }
+
+    // 6: Offline mock analysis cannot confirm absence of severe allergens
+    if (
+      analyzed.provider === 'mock' &&
+      severeAllergies.length > 0 &&
+      analyzed.transcript &&
+      /no common allergens detected/i.test(analyzed.transcript)
+    ) {
+      return {
+        status: 'uncertain',
+        notes: `Offline mock analysis cannot confirm absence of ${severeAllergies.join(', ')} (cross-contact unknown). Review the full video/recipe before cooking.`,
+      };
+    }
+
     return {
       status: 'safe',
       notes: `No match for declared allergies (${allergies.join(', ')}) in analyzed data. Still verify the full recipe — analysis may be incomplete.`,
@@ -169,24 +348,33 @@ export class MealPlanService {
   ): string[] {
     const tags = new Set<string>();
     const known = new Set(
-      [...analyzed.restrictionTags, ...analyzed.nutritionSignals].map(normalizeRestriction),
+      [...analyzed.restrictionTags, ...analyzed.nutritionSignals].map(
+        normalizeRestriction,
+      ),
     );
+
     for (const r of restrictions) {
       if (known.has(r)) {
         tags.add(r);
         continue;
       }
-      // vegan implies vegetarian; gluten-free variants.
       if (r === 'vegetarian' && known.has('vegan')) tags.add('vegan');
       if (r === 'gluten-free' && known.has('gluten-free')) tags.add('gluten-free');
     }
+
     for (const t of KNOWN_RESTRICTION_TAGS) {
       if (known.has(t)) tags.add(t);
     }
-    if (/hypertension|high blood pressure|low sodium|140\/|150\//.test(healthText)) {
+
+    if (
+      /hypertension|high blood pressure|low sodium|140\/|150\//.test(healthText)
+    ) {
       if (known.has('low-sodium')) tags.add('low-sodium');
     }
-    if (/diabet/.test(healthText) && known.has('low-carb')) tags.add('low-carb');
+    if (/diabet/.test(healthText) && known.has('low-carb')) {
+      tags.add('low-carb');
+    }
+
     return [...tags];
   }
 
@@ -199,10 +387,18 @@ export class MealPlanService {
     const bits: string[] = [];
     bits.push(`"${analyzed.title}" fits because ${analyzed.summary}`);
     if (restrictions.length) {
-      bits.push(`Requested restrictions (${restrictions.join(', ')}) overlap with tags: ${matchedTags.join(', ') || 'none explicitly tagged — review recipe'}.`);
+      bits.push(
+        `Requested restrictions (${restrictions.join(', ')}) overlap with tags: ${matchedTags.join(', ') || 'none explicitly tagged — review recipe'}.`,
+      );
     }
-    if (dto.bloodPressure) bits.push(`Blood pressure noted as ${dto.bloodPressure}; prefer low-sodium preparations and confirm with a professional.`);
-    if (dto.healthProfile) bits.push(`Health context: ${dto.healthProfile}.`);
+    if (dto.bloodPressure) {
+      bits.push(
+        `Blood pressure noted as ${dto.bloodPressure}; prefer low-sodium preparations and confirm with a professional.`,
+      );
+    }
+    if (dto.healthProfile) {
+      bits.push(`Health context: ${dto.healthProfile}.`);
+    }
     return bits.join(' ');
   }
 
@@ -210,7 +406,8 @@ export class MealPlanService {
     analyzed: { nutritionSignals: string[] },
     dto: MealPlanRequestDto,
   ): string {
-    const signals = analyzed.nutritionSignals.join(', ') || 'no nutrition signals extracted';
+    const signals =
+      analyzed.nutritionSignals.join(', ') || 'no nutrition signals extracted';
     return `Signals: ${signals}. Profile: ${dto.healthProfile ?? 'not provided'}; BP: ${dto.bloodPressure ?? 'not provided'}. Informational only — not medical advice.`;
   }
 }

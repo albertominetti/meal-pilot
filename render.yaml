@@ -13,8 +13,23 @@ services:
     envVars:
       - key: NODE_VERSION
         value: "22"
-      # Optional: enables live Gemini analysis. The operator sets this in the
-      # Render dashboard (sync: false keeps it out of the repo). Without it
-      # the app runs fine on the deterministic offline mock provider.
+      - key: MEALPILOT_LLM_MODE
+        value: auto
+      - key: GEMINI_MODEL
+        value: gemini-3.8-flash
+      # Optional secrets: the operator sets these in the Render dashboard.
+      # sync: false keeps them out of the repo.
       - key: GEMINI_API_KEY
         sync: false
+      - key: YOUTUBE_API_KEY
+        sync: false
+      - key: AGENT_MAX_STEPS
+        value: "12"
+      - key: AGENT_MAX_ANALYSES
+        value: "8"
+      - key: AGENT_MAX_SEARCHES
+        value: "4"
+      - key: AGENT_TIMEOUT_MS
+        value: "90000"
+      - key: ANALYSIS_CONCURRENCY
+        value: "3"

@@ -1,20 +1,22 @@
 import { Module } from '@nestjs/common';
+import { AgentModule } from './agent/agent.module';
+import { AppConfigModule } from './config/config.module';
 import { HealthController } from './health/health.controller';
 import { LandingController } from './landing/landing.controller';
-import { MealPlanController } from './meal-plan/meal-plan.controller';
-import { MealPlanService } from './meal-plan/meal-plan.service';
-import { VideosController } from './videos/videos.controller';
-import { TranscriptCacheService } from './videos/transcript-cache.service';
-import { GeminiService } from './videos/gemini.service';
-import { VideoAnalysisService } from './videos/video-analysis.service';
+import { LlmModule } from './llm/llm.module';
+import { MealPlanModule } from './meal-plan/meal-plan.module';
+import { VideosModule } from './videos/videos.module';
+import { YouTubeModule } from './youtube/youtube.module';
 
 @Module({
-  controllers: [LandingController, HealthController, MealPlanController, VideosController],
-  providers: [
-    MealPlanService,
-    TranscriptCacheService,
-    GeminiService,
-    VideoAnalysisService,
+  imports: [
+    AppConfigModule,
+    LlmModule,
+    VideosModule,
+    YouTubeModule,
+    MealPlanModule,
+    AgentModule,
   ],
+  controllers: [LandingController, HealthController],
 })
 export class AppModule {}

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class AllergySafetyDto {
   @ApiProperty({ enum: ['safe', 'uncertain', 'unsafe'] })
@@ -24,6 +24,45 @@ export class ExcludedVideoDto {
   @ApiProperty() url!: string;
   @ApiProperty() title!: string;
   @ApiProperty() reason!: string;
+}
+
+export class FailureDetailDto {
+  @ApiProperty() videoId!: string;
+  @ApiProperty() reason!: string;
+}
+
+export class MealPlanMetaDto {
+  @ApiProperty({ enum: ['live', 'mock'] })
+  mode!: 'live' | 'mock';
+
+  @ApiProperty({ enum: ['gemini', 'mock'] })
+  provider!: 'gemini' | 'mock';
+
+  @ApiProperty()
+  model!: string;
+
+  @ApiProperty()
+  analyzed!: number;
+
+  @ApiProperty()
+  fromCache!: number;
+
+  @ApiProperty({ type: [FailureDetailDto] })
+  failures!: FailureDetailDto[];
+}
+
+export class MealPlanResponseDto {
+  @ApiProperty({ type: [RecommendationDto] })
+  recommendations!: RecommendationDto[];
+
+  @ApiProperty({ type: [ExcludedVideoDto] })
+  excluded!: ExcludedVideoDto[];
+
+  @ApiProperty()
+  disclaimer!: string;
+
+  @ApiPropertyOptional({ type: MealPlanMetaDto })
+  meta?: MealPlanMetaDto;
 }
 
 export const MEDICAL_DISCLAIMER =
