@@ -1,0 +1,6 @@
+use entire trail create to create a new feature called test feature for now
+
+---
+
+ok no trails but we should use brain feature i set up:
+@/Users/fab/.cursor/projects/Volumes-projects-meal-pilot/terminals/1.txt:517-544

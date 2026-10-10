@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4JV52AB3YFK3S8N3Y6X0JET",
+  "session_id": "ef5fbd88-1adf-42e9-8a65-68af5a90e1db",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-10T12:03:40.186394Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "AGENTS.md",
+    "CLAUDE.md"
+  ],
+  "agent": "Cursor",
+  "model": "gemini-3.8-flash-high",
+  "turn_id": "880932232d73",
+  "compact_transcript_start": 0,
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-10T12:03:40.173543Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 21,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 21,
+    "total_lines_changed": 21,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 510,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.json": 101,
+        ".codex/hooks.json": 88,
+        ".cursor/hooks.json": 40,
+        ".opencode/plugins/entire.ts": 269,
+        "AGENTS.md": 6,
+        "CLAUDE.md": 6
+      }
+    }
+  ]
+}
