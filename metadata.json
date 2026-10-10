@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K1R36BXVPNWQMQERHQSN3Y",
+  "strategy": "manual-commit",
+  "branch": "feat/schema-v3-video-description",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/videos/analyzers/analysis.schema.spec.ts",
+    "src/videos/analyzers/analysis.schema.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 134099,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 1652657,
+    "output_tokens": 4316,
+    "api_call_count": 1
+  }
+}

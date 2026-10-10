@@ -1,0 +1,38 @@
+```
+Both `i.name` and `i.rawText` are fed into `findAllergyMatches()`, ensuring unnormalized or spoken references caught in description/audio are checked against all EU 14 allergen aliases.
+
+### 6.2 Packaged Goods (`labelCheck`)
+- Populate `labelCheck: string[]` on `VideoAnalysis` and `RecommendationDto` by filtering ingredients where `packaged === true`.
+- Attach informational note:
+  `"Check the product label for allergens: " + labelCheck.join(', ')`
+
+---
+
+## 7. Mocks, Seed Data & Evaluation Harness
+
+### 7.1 `MockVideoAnalyzer`
+- Return v3 ingredients with typed quantities, units, raw text, and `packaged` flags.
+- Populate `prepMinutes` (15 for quick dishes, 30 standard), `mainProtein` (`chickpea`, `salmon`, `chicken`, etc.), `cuisine`, and `mealType`.
+
+### 7.2 Seed & Fixtures
+- Update `data/videos.seed.json` and unit test fixtures to schema v3.
+
+### 7.3 Evaluation Set & Script
+- `eval/videos.labeled.example.json` and `eval/videos.labeled.json` with 10 reference videos.
+- `scripts/eval-analysis.ts` (`npm run eval:analysis`) calculating:
+  - Allergen Recall (Gate: 100%) and Precision.
+  - Ingredient Unit Accuracy (% correct unit).
+  - Ingredient Quantity Accuracy (% within ±20% of ground truth).
+
+---
+
+## 8. Verification Strategy
+1. Unit tests:
+   - `npm test` verifying schema validation, mock analyzer, allergy matches on `rawText`, and `labelCheck`.
+2. E2E tests:
+   - `npm run test:e2e` confirming meal-plan deterministic and agent endpoints produce v3 outputs.
+3. Eval script:
+   - Run `npm run eval:analysis` with mock and live provider options.
+
+
+can you analyze how this plan is implemented what is missing?
