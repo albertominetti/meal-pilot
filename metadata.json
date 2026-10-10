@@ -3,9 +3,21 @@
   "checkpoint_id": "01M4K26F9FWQANA9DP1SK7ECY5",
   "strategy": "manual-commit",
   "branch": "feat/schema-v3-video-description",
-  "checkpoints_count": 1,
+  "checkpoints_count": 2,
   "files_touched": [
-    "src/videos/analyzers/mock-video-analyzer.ts"
+    "src/agent/tools/analyze-video.tool.ts",
+    "src/common/untrusted-text.spec.ts",
+    "src/common/untrusted-text.ts",
+    "src/meal-plan/meal-plan.service.ts",
+    "src/videos/analyzers/analysis.schema.ts",
+    "src/videos/analyzers/gemini-video-analyzer.ts",
+    "src/videos/analyzers/mock-video-analyzer.ts",
+    "src/videos/analyzers/video-analyzer.interface.ts",
+    "src/videos/video-analysis.service.ts",
+    "src/videos/videos.module.ts",
+    "src/youtube/fake-youtube.service.ts",
+    "src/youtube/youtube.interface.ts",
+    "src/youtube/youtube.service.ts"
   ],
   "sessions": [
     {
@@ -14,6 +26,13 @@
       "compact_transcript": "/0/transcript.jsonl",
       "content_hash": "/0/content_hash.txt",
       "prompt": "/0/prompt.txt"
+    },
+    {
+      "metadata": "/1/metadata.json",
+      "transcript": "/1/full.jsonl",
+      "compact_transcript": "/1/transcript.jsonl",
+      "content_hash": "/1/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
