@@ -137,12 +137,29 @@ npm run lint        # eslint
 
 Swagger UI is served at `http://localhost:3000/api/docs`.
 
+## Deploy on Render
+
+The repo ships a Render Blueprint (`render.yaml`) defining one free Web Service (`meal-pilot`, region Frankfurt, runtime Node 22):
+
+- Build: `npm ci && npm run build` — Start: `npm start` — Health check: `GET /api/health`.
+- The port comes from Render's `PORT` env var (see `src/main.ts`); no extra config needed.
+- The service landing page `GET /` redirects to the Swagger UI at `/api/docs` — that is the test UI (no frontend).
+
+Steps in the Render dashboard:
+
+1. **New -> Blueprint**, connect/select the `meal-pilot` repo and apply the Blueprint.
+2. When prompted for env vars, set `GEMINI_API_KEY` (optional): leave it empty to run on the deterministic offline mock provider (`"provider": "mock"`), or paste a Gemini key for live analysis (`gemini-1.5-flash`).
+3. **Deploy**. Open the service URL: `/` lands on Swagger UI; `/api/health` must return `{ "status": "ok" }`.
+
+> Free-plan note: the service sleeps after inactivity, so the first request after idle can take ~30-60s (cold start). The persistent file cache (`data/cache/`) is ephemeral on Render — cached analyses reset on each deploy/restart, which is safe because entries are recomputed on demand.
+
 ## Project structure
 
 ```text
 src/
   main.ts                        # bootstrap, global prefix /api, validation, Swagger
   app.module.ts
+  landing/landing.controller.ts  # GET / -> redirect to /api/docs (landing page)
   health/health.controller.ts    # GET /api/health
   meal-plan/
     meal-plan.controller.ts      # POST /api/meal-plan

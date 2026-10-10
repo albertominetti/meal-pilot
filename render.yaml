@@ -1,0 +1,20 @@
+# Render Blueprint for MealPilot.
+# Deploy via the Render dashboard: New -> Blueprint -> select this repo.
+# Only one web service; Swagger UI (GET / -> /api/docs) is the test UI.
+services:
+  - type: web
+    name: meal-pilot
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: "npm ci && npm run build"
+    startCommand: "npm start"
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # Optional: enables live Gemini analysis. The operator sets this in the
+      # Render dashboard (sync: false keeps it out of the repo). Without it
+      # the app runs fine on the deterministic offline mock provider.
+      - key: GEMINI_API_KEY
+        sync: false

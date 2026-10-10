@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, RequestMethod, ValidationPipe } from '@nestjs/common';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -16,13 +16,22 @@ describe('MealPilot API (e2e, offline)', () => {
       imports: [AppModule],
     }).compile();
     app = moduleFixture.createNestApplication();
-    app.setGlobalPrefix('api');
+    app.setGlobalPrefix('api', {
+      exclude: [{ path: '/', method: RequestMethod.GET }],
+    });
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
     await app.init();
   });
 
   afterAll(async () => {
     await app.close();
+  });
+
+  it('GET / redirects to the Swagger UI', () => {
+    return request(app.getHttpServer())
+      .get('/')
+      .expect(302)
+      .expect('Location', '/api/docs');
   });
 
   it('GET /api/health', () => {
