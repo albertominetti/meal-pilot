@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K3Y29D8A2SYRK8MM829WTR",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "src/llm/mock-llm-client.ts",
+    "src/videos/analyzers/mock-video-analyzer.ts",
+    "src/videos/gemini.service.spec.ts",
+    "src/videos/gemini.service.ts",
+    "src/videos/transcript-cache.service.spec.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 34,
+    "cache_creation_tokens": 17565,
+    "cache_read_tokens": 6669921,
+    "output_tokens": 8323,
+    "api_call_count": 17
+  }
+}
