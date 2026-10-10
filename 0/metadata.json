@@ -1,0 +1,59 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K0S1H0ZKWRBKAAJ6DB1P1V",
+  "session_id": "616b7f26-fc7c-4d42-b4b8-275ede23ac02",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-10T13:42:00.660249Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "save_step_count": 1,
+  "files_touched": [
+    "README.md",
+    "src/app.module.ts",
+    "src/meal-plan/dto/meal-plan-request.dto.ts",
+    "src/meal-plan/meal-plan.service.spec.ts",
+    "src/meal-plan/meal-plan.service.ts",
+    "test/app.e2e-spec.ts"
+  ],
+  "agent": "Copilot CLI",
+  "model": "",
+  "turn_id": "c2d841e5bfa6",
+  "checkpoint_transcript_start": 229,
+  "transcript_lines_at_start": 229,
+  "compact_transcript_start": 51,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 10
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-10T13:42:00.485912Z",
+    "agent_lines": 21,
+    "agent_removed": 107,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 21,
+    "total_lines_changed": 128,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 85,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "src/app.module.ts": 7,
+        "src/common/request-logging.interceptor.ts": 78
+      }
+    }
+  ]
+}
