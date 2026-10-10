@@ -54,6 +54,26 @@ export class AppConfigService {
     return this.config.get('TRUSTED_CHANNELS_FILE', { infer: true });
   }
 
+  get nodeEnv(): string {
+    return this.config.get('NODE_ENV', { infer: true });
+  }
+
+  get databaseUrl(): string {
+    return this.config.get('DATABASE_URL', { infer: true });
+  }
+
+  get databaseUrlDirect(): string {
+    return this.config.get('DATABASE_URL_DIRECT', { infer: true });
+  }
+
+  get fdcApiKey(): string {
+    return this.config.get('FDC_API_KEY', { infer: true });
+  }
+
+  get appKey(): string {
+    return this.config.get('MEALPILOT_APP_KEY', { infer: true });
+  }
+
   get effectiveLlmMode(): 'live' | 'mock' {
     return this.config.get('effectiveLlmMode', { infer: true });
   }

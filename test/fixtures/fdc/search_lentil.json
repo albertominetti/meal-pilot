@@ -1,0 +1,214 @@
+{
+ "foods": [
+  {
+   "fdcId": 2644283,
+   "description": "Lentils, dry",
+   "dataType": "Foundation",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 1.92
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 23.6
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 62.2
+    },
+    {
+     "nutrientNumber": "957",
+     "unitName": "KCAL",
+     "value": 360
+    },
+    {
+     "nutrientNumber": "958",
+     "unitName": "KCAL",
+     "value": 351
+    }
+   ]
+  },
+  {
+   "fdcId": 172420,
+   "description": "Lentils, raw",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 2.03
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 1.06
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 6.0
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 10.7
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 24.6
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.154
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 63.4
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 352
+    }
+   ]
+  },
+  {
+   "fdcId": 168427,
+   "description": "Lentils, sprouted, raw",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.55
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 22.1
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 106
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 8.96
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 11.0
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.057
+    }
+   ]
+  },
+  {
+   "fdcId": 174284,
+   "description": "Lentils, pink or red, raw",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.379
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 63.1
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 358
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 23.9
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 2.17
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 10.8
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 7.0
+    }
+   ]
+  },
+  {
+   "fdcId": 171577,
+   "description": "SMART SOUP, French Lentil",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 1.06
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 9.5
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 53.0
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 2.6
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 2.9
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 2.9
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 131
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.0
+    }
+   ]
+  }
+ ]
+}

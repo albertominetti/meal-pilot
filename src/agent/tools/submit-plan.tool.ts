@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import { checkTime } from '../../meal-plan/profile-fit';
+import { isExcludedByRating } from '../../users/feedback';
 import { AgentRun } from '../agent-run';
 import { AgentTool } from './tool.interface';
 
@@ -79,6 +80,15 @@ export class SubmitPlanTool implements AgentTool<SubmitPlanArgs> {
         errors.push(`Duplicate video ID ${rec.videoId} in plan.`);
       }
       seenIds.add(rec.videoId);
+
+      if (run.excludedVideoIds.has(rec.videoId)) {
+        errors.push(`Video ${rec.videoId} is excluded from this plan (already in it). Pick another recipe.`);
+        continue;
+      }
+      if (isExcludedByRating(run.feedback, rec.videoId)) {
+        errors.push(`Video ${rec.videoId} was rated 1/5 by the user and must not be recommended again.`);
+        continue;
+      }
 
       const analysis = run.analyzedVideos.get(rec.videoId);
       if (!analysis) {

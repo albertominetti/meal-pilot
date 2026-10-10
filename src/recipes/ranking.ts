@@ -1,4 +1,5 @@
 import { checkTime, HealthGoal, matchGoals } from '../meal-plan/profile-fit';
+import { FeedbackMap } from '../users/feedback';
 import { VideoAnalysis } from '../videos/analyzers/analysis.schema';
 import { restrictionCoverage } from './restrictions';
 
@@ -19,6 +20,8 @@ export const RANKING_WEIGHTS = {
   fitsTime: 1,
   /** Per already-selected recipe with the same main protein. */
   repeatedProtein: -2,
+  /** Per star away from a neutral 3: rated 5 adds 1.5, rated 2 subtracts 0.75. */
+  userRating: 0.75,
 } as const;
 
 export interface RankingContext {
@@ -26,6 +29,8 @@ export interface RankingContext {
   healthGoals?: HealthGoal[];
   maxCookMinutes?: number;
   isTrusted: (channelId: string | undefined) => boolean;
+  /** The user's meal-log ratings. Rated-1 recipes are filtered out before ranking. */
+  feedback?: FeedbackMap;
 }
 
 export type RankedAnalysis = Pick<
@@ -34,6 +39,7 @@ export type RankedAnalysis = Pick<
   | 'channelId'
   | 'restrictionTags'
   | 'nutritionSignals'
+  | 'nutrition'
   | 'coverage'
   | 'ingredients'
   | 'prepMinutes'
@@ -76,6 +82,9 @@ export function scoreRecipe(
   }
 
   if (checkTime(analysis, ctx.maxCookMinutes).fitsTime === true) add('fitsTime', w.fitsTime);
+
+  const rating = ctx.feedback?.get(analysis.videoId)?.userRating;
+  if (rating !== undefined) add('userRating', (rating - 3) * w.userRating);
 
   if (!NO_PROTEIN_PENALTY.has(analysis.mainProtein)) {
     const repeats = alreadySelected.filter((s) => s.mainProtein === analysis.mainProtein).length;

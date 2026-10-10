@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import { checkTime, matchGoals } from '../../meal-plan/profile-fit';
+import { nutritionFacts } from '../../nutrition/nutrition-facts';
+import { restrictionCoverage } from '../../recipes/restrictions';
 import { AgentRun } from '../agent-run';
 import { AgentTool } from './tool.interface';
 
@@ -39,21 +41,8 @@ export class CheckProfileFitTool implements AgentTool<CheckFitArgs> {
       };
     }
 
-    const requestedRestrictions = (run.request.restrictions || []).map((r) =>
-      r.toLowerCase().replace(/\s+/g, '-'),
-    );
-
-    const videoTags = new Set<string>([
-      ...(analysis.restrictionTags || []),
-      ...(analysis.nutritionSignals || []),
-    ]);
-
-    const matchedRestrictions = requestedRestrictions.filter((r) =>
-      videoTags.has(r),
-    );
-    const missingRestrictions = requestedRestrictions.filter(
-      (r) => !videoTags.has(r),
-    );
+    const restrictions = restrictionCoverage(analysis, run.request.restrictions);
+    const facts = nutritionFacts(analysis);
 
     const safety = run.videoSafetyVerdicts.get(args.videoId);
     const goals = matchGoals(analysis, run.request.healthGoals);
@@ -63,12 +52,14 @@ export class CheckProfileFitTool implements AgentTool<CheckFitArgs> {
       videoId: args.videoId,
       recipeName: analysis.recipeName,
       safetyStatus: safety?.status ?? 'unknown',
-      matchedRestrictions,
-      missingRestrictions,
-      signals: analysis.nutritionSignals,
+      matchedRestrictions: restrictions.matched,
+      missingRestrictions: restrictions.missing,
+      signals: facts.signals,
+      nutritionBasis: facts.basis,
+      nutrientsPerServing: facts.perServing,
       sodiumSources: analysis.sodiumSources,
       coverage: analysis.coverage,
-      fitsUserRestrictions: missingRestrictions.length === 0,
+      fitsUserRestrictions: restrictions.missing.length === 0,
       matchedGoals: goals.matched,
       missingGoals: goals.missing,
       unverifiableGoals: goals.unverifiable,

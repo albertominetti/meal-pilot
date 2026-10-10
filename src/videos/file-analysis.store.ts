@@ -2,17 +2,16 @@ import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ANALYSIS_SCHEMA_VERSION, VideoAnalysis } from './analyzers/analysis.schema';
-
-const SEED_FILE = path.join(process.cwd(), 'data', 'videos.seed.json');
-const DEFAULT_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+import { AnalysisStore, isExpired, shouldPersist } from './analysis-store';
 
 function sanitize(str: string): string {
   return str.replace(/[^a-zA-Z0-9_-]/g, '_');
 }
 
+/** JSON files in MEALPILOT_CACHE_DIR (default data/cache), used without a database. */
 @Injectable()
-export class TranscriptCacheService {
-  private readonly logger = new Logger(TranscriptCacheService.name);
+export class FileAnalysisStore implements AnalysisStore {
+  private readonly logger = new Logger(FileAnalysisStore.name);
   private readonly memory = new Map<string, VideoAnalysis>();
 
   cacheDir(): string {
@@ -43,22 +42,15 @@ export class TranscriptCacheService {
     );
   }
 
-  private isExpired(entry: VideoAnalysis, ttlMs = DEFAULT_TTL_MS): boolean {
-    if (!entry.analyzedAt) return true;
-    const time = new Date(entry.analyzedAt).getTime();
-    if (isNaN(time)) return true;
-    return Date.now() - time > ttlMs;
-  }
-
-  get(
+  async get(
     videoId: string,
     provider: 'gemini' | 'mock' = 'gemini',
     model = 'gemini-3.8-flash',
-  ): VideoAnalysis | null {
+  ): Promise<VideoAnalysis | null> {
     const cacheKey = this.keyFor(videoId, provider, model);
     if (this.memory.has(cacheKey)) {
       const memEntry = this.memory.get(cacheKey)!;
-      if (this.isExpired(memEntry)) {
+      if (isExpired(memEntry.analyzedAt)) {
         this.memory.delete(cacheKey);
         return null;
       }
@@ -76,7 +68,7 @@ export class TranscriptCacheService {
           return null;
         }
 
-        if (this.isExpired(parsed)) {
+        if (isExpired(parsed.analyzedAt)) {
           this.logger.debug(`Cache expired for ${cacheKey}`);
           try {
             fs.unlinkSync(filePath);
@@ -97,14 +89,8 @@ export class TranscriptCacheService {
     return null;
   }
 
-  set(entry: VideoAnalysis, currentSystemMode?: 'live' | 'mock'): VideoAnalysis {
-    // Never persist unavailable results
-    if (entry.status === 'unavailable') {
-      return entry;
-    }
-
-    // Never persist mock results while in live mode
-    if (currentSystemMode === 'live' && entry.provider === 'mock') {
+  async set(entry: VideoAnalysis, currentSystemMode?: 'live' | 'mock'): Promise<VideoAnalysis> {
+    if (!shouldPersist(entry, currentSystemMode)) {
       return entry;
     }
 
@@ -132,7 +118,11 @@ export class TranscriptCacheService {
     return entry;
   }
 
-  list(): VideoAnalysis[] {
+  async list(): Promise<VideoAnalysis[]> {
+    return this.listSync();
+  }
+
+  private listSync(): VideoAnalysis[] {
     const dir = this.cacheDir();
     const versionPattern = new RegExp(`\\.v${ANALYSIS_SCHEMA_VERSION}\\.json$`);
     const files = fs.existsSync(dir)
@@ -145,7 +135,7 @@ export class TranscriptCacheService {
         const parsed = JSON.parse(
           fs.readFileSync(path.join(dir, f), 'utf8'),
         ) as VideoAnalysis;
-        if (!this.isExpired(parsed)) {
+        if (!isExpired(parsed.analyzedAt)) {
           out.push(parsed);
         }
       } catch {
@@ -155,7 +145,7 @@ export class TranscriptCacheService {
 
     for (const [, entry] of this.memory) {
       if (
-        !this.isExpired(entry) &&
+        !isExpired(entry.analyzedAt) &&
         !out.find((e) => e.videoId === entry.videoId && e.provider === entry.provider)
       ) {
         out.push(entry);
@@ -165,7 +155,7 @@ export class TranscriptCacheService {
     return out;
   }
 
-  clear(videoId?: string): { cleared: number } {
+  async clear(videoId?: string): Promise<{ cleared: number }> {
     const dir = this.cacheDir();
     if (videoId) {
       let count = 0;
@@ -189,10 +179,12 @@ export class TranscriptCacheService {
       return { cleared: count || 1 };
     }
 
-    const n = this.list().length;
+    const n = this.listSync().length;
     this.memory.clear();
     if (fs.existsSync(dir)) {
-      for (const f of fs.readdirSync(dir).filter((f) => f.endsWith('.json'))) {
+      // Only analysis files ("<videoId>.<provider>.<model>.v<n>.json"); other
+      // stores share this directory.
+      for (const f of fs.readdirSync(dir).filter((f) => /\.v\d+\.json$/.test(f))) {
         try {
           fs.unlinkSync(path.join(dir, f));
         } catch {
@@ -202,14 +194,5 @@ export class TranscriptCacheService {
     }
     return { cleared: n };
   }
-
-  loadSeed(): Array<{ videoId: string; title: string; channel: string }> {
-    try {
-      if (!fs.existsSync(SEED_FILE)) return [];
-      const parsed = JSON.parse(fs.readFileSync(SEED_FILE, 'utf8'));
-      return Array.isArray(parsed) ? parsed : parsed.videos ?? [];
-    } catch {
-      return [];
-    }
-  }
 }
+

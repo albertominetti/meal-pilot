@@ -16,6 +16,7 @@ export class RunDigestService {
       healthGoals: run.request.healthGoals,
       maxCookMinutes: run.request.maxCookMinutes,
       isTrusted: (id) => this.trustedChannels.isTrusted(id),
+      feedback: run.feedback,
     };
   }
 
@@ -29,6 +30,7 @@ export class RunDigestService {
       trusted: this.trustedChannels.isTrusted(analysis.channelId),
       maxCookMinutes: run.request.maxCookMinutes,
       healthGoals: run.request.healthGoals,
+      feedback: run.feedback.get(analysis.videoId),
       score: scoreRecipe(analysis, this.rankingContext(run)).score,
     });
   }

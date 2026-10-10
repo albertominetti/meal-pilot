@@ -1,0 +1,219 @@
+{
+ "foods": [
+  {
+   "fdcId": 174288,
+   "description": "Chickpea flour (besan)",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 10.8
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 57.8
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 387
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 22.4
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.693
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 10.8
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 64.0
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 6.69
+    }
+   ]
+  },
+  {
+   "fdcId": 2644282,
+   "description": "Chickpeas, (garbanzo beans, bengal gram), dry",
+   "dataType": "Foundation",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 8.78
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 6.27
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 60.4
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 21.3
+    },
+    {
+     "nutrientNumber": "957",
+     "unitName": "KCAL",
+     "value": 383
+    },
+    {
+     "nutrientNumber": "958",
+     "unitName": "KCAL",
+     "value": 372
+    }
+   ]
+  },
+  {
+   "fdcId": 173756,
+   "description": "Chickpeas (garbanzo beans, bengal gram), mature seeds, raw",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 10.7
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 63.0
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 378
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 12.2
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 20.5
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.603
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 24.0
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 6.04
+    }
+   ]
+  },
+  {
+   "fdcId": 2644288,
+   "description": "Chickpeas (garbanzo beans, bengal gram), canned, sodium added, drained and rinsed",
+   "dataType": "Foundation",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 202
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 3.1
+    },
+    {
+     "nutrientNumber": "957",
+     "unitName": "KCAL",
+     "value": 137
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 7.02
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 20.3
+    },
+    {
+     "nutrientNumber": "958",
+     "unitName": "KCAL",
+     "value": 133
+    }
+   ]
+  },
+  {
+   "fdcId": 173800,
+   "description": "Chickpeas (garbanzo beans, bengal gram), mature seeds, canned, drained solids",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 7.05
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 246
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.214
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 2.77
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 22.5
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 139
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 6.4
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 4.01
+    }
+   ]
+  }
+ ]
+}

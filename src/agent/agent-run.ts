@@ -1,4 +1,5 @@
 import { MealPlanRequestDto } from '../meal-plan/dto/meal-plan-request.dto';
+import { FeedbackMap } from '../users/feedback';
 import { VideoAnalysis } from '../videos/analyzers/analysis.schema';
 
 export interface TraceItem {
@@ -43,6 +44,8 @@ export class AgentRun {
   constructor(
     public readonly request: MealPlanRequestDto,
     public readonly budgets: AgentRunBudgets,
+    public readonly feedback: FeedbackMap = new Map(),
+    public readonly excludedVideoIds: ReadonlySet<string> = new Set(),
   ) {}
 
   get isTimeExhausted(): boolean {

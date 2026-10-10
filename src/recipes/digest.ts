@@ -1,5 +1,6 @@
 import { sanitizeUntrusted } from '../common/untrusted-text';
 import { checkTime, HealthGoal, matchGoals } from '../meal-plan/profile-fit';
+import { NutritionBasis, nutritionFacts } from '../nutrition/nutrition-facts';
 import { VideoAnalysis } from '../videos/analyzers/analysis.schema';
 import { byWeight, formatIngredient, isUnclear } from './ingredient-format';
 
@@ -21,12 +22,19 @@ export interface VideoDigest {
   keyIngredients: string[];
   lowConfidenceIngredients: string[];
   restrictionTags: string[];
-  /** Model estimates, not measured nutrients. */
-  estimatedSignals: string[];
+  /** Labels such as high-protein; see nutritionBasis for where they come from. */
+  nutritionSignals: string[];
+  /** nutrients: computed from USDA data; model: Gemini estimates; none: not known. */
+  nutritionBasis: NutritionBasis;
+  /** USDA-based estimate per serving, when at least 70% of the recipe resolved. */
+  nutrientsPerServing?: { kcal: number; protein: number; carbs: number; fiber: number; sodium: number };
   matchedGoals: string[];
   labelCheck: string[];
   allergySafety: { status: 'safe' | 'uncertain' | 'unsafe'; notes: string };
   fitsTime: boolean | null;
+  /** From the user's meal log: avoid 2 or lower, bring back 4-5 now and then. */
+  userRating?: number;
+  cookedCount?: number;
   score?: number;
 }
 
@@ -35,6 +43,7 @@ export interface DigestContext {
   trusted: boolean;
   maxCookMinutes?: number;
   healthGoals?: HealthGoal[];
+  feedback?: { userRating?: number; cookedCount: number };
   score?: number;
 }
 
@@ -47,6 +56,8 @@ export interface DigestContext {
 export function buildDigest(analysis: VideoAnalysis, ctx: DigestContext): VideoDigest {
   const clean = (s: string | undefined, max: number) => sanitizeUntrusted(s, max);
   const ordered = byWeight(analysis.ingredients ?? []);
+  const facts = nutritionFacts(analysis);
+  const n = facts.perServing;
 
   const digest: VideoDigest = {
     videoId: analysis.videoId,
@@ -62,12 +73,16 @@ export function buildDigest(analysis: VideoAnalysis, ctx: DigestContext): VideoD
     coverage: analysis.coverage,
     keyIngredients: ordered.filter((i) => !isUnclear(i)).slice(0, 10).map(formatIngredient),
     lowConfidenceIngredients: ordered.filter(isUnclear).slice(0, 5).map(formatIngredient),
-    restrictionTags: analysis.restrictionTags ?? [],
-    estimatedSignals: analysis.nutritionSignals ?? [],
+    restrictionTags: facts.tags,
+    nutritionSignals: facts.signals,
+    nutritionBasis: facts.basis,
+    ...(n ? { nutrientsPerServing: { kcal: n.kcal, protein: n.protein, carbs: n.carbs, fiber: n.fiber, sodium: n.sodium } } : {}),
     matchedGoals: matchGoals(analysis, ctx.healthGoals).matched,
     labelCheck: (analysis.labelCheck ?? []).slice(0, 5).map((l) => clean(l, 40)),
     allergySafety: { status: ctx.verdict.status, notes: clean(ctx.verdict.notes, 300) },
     fitsTime: checkTime(analysis, ctx.maxCookMinutes).fitsTime,
+    ...(ctx.feedback?.userRating !== undefined ? { userRating: ctx.feedback.userRating } : {}),
+    ...(ctx.feedback ? { cookedCount: ctx.feedback.cookedCount } : {}),
     ...(ctx.score !== undefined ? { score: ctx.score } : {}),
   };
   return shrinkToFit(digest);

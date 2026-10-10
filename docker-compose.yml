@@ -1,0 +1,19 @@
+# Offline Postgres for local development and the db test suite:
+#   docker compose up -d postgres
+#   DATABASE_URL=postgres://mealpilot:mealpilot@localhost:5432/mealpilot
+#   TEST_DATABASE_URL=postgres://mealpilot:mealpilot@localhost:5432/mealpilot_test
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: mealpilot
+      POSTGRES_PASSWORD: mealpilot
+      POSTGRES_DB: mealpilot
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker/postgres-init:/docker-entrypoint-initdb.d:ro
+      - mealpilot-pg:/var/lib/postgresql/data
+
+volumes:
+  mealpilot-pg:

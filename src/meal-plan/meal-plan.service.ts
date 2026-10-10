@@ -12,10 +12,11 @@ import {
 } from './dto/meal-plan-response.dto';
 import { MealPlanRequestDto } from './dto/meal-plan-request.dto';
 import { VideoAnalysis } from '../videos/analyzers/analysis.schema';
-import { TranscriptCacheService } from '../videos/transcript-cache.service';
+import { loadSeedVideos } from '../videos/seed-videos';
 import { VideoAnalysisService } from '../videos/video-analysis.service';
 import { selectRanked } from '../recipes/ranking';
-import { normalizeRestriction } from '../recipes/restrictions';
+import { normalizeRestriction, recipeTags } from '../recipes/restrictions';
+import { nutritionNote } from '../nutrition/nutrition-note';
 import { TrustedChannelsService } from '../youtube/trusted-channels.service';
 import { buildRecommendation } from './recommendation.builder';
 import { buildShoppingList } from '../shopping/shopping-list';
@@ -25,6 +26,8 @@ import {
   mapToCanonicalAllergens,
 } from '../videos/allergy.util';
 import { checkTime, matchGoals } from './profile-fit';
+import { PlanningOptions } from './planning-options';
+import { isExcludedByRating } from '../users/feedback';
 
 type SafetyVerdict = { status: 'safe' | 'uncertain' | 'unsafe'; notes: string };
 
@@ -50,14 +53,14 @@ const KNOWN_RESTRICTION_TAGS = [
 @Injectable()
 export class MealPlanService {
   constructor(
-    private readonly cache: TranscriptCacheService,
     private readonly analysis: VideoAnalysisService,
     private readonly config: AppConfigService,
     private readonly trustedChannels: TrustedChannelsService,
   ) {}
 
-  async buildPlan(dto: MealPlanRequestDto): Promise<MealPlanResponseDto> {
-    const candidates = await this.resolveCandidates();
+  async buildPlan(dto: MealPlanRequestDto, options: PlanningOptions = {}): Promise<MealPlanResponseDto> {
+    const skip = new Set(options.excludeVideoIds ?? []);
+    const candidates = (await this.resolveCandidates()).filter((c) => !skip.has(c.videoId));
     const min = dto.minResults ?? 1;
     const max = dto.maxResults ?? 5;
     if (max < min) {
@@ -110,6 +113,11 @@ export class MealPlanService {
           continue;
         }
 
+        if (isExcludedByRating(options.feedback, c.videoId)) {
+          excluded.push(excludedVideo(c.videoId, analyzed.title, 'rated_low', 'you rated this recipe 1 out of 5.'));
+          continue;
+        }
+
         const verdict = this.evaluateAllergySafety(analyzed, allergies);
         if (verdict.status !== 'safe') {
           excluded.push(excludedForSafety(c.videoId, analyzed.title, verdict));
@@ -129,7 +137,13 @@ export class MealPlanService {
     const isTrusted = (id: string | undefined) => this.trustedChannels.isTrusted(id);
     const ranked = selectRanked(
       eligible.map((e) => e.analysis),
-      { restrictions: dto.restrictions, healthGoals: dto.healthGoals, maxCookMinutes: dto.maxCookMinutes, isTrusted },
+      {
+        restrictions: dto.restrictions,
+        healthGoals: dto.healthGoals,
+        maxCookMinutes: dto.maxCookMinutes,
+        isTrusted,
+        feedback: options.feedback,
+      },
       max,
     );
 
@@ -181,7 +195,7 @@ export class MealPlanService {
   }
 
   private async resolveCandidates(): Promise<Candidate[]> {
-    return this.cache.loadSeed().map((s) => ({
+    return loadSeedVideos().map((s) => ({
       videoId: s.videoId,
       title: s.title,
       channel: s.channel,
@@ -332,16 +346,12 @@ export class MealPlanService {
   }
 
   private matchTags(
-    analyzed: { restrictionTags: string[]; nutritionSignals: string[] },
+    analyzed: VideoAnalysis,
     restrictions: string[],
     healthText: string,
   ): string[] {
     const tags = new Set<string>();
-    const known = new Set(
-      [...analyzed.restrictionTags, ...analyzed.nutritionSignals].map(
-        normalizeRestriction,
-      ),
-    );
+    const known = new Set(recipeTags(analyzed).map(normalizeRestriction));
 
     for (const r of restrictions) {
       if (known.has(r)) {
@@ -392,12 +402,7 @@ export class MealPlanService {
     return bits.join(' ');
   }
 
-  private healthNotes(
-    analyzed: { nutritionSignals: string[] },
-    dto: MealPlanRequestDto,
-  ): string {
-    const signals =
-      analyzed.nutritionSignals.join(', ') || 'no nutrition signals extracted';
-    return `Estimated signals (model, not measured): ${signals}. Profile: ${dto.healthProfile ?? 'not provided'}; BP: ${dto.bloodPressure ?? 'not provided'}. Informational only — not medical advice.`;
+  private healthNotes(analyzed: VideoAnalysis, dto: MealPlanRequestDto): string {
+    return `${nutritionNote(analyzed)} Profile: ${dto.healthProfile ?? 'not provided'}; BP: ${dto.bloodPressure ?? 'not provided'}. Informational only — not medical advice.`;
   }
 }

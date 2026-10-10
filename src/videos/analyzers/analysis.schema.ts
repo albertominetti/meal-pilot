@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { NutritionResult } from '../../nutrition/nutrition';
 import { CANONICAL_ALLERGENS } from '../allergy.util';
 
 export const ANALYSIS_SCHEMA_VERSION = 3;
@@ -53,6 +54,7 @@ export const KNOWN_NUTRITION_SIGNALS = [
   'low-carb',
   'high-protein',
   'high-fiber',
+  'low-sugar',
   'quick-prep',
   'whole-foods',
 ] as const;
@@ -134,8 +136,17 @@ export interface VideoAnalysis extends AnalysisOutput {
   schemaVersion: number;
   /** Packaged ingredients whose label the user should check for allergens. */
   labelCheck: string[];
-  /** nutritionSignals are model estimates until computed from a food database. */
+  /**
+   * nutritionSignals are Gemini estimates kept from analyses made before
+   * nutrients were computed; Gemini no longer produces them. Use
+   * nutritionFacts() rather than reading either field directly.
+   */
   nutritionSignalsSource: 'model';
+  /**
+   * Computed from USDA FoodData Central after analysis. Undefined when not
+   * computed (FDC disabled), null when FDC was unavailable this time.
+   */
+  nutrition?: NutritionResult | null;
   // Computed helpers for backwards-compatibility:
   transcript: string;
   detectedAllergens: string[];
@@ -247,14 +258,6 @@ export const ANALYSIS_JSON_SCHEMA: Record<string, unknown> = {
       type: 'array',
       items: { type: 'string' },
       description: 'Concentrated sodium sources (e.g. soy sauce, bullion, canned broth).',
-    },
-    nutritionSignals: {
-      type: 'array',
-      items: {
-        type: 'string',
-        enum: KNOWN_NUTRITION_SIGNALS as unknown as string[],
-      },
-      description: 'Estimated nutrition signals based on recipe ingredients.',
     },
     restrictionTags: {
       type: 'array',

@@ -1,3 +1,4 @@
+import { FactsInput, nutritionFacts } from '../nutrition/nutrition-facts';
 import { VideoAnalysis } from '../videos/analyzers/analysis.schema';
 
 export const HEALTH_GOALS = [
@@ -14,17 +15,16 @@ export const BUDGETS = ['low', 'medium', 'high'] as const;
 export type Budget = (typeof BUDGETS)[number];
 
 /**
- * Which analysis signals or tags count as evidence for a goal. Until
- * nutrients are computed from a food database these are model estimates.
- * Goals with no entry cannot be verified from the analysis yet.
+ * Which nutrition label counts as evidence for a goal. weight-loss has none:
+ * calories alone can't say whether a meal suits a weight-loss plan.
  */
-const GOAL_EVIDENCE: Record<HealthGoal, string[]> = {
-  'high-protein': ['high-protein'],
-  'low-sodium': ['low-sodium'],
-  'high-fiber': ['high-fiber'],
-  'low-carb': ['low-carb'],
-  'low-sugar': [],
-  'weight-loss': [],
+const GOAL_EVIDENCE: Record<HealthGoal, string | null> = {
+  'high-protein': 'high-protein',
+  'low-sodium': 'low-sodium',
+  'high-fiber': 'high-fiber',
+  'low-carb': 'low-carb',
+  'low-sugar': 'low-sugar',
+  'weight-loss': null,
 };
 
 export interface GoalMatch {
@@ -34,20 +34,20 @@ export interface GoalMatch {
   unverifiable: HealthGoal[];
 }
 
-export function matchGoals(
-  analysis: Pick<VideoAnalysis, 'nutritionSignals' | 'restrictionTags'>,
-  goals: readonly HealthGoal[] | undefined,
-): GoalMatch {
-  const evidence = new Set<string>([
-    ...(analysis.nutritionSignals ?? []),
-    ...(analysis.restrictionTags ?? []),
-  ]);
+/**
+ * Matches goals against computed nutrients when the recipe has them,
+ * otherwise against the model's labels. A goal whose nutrient wasn't
+ * reported for enough of the recipe is unverifiable, never "missing".
+ */
+export function matchGoals(analysis: Partial<FactsInput>, goals: readonly HealthGoal[] | undefined): GoalMatch {
+  const facts = nutritionFacts(analysis as FactsInput);
+  const evidence = new Set<string>([...facts.signals, ...facts.tags]);
   const result: GoalMatch = { matched: [], missing: [], unverifiable: [] };
   for (const goal of goals ?? []) {
-    const signals = GOAL_EVIDENCE[goal];
-    if (signals.length === 0) result.unverifiable.push(goal);
-    else if (signals.some((s) => evidence.has(s))) result.matched.push(goal);
-    else result.missing.push(goal);
+    const signal = GOAL_EVIDENCE[goal];
+    if (signal && evidence.has(signal)) result.matched.push(goal);
+    else if (signal && facts.covers(signal)) result.missing.push(goal);
+    else result.unverifiable.push(goal);
   }
   return result;
 }

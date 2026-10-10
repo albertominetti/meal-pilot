@@ -1,15 +1,15 @@
-import { Controller, Delete, Get, Param } from '@nestjs/common';
+import { Controller, Delete, Get, Inject, Param } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { TranscriptCacheService } from './transcript-cache.service';
+import { ANALYSIS_STORE, AnalysisStore } from './analysis-store';
 
 @ApiTags('videos')
 @Controller('videos')
 export class VideosController {
-  constructor(private readonly cache: TranscriptCacheService) {}
+  constructor(@Inject(ANALYSIS_STORE) private readonly cache: AnalysisStore) {}
 
   @Get('cache')
-  list() {
-    const items = this.cache.list();
+  async list() {
+    const items = await this.cache.list();
     return { count: items.length, items };
   }
 

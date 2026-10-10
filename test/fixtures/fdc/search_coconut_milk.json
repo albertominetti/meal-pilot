@@ -1,0 +1,219 @@
+{
+ "foods": [
+  {
+   "fdcId": 174116,
+   "description": "Beverages, coconut milk, sweetened, fortified with calcium, vitamins A, B12, D2",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 2.08
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 2.92
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 31.0
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 2.5
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 0.21
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 0.0
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 19.0
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 2.08
+    }
+   ]
+  },
+  {
+   "fdcId": 168781,
+   "description": "Puddings, coconut cream, dry mix, instant, prepared with 2% milk",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 0.1
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 2.3
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 19.2
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 107
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 1.37
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 2.9
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 246
+    }
+   ]
+  },
+  {
+   "fdcId": 168827,
+   "description": "Puddings, coconut cream, dry mix, instant, prepared with whole milk",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 0.1
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 3.5
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 19.1
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 117
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 2.1
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 246
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 2.9
+    }
+   ]
+  },
+  {
+   "fdcId": 169615,
+   "description": "Puddings, coconut cream, dry mix, regular, prepared with 2% milk",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 3.1
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 1.8
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 163
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 2.5
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 17.8
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 104
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 0.2
+    }
+   ]
+  },
+  {
+   "fdcId": 168829,
+   "description": "Puddings, coconut cream, dry mix, regular, prepared with whole milk",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 0.2
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 3.8
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 17.7
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 114
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 2.57
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 162
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 3.0
+    }
+   ]
+  }
+ ]
+}

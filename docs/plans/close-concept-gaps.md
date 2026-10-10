@@ -1,9 +1,11 @@
 # Plan: Close the gaps between the MealPilot concept and the implementation
 
-Status: Phases 1–4 implemented; Phases 5–7 open · Author: Fabian (drafted with Claude) · Date: 2026-10-10
+Status: Phases 1–7 implemented · Author: Fabian (drafted with Claude) · Date: 2026-10-10
 Builds on: [agentic-gemini.md](agentic-gemini.md) (Phases 1–4 are implemented)
 
-> **Implementation notes (2026-10-10).** Phases 1–4 are implemented. Phase 3 landed before Phase 2 because Phase 2's `fitsTime` and the `submit_plan` time test need `maxCookMinutes`. Still open:
+> **Implementation notes (2026-10-10).** Phases 5–7 are implemented too. Deviations: nutrients are computed on read, so the analysis schema stays v3 and cached analyses need no new Gemini call; FDC's top hit is scored rather than taken as is; allergies from a stored profile and inline fields are merged, never overridden; `GET /api/plans/:id` was added for the app. `data/fdc-overrides.json` ships empty (coconut milk and vegetable stock need verified ids). The operator steps for Neon are in [development.md](../development.md#deployment).
+>
+> Phases 1–4 are implemented. Phase 3 landed before Phase 2 because Phase 2's `fitsTime` and the `submit_plan` time test need `maxCookMinutes`. Still open:
 > - `eval/videos.labeled.json` needs 10 hand-labelled real videos. The runner and the example set on offline fixtures exist.
 > - `data/trusted-channels.json` ships empty until the team adds reviewed channels.
 > - The deterministic `/api/meal-plan` now analyses every seed candidate before ranking. That is cheap with the cache, but every new seed video costs one Gemini call.

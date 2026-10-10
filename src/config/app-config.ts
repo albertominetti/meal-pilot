@@ -13,6 +13,15 @@ export const configSchema = z.object({
   ANALYSIS_CONCURRENCY: z.coerce.number().int().positive().default(3),
   MEALPILOT_CACHE_DIR: z.string().default(''),
   TRUSTED_CHANNELS_FILE: z.string().default(''),
+  NODE_ENV: z.string().default('development'),
+  /** Pooled Neon URL (PgBouncer, transaction mode). Empty means file store. */
+  DATABASE_URL: z.string().default(''),
+  /** Direct Neon URL, only for migrations. Set it to migrate at startup. */
+  DATABASE_URL_DIRECT: z.string().default(''),
+  /** USDA FoodData Central key. Empty disables nutrient calculation. */
+  FDC_API_KEY: z.string().default(''),
+  /** Shared key the JJFit app sends in x-api-key for user-data endpoints. */
+  MEALPILOT_APP_KEY: z.string().default(''),
 });
 
 export type RawAppConfig = z.infer<typeof configSchema>;
@@ -43,6 +52,17 @@ export function validateConfig(config: Record<string, unknown>): AppConfig {
     effectiveLlmMode = 'mock';
   } else {
     effectiveLlmMode = values.GEMINI_API_KEY ? 'live' : 'mock';
+  }
+
+  // Production must never fall back silently to Render's ephemeral disk.
+  if (
+    effectiveLlmMode === 'live' &&
+    values.NODE_ENV === 'production' &&
+    !values.DATABASE_URL
+  ) {
+    throw new Error(
+      'DATABASE_URL is required in live mode with NODE_ENV=production',
+    );
   }
 
   return {

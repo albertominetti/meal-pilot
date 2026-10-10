@@ -1,0 +1,224 @@
+{
+ "foods": [
+  {
+   "fdcId": 1104647,
+   "description": "Garlic, raw",
+   "dataType": "Foundation",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 2.7
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.38
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 6.62
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 28.2
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 143
+    }
+   ]
+  },
+  {
+   "fdcId": 169230,
+   "description": "Garlic, raw",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 33.1
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 149
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 1.0
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.089
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 2.1
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 17.0
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 6.36
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.5
+    }
+   ]
+  },
+  {
+   "fdcId": 167939,
+   "description": "Garlic bread, frozen",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 544
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 5.28
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 8.36
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 16.6
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 41.7
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 350
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 3.69
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 2.5
+    }
+   ]
+  },
+  {
+   "fdcId": 171325,
+   "description": "Spices, garlic powder",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 9.0
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 60.0
+    },
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 16.6
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 0.249
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 2.43
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 0.73
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 72.7
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 331
+    }
+   ]
+  },
+  {
+   "fdcId": 170789,
+   "description": "PIZZA HUT, breadstick, parmesan garlic",
+   "dataType": "SR Legacy",
+   "foodNutrients": [
+    {
+     "nutrientNumber": "203",
+     "unitName": "G",
+     "value": 12.2
+    },
+    {
+     "nutrientNumber": "291",
+     "unitName": "G",
+     "value": 2.4
+    },
+    {
+     "nutrientNumber": "307",
+     "unitName": "MG",
+     "value": 539
+    },
+    {
+     "nutrientNumber": "606",
+     "unitName": "G",
+     "value": 2.97
+    },
+    {
+     "nutrientNumber": "204",
+     "unitName": "G",
+     "value": 12.9
+    },
+    {
+     "nutrientNumber": "205",
+     "unitName": "G",
+     "value": 44.5
+    },
+    {
+     "nutrientNumber": "208",
+     "unitName": "KCAL",
+     "value": 343
+    },
+    {
+     "nutrientNumber": "269",
+     "unitName": "G",
+     "value": 1.11
+    }
+   ]
+  }
+ ]
+}

@@ -1,4 +1,7 @@
 import { checkTime, HEALTH_GOALS, HealthGoal, matchGoals } from '../meal-plan/profile-fit';
+import { NUTRIENT_KEYS } from '../nutrition/fdc-food';
+import { nutritionFacts } from '../nutrition/nutrition-facts';
+import { NutrientTotals } from '../nutrition/nutrition';
 import { normalizeToken } from '../videos/allergy.util';
 import { VideoAnalysis } from '../videos/analyzers/analysis.schema';
 import { normalizeIngredientName } from './normalize';
@@ -27,6 +30,8 @@ export interface PlanBalance {
   restrictionGaps: Array<{ restriction: string; videoIds: string[] }>;
   /** Requested goals no selected recipe covers. */
   uncoveredGoals: string[];
+  /** Sum of one serving of each recipe with USDA-based nutrients. */
+  nutrients: { recipesWithNutrients: number; perServingSum: NutrientTotals | null };
   warnings: string[];
 }
 
@@ -103,6 +108,18 @@ export function checkPlanBalance(analyses: VideoAnalysis[], request: PlanBalance
   );
   if (uncoveredGoals.length) warnings.push(`No recipe covers goals: ${uncoveredGoals.join(', ')}.`);
 
+  const withNutrients = analyses.map((a) => nutritionFacts(a).perServing).filter((n): n is NutrientTotals => !!n);
+  const perServingSum = withNutrients.length
+    ? (Object.fromEntries(
+        NUTRIENT_KEYS.map((k) => [k, Math.round(withNutrients.reduce((s, n) => s + n[k], 0) * 10) / 10]),
+      ) as NutrientTotals)
+    : null;
+  if (withNutrients.length < analyses.length && goals.length) {
+    warnings.push(
+      `${analyses.length - withNutrients.length} of ${analyses.length} recipes have no reliable nutrient estimate; goals are checked on the rest.`,
+    );
+  }
+
   return {
     recipes: analyses.length,
     proteins,
@@ -116,6 +133,7 @@ export function checkPlanBalance(analyses: VideoAnalysis[], request: PlanBalance
     sharedIngredients: { count: shared.length, names: shared.slice(0, 15) },
     restrictionGaps: [...restrictionGaps].map(([restriction, videoIds]) => ({ restriction, videoIds })),
     uncoveredGoals,
+    nutrients: { recipesWithNutrients: withNutrients.length, perServingSum },
     warnings,
   };
 }
