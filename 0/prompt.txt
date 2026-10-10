@@ -1,0 +1,25 @@
+avoid logging the heatlh check. pretty print in the logs the json
+
+---
+
+commit and push
+
+---
+
+Try Again
+
+---
+
+Try Again
+
+---
+
+Do not run the tests!
+
+---
+
+Do not run the tests!
+
+---
+
+Try Again
