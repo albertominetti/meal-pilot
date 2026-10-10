@@ -1,0 +1,5 @@
+use @docs/plans/agentic-gemini.md to improve the appilcation
+
+---
+
+use @docs/plans/agentic-gemini.md to improve the appilcation
