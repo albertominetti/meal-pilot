@@ -26,6 +26,11 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     const http = context.switchToHttp();
     const request = http.getRequest<HttpRequest>();
     const response = http.getResponse<Response>();
+
+    if (this.isHealthCheck(request)) {
+      return next.handle();
+    }
+
     const startedAt = Date.now();
 
     return next.handle().pipe(
@@ -68,6 +73,10 @@ export class RequestLoggingInterceptor implements NestInterceptor {
       ...(error ? { error } : {}),
     };
 
-    this.logger[error ? 'error' : 'log'](JSON.stringify(entry));
+    this.logger[error ? 'error' : 'log'](JSON.stringify(entry, null, 2));
+  }
+
+  private isHealthCheck(request: HttpRequest): boolean {
+    return (request.originalUrl || request.url).split('?')[0] === '/health';
   }
 }

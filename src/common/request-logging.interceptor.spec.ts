@@ -47,7 +47,19 @@ describe('RequestLoggingInterceptor', () => {
       statusCode: 201,
       durationMs: expect.any(Number),
     });
+    expect(line).toContain('\n  "method": "POST"');
     expect(line).not.toMatch(/peanuts|bloodPressure|allergies|high/);
+  });
+
+  it('does not log health checks', async () => {
+    const next: CallHandler = { handle: () => of({ status: 'ok' }) };
+
+    await lastValueFrom(
+      new RequestLoggingInterceptor().intercept(contextFor('/health?full=true'), next),
+    );
+
+    expect(log).not.toHaveBeenCalled();
+    expect(error).not.toHaveBeenCalled();
   });
 
   it('logs the error status and name without the message', async () => {
