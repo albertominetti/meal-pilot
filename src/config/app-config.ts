@@ -20,8 +20,6 @@ export const configSchema = z.object({
   DATABASE_URL_DIRECT: z.string().default(''),
   /** USDA FoodData Central key. Empty disables nutrient calculation. */
   FDC_API_KEY: z.string().default(''),
-  /** Shared key the JJFit app sends in x-api-key for user-data endpoints. */
-  MEALPILOT_APP_KEY: z.string().default(''),
 });
 
 export type RawAppConfig = z.infer<typeof configSchema>;

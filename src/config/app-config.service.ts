@@ -70,10 +70,6 @@ export class AppConfigService {
     return this.config.get('FDC_API_KEY', { infer: true });
   }
 
-  get appKey(): string {
-    return this.config.get('MEALPILOT_APP_KEY', { infer: true });
-  }
-
   get effectiveLlmMode(): 'live' | 'mock' {
     return this.config.get('effectiveLlmMode', { infer: true });
   }

@@ -291,4 +291,4 @@ A `render.yaml` blueprint is included:
 - **Build**: `npm ci && npm run build`
 - **Start**: `npm start`
 - **Health Check**: `GET /api/health`
-- **Environment**: Add `GEMINI_API_KEY` and optionally `YOUTUBE_API_KEY` in the Render environment variables dashboard. For persistent storage, nutrients and user data also set `DATABASE_URL`, `DATABASE_URL_DIRECT`, `FDC_API_KEY` and `MEALPILOT_APP_KEY`; see [docs/development.md](docs/development.md#deployment).
+- **Environment**: Add `GEMINI_API_KEY` and optionally `YOUTUBE_API_KEY` in the Render environment variables dashboard. For persistent storage, nutrients and user data also set `DATABASE_URL`, `DATABASE_URL_DIRECT`, and `FDC_API_KEY`; see [docs/development.md](docs/development.md#deployment).

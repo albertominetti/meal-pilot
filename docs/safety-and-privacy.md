@@ -55,6 +55,6 @@ Video titles, descriptions, ingredient text and everything else extracted from a
   - a profile is stored only with `consent: true`; the time of consent is recorded
   - `DELETE /api/users/:userId/profile` erases the profile, every plan and the meal log in one transaction
   - plans without a user are deleted after 30 days
-  - user-data endpoints need `x-api-key`; without `MEALPILOT_APP_KEY` they are refused in production
+  - **the user-data endpoints have no authentication**: anyone who knows a `userId` can read, change or delete that user's profile, plans and meal log. Add authentication before real users arrive.
   - production refuses to boot without `DATABASE_URL`, so user data never lands on Render's disk
 - Sub-processors: Google (Gemini), Neon (Postgres, eu-central-1). Sign Neon's DPA before real users arrive.

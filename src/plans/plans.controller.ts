@@ -1,13 +1,10 @@
-import { Body, Controller, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AppKeyGuard } from '../common/app-key.guard';
+import { Body, Controller, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CheckedItemsDto, SwapMealDto } from '../users/dto/user-data.dto';
 import { PlansService } from './plans.service';
 
 @ApiTags('plans')
-@ApiHeader({ name: 'x-api-key', required: true })
 @Controller('plans/:id')
-@UseGuards(AppKeyGuard)
 export class PlansController {
   constructor(private readonly plans: PlansService) {}
 

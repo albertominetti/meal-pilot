@@ -20,7 +20,6 @@ MealPilot is a NestJS JSON API. A client (the JJFit app) sends a health profile,
 | Storage | Postgres (Neon) when `DATABASE_URL` is set, JSON files otherwise | `src/db/`, `*.store.ts` |
 | Profiles and meal log | Stored profiles with consent, ratings that steer planning, erasure | `src/users/` |
 | Saved plans | Every plan gets a `planId`; checkbox state; swap one meal | `src/plans/` |
-| App key | `x-api-key` guard for user data | `src/common/app-key.guard.ts` |
 
 ## Video analysis (schema v3)
 
@@ -133,7 +132,7 @@ Nutrients are derived data, so cached analyses get them on read without another 
 
 ## Profiles, saved plans and the meal log
 
-All of these need the `x-api-key` header (`MEALPILOT_APP_KEY`); the JJFit app owns identity and sends an opaque `userId`.
+The JJFit app owns identity and sends an opaque `userId`. These endpoints have no authentication yet: anyone who knows a `userId` can use them (see [safety-and-privacy.md](safety-and-privacy.md#privacy)).
 - `PUT /api/users/:userId/profile` stores the profile fields of the meal-plan request; `consent: true` is required and its time recorded. `GET` returns it; `DELETE` erases the profile, every plan and the meal log.
 - `POST /api/meal-plan` and `/api/meal-plan/agent` accept `userId` in place of a profile. Inline fields override the stored ones, except allergies, which are merged. An unknown `userId` is a 404, never an empty profile.
 - Every meal-plan response is saved and returns `planId`. `GET /api/plans/:id` reads it, `PATCH /api/plans/:id/checked` stores ticked shopping-list keys.

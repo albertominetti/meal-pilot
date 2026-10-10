@@ -7,7 +7,7 @@ export const USER_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
 export class MealPlanRequestDto extends ProfileFieldsDto {
   @ApiPropertyOptional({
     description:
-      'Opaque JJFit user id. Loads the stored profile; profile fields sent inline override it. Requires the x-api-key header.',
+      'Opaque JJFit user id. Loads the stored profile; profile fields sent inline override it.',
     example: 'u_8f2c41',
   })
   @IsOptional()

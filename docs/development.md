@@ -71,8 +71,8 @@ With a Gemini key it runs live; it is not part of CI. `eval/videos.labeled.json`
 
 `render.yaml` deploys a single web service in Frankfurt. Storage is Neon Postgres (eu-central-1):
 1. In the Neon console, create project `meal-pilot` with branches `main` and `dev`.
-2. In Render, set `DATABASE_URL` (pooled host) and `DATABASE_URL_DIRECT` (direct host), both with `sslmode=require`, plus `MEALPILOT_APP_KEY` and `FDC_API_KEY`. The free plan has no pre-deploy step, so the app migrates at startup over the direct URL.
+2. In Render, set `DATABASE_URL` (pooled host) and `DATABASE_URL_DIRECT` (direct host), both with `sslmode=require`, plus `FDC_API_KEY`. The free plan has no pre-deploy step, so the app migrates at startup over the direct URL.
 3. Load the old file cache once if wanted: `DATABASE_URL=... npm run db:import-cache`.
-4. Then set `NODE_ENV=production` as a runtime variable. From then on live mode refuses to boot without `DATABASE_URL`, and user-data endpoints refuse requests without `MEALPILOT_APP_KEY`. `render.yaml` doesn't set it, because `npm ci` would then skip the dev dependencies the build needs.
+4. Then set `NODE_ENV=production` as a runtime variable. From then on live mode refuses to boot without `DATABASE_URL`. `render.yaml` doesn't set it, because `npm ci` would then skip the dev dependencies the build needs.
 
 Without `DATABASE_URL` the app keeps working on JSON files, which Render's ephemeral disk loses on every restart.

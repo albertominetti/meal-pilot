@@ -1,14 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
-import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AppKeyGuard } from '../common/app-key.guard';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserIdPipe } from './user-id.pipe';
 import { MealLogDto, ProfileDto } from './dto/user-data.dto';
 import { ProfilesService } from './profiles.service';
 
 @ApiTags('users')
-@ApiHeader({ name: 'x-api-key', required: true })
 @Controller('users/:userId')
-@UseGuards(AppKeyGuard)
 export class UsersController {
   constructor(private readonly profiles: ProfilesService) {}
 

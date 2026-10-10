@@ -32,8 +32,6 @@ services:
         sync: false
       - key: FDC_API_KEY
         sync: false
-      - key: MEALPILOT_APP_KEY
-        sync: false
       # S3-compatible storage (e.g. Neon S3). Values set in Render dashboard; sync: false keeps them out of the repo.
       - key: AWS_ENDPOINT_URL_S3
         sync: false
