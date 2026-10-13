@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="920" viewBox="0 0 1400 920" font-family="Inter, Arial, sans-serif">
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L0,6 L9,3 z" fill="#475569"/>
+  </marker>
+  <style>
+    .title { font-size:26px; font-weight:800; fill:#0f172a; }
+    .sub { font-size:14px; fill:#64748b; }
+    .h { font-size:13px; font-weight:800; }
+    .t { font-size:12px; }
+    .small { font-size:11px; fill:#475569; }
+  </style>
+</defs>
+<rect width="1400" height="920" fill="#f8fafc"/>
+
+<text x="40" y="45" class="title">MealPilot — Diagramma Componenti NestJS</text>
+<text x="40" y="68" class="sub">Client - AppModule (controller - service - tool/store) - provider esterni</text>
+
+<rect x="40" y="90" width="400" height="90" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+<text x="60" y="117" class="h" fill="#1e3a8a">CLIENTS</text>
+<text x="60" y="138" class="t" fill="#1e3a8a">JJFit App (iOS/Android)</text>
+<text x="60" y="156" class="t" fill="#1e3a8a">Swagger UI /api/docs - Landing /</text>
+
+<rect x="470" y="90" width="420" height="90" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+<text x="490" y="117" class="h" fill="#92400e">BOOTSTRAP — main.ts</text>
+<text x="490" y="138" class="t" fill="#92400e">globalPrefix /api - ValidationPipe - CORS</text>
+<text x="490" y="156" class="t" fill="#92400e">Swagger setup - static /app/</text>
+
+<rect x="920" y="90" width="440" height="90" rx="12" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+<text x="940" y="117" class="h" fill="#5b21b6">CORE GLOBALE (@Global)</text>
+<text x="940" y="138" class="t" fill="#5b21b6">AppConfigModule — Zod typed config</text>
+<text x="940" y="156" class="t" fill="#5b21b6">DbModule — DatabaseService pg/Neon</text>
+
+<rect x="40" y="200" width="1320" height="530" rx="16" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+<text x="60" y="230" class="h" fill="#0f172a">AppModule — src/app.module.ts</text>
+<text x="60" y="248" class="small">imports: Config - Db - Llm - Videos - YouTube - MealPlan - Agent - Shopping - Users - Plans + RequestLoggingInterceptor</text>
+
+<rect x="60" y="265" width="300" height="220" rx="12" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+<text x="75" y="290" class="h" fill="#065f46">CONTROLLERS (HTTP)</text>
+<text x="75" y="312" class="t">HealthController</text>
+<text x="75" y="330" class="small">GET /api/health</text>
+<text x="75" y="352" class="t">MealPlanController</text>
+<text x="75" y="370" class="small">POST /api/meal-plan</text>
+<text x="75" y="392" class="t">AgentController</text>
+<text x="75" y="410" class="small">POST /api/meal-plan/agent</text>
+<text x="75" y="432" class="t">Plans - Videos - Shopping - Users</text>
+<text x="75" y="450" class="small">CRUD piani / cache / liste</text>
+
+<rect x="380" y="265" width="300" height="220" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+<text x="395" y="290" class="h" fill="#9a3412">ORCHESTRATORE</text>
+<text x="395" y="312" class="t">PlansModule + PlansService</text>
+<text x="395" y="332" class="small">createDeterministic()</text>
+<text x="395" y="348" class="small">createWithAgent(debug)</text>
+<text x="395" y="364" class="small">swap() cache-first - agent</text>
+<text x="395" y="380" class="small">checked state - save planId</text>
+<text x="395" y="410" class="t">ProfilesService</text>
+<text x="395" y="428" class="small">resolve() - merge allergies</text>
+<text x="395" y="460" class="small">USER_DATA_STORE Pg/File</text>
+
+<rect x="700" y="265" width="320" height="220" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+<text x="715" y="290" class="h" fill="#1e40af">PLANNER</text>
+<text x="715" y="312" class="t">AgentModule — AgentService loop</text>
+<text x="715" y="330" class="small">6 tools: search - analyze - check_fit</text>
+<text x="715" y="346" class="small">balance - submit - list_known</text>
+<text x="715" y="368" class="t">MealPlanModule — pipeline</text>
+<text x="715" y="386" class="small">evaluateAllergySafety EU-14</text>
+<text x="715" y="402" class="small">checkTime - selectRanked</text>
+<text x="715" y="424" class="t">FallbackPlanner (deterministico)</text>
+<text x="715" y="442" class="small">stesso ranking, se budget esaurito</text>
+
+<rect x="1040" y="265" width="300" height="220" rx="12" fill="#fdf2f8" stroke="#db2777" stroke-width="2"/>
+<text x="1055" y="290" class="h" fill="#9d174d">ANALISI E DATI</text>
+<text x="1055" y="312" class="t">VideosModule cache-first</text>
+<text x="1055" y="330" class="small">VIDEO_ANALYZER live/mock</text>
+<text x="1055" y="346" class="small">ANALYSIS_STORE Pg/File 30gg</text>
+<text x="1055" y="368" class="t">LlmModule LLM_CLIENT</text>
+<text x="1055" y="386" class="small">GenAI - Mock</text>
+<text x="1055" y="408" class="t">YouTube - Nutrition - Shopping</text>
+<text x="1055" y="426" class="small">quota + 24h cache - FDC - lista spesa</text>
+
+<line x1="360" y1="375" x2="380" y2="375" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="680" y1="375" x2="700" y2="375" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="1020" y1="375" x2="1040" y2="375" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+<rect x="40" y="750" width="250" height="110" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+<text x="60" y="778" class="h">Gemini API</text>
+<text x="60" y="798" class="small">gemini-3.8-flash</text>
+<text x="60" y="814" class="small">Interactions API</text>
+<text x="60" y="830" class="small">store:false (privacy)</text>
+
+<rect x="310" y="750" width="250" height="110" rx="12" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+<text x="330" y="778" class="h">YouTube Data v3</text>
+<text x="330" y="798" class="small">search.list + videos.list</text>
+<text x="330" y="814" class="small">quota tracker 9000/giorno</text>
+<text x="330" y="830" class="small">fallback seed json</text>
+
+<rect x="580" y="750" width="250" height="110" rx="12" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+<text x="600" y="778" class="h">Postgres (Neon)</text>
+<text x="600" y="798" class="small">plans - users - cache</text>
+<text x="600" y="814" class="small">Drizzle ORM + migrate</text>
+<text x="600" y="830" class="small">oppure File/Memory</text>
+
+<rect x="850" y="750" width="250" height="110" rx="12" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+<text x="870" y="778" class="h">File Cache</text>
+<text x="870" y="798" class="small">data/cache v3.json</text>
+<text x="870" y="814" class="small">TTL 30gg - seed videos</text>
+<text x="870" y="830" class="small">trusted-channels.json</text>
+
+<rect x="1120" y="750" width="240" height="110" rx="12" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+<text x="1140" y="778" class="h">USDA FDC</text>
+<text x="1140" y="798" class="small">nutrienti - grammi</text>
+<text x="1140" y="814" class="small">label matching</text>
+<text x="1140" y="830" class="small">HttpFdcClient</text>
+
+<line x1="300" y1="485" x2="300" y2="750" stroke="#475569" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+<line x1="700" y1="485" x2="700" y2="750" stroke="#475569" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+<line x1="950" y1="485" x2="950" y2="750" stroke="#475569" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+<line x1="1190" y1="485" x2="1190" y2="750" stroke="#475569" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+
+<text x="40" y="895" class="small">Flusso: Controller - PlansService - AgentService/MealPlanService - VideoAnalysisService (cache) - LLM/YouTube - Safety EU-14 - Ranking - ShoppingList.</text>
+</svg>
